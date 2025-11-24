@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Production Form</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
       max-width: 500px;
     }
-    input, textarea, button {
+    input, textarea, select, button {
       width: 100%;
       margin: 8px 0;
       padding: 10px;
@@ -27,44 +28,86 @@
 </head>
 
 <body>
+
   <h2>Production Input Form</h2>
 
+  <!-- Product Dropdown -->
   <label>Product Produced</label>
-  <input type="text" id="productProduced">
+  <select id="productProduced"></select>
 
+  <!-- Production Date -->
   <label>Production Date</label>
   <input type="date" id="productionDate">
 
+  <!-- Quantity -->
   <label>Quantity</label>
   <input type="number" id="quantity">
 
+  <!-- Notes -->
   <label>Notes</label>
   <textarea id="notes"></textarea>
 
+  <!-- Submit Button -->
   <button onclick="submitForm()">Submit</button>
 
   <p id="status" style="margin-top: 20px; font-weight: bold;"></p>
 
+
 <script>
-function submitForm() {
-  const payload = {
-    productProduced: document.getElementById("productProduced").value,
-    productionDate: document.getElementById("productionDate").value,
-    quantity: document.getElementById("quantity").value,
-    notes: document.getElementById("notes").value
+
+  /* ---------------------------------------------------------
+     1️⃣ LOAD PRODUCT LIST FROM GOOGLE SHEET
+     ---------------------------------------------------------
+     - Fetch product list from Google Apps Script (doGet)
+     - Populate dropdown <select> with the list
+     --------------------------------------------------------- */
+  window.onload = function() {
+    const url = "https://script.google.com/macros/s/AKfycbz0NSLR-EHUn3Dy_k-mOYlMkfRm_M7g0Ib8KuwoSONz629Gi6vZxy5o8JNBxhBrQYmXwg/exec?action=getitem";
+
+    fetch(url)
+      .then(response => response.json())
+      .then(items => {
+        const dropdown = document.getElementById("productProduced");
+        dropdown.innerHTML = ""; // clear existing
+
+        items.forEach(item => {
+          const opt = document.createElement("option");
+          opt.value = item;
+          opt.textContent = item;
+          dropdown.appendChild(opt);
+        });
+      })
+      .catch(err => console.error("Error loading product list:", err));
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbz0NSLR-EHUn3Dy_k-mOYlMkfRm_M7g0Ib8KuwoSONz629Gi6vZxy5o8JNBxhBrQYmXwg/exec", {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
 
-  document.getElementById("status").innerText = "Submitted!";
-}
+
+  /* ---------------------------------------------------------
+     2️⃣ SUBMIT FORM DATA TO GOOGLE SHEETS (POST ➜ Apps Script)
+     ---------------------------------------------------------
+     - Collect values from fields
+     - Send payload via POST
+     - no-cors mode → form always "looks successful"
+     --------------------------------------------------------- */
+  function submitForm() {
+
+    const payload = {
+      productProduced: document.getElementById("productProduced").value,
+      productionDate: document.getElementById("productionDate").value,
+      quantity: document.getElementById("quantity").value,
+      notes: document.getElementById("notes").value
+    };
+
+    fetch("https://script.google.com/macros/s/AKfycbz0NSLR-EHUn3Dy_k-mOYlMkfRm_M7g0Ib8KuwoSONz629Gi6vZxy5o8JNBxhBrQYmXwg/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    document.getElementById("status").innerText = "Submitted!";
+  }
+
 </script>
 
 </body>
