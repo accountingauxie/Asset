@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Production Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      max-width: 500px;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Production Input Form</h2>
+
+  <label>Product Produced</label>
+  <input type="text" id="productProduced">
+
+  <label>Production Date</label>
+  <input type="date" id="productionDate">
+
+  <label>Quantity</label>
+  <input type="number" id="quantity">
+
+  <label>Notes</label>
+  <textarea id="notes"></textarea>
+
+  <button onclick="submitForm()">Submit</button>
+
+  <p id="status" style="margin-top: 20px; font-weight: bold;"></p>
+
+<script>
+function submitForm() {
+  const payload = {
+    productProduced: document.getElementById("productProduced").value,
+    productionDate: document.getElementById("productionDate").value,
+    quantity: document.getElementById("quantity").value,
+    notes: document.getElementById("notes").value
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbzlhPu60JRup3DNtSo7IejtGVL8liFETb8jOE4JvyONCGkbRi14OHx6yYjtmtlIKRu5_A/exec", {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  document.getElementById("status").innerText = "Submitted!";
+}
+</script>
+
+</body>
+</html>
