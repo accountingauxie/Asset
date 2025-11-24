@@ -59,7 +59,7 @@
      1️⃣ LOAD PRODUCT LIST FROM GOOGLE SHEET (Dropdown)
      --------------------------------------------------------- */
   window.onload = function() {
-    const url = "https://script.google.com/macros/s/AKfycbyWWIJyD45VMSjMbY8pbJO9hHUmzgQMBVWLbHeLZjgc-tM9l751_uPz84JFiOj07r37CQ/exec?action=getitem";
+    const url = "https://script.google.com/macros/s/AKfycbx_3-dmL-ukasrrBpFTP676n1ZlrUYRljQ8JZE3G0l8d41Oulag9FgxqGssfjVsbJXJ/exec?action=getitem";
 
     fetch(url)
       .then(response => response.json())
@@ -90,7 +90,7 @@
       notes: document.getElementById("notes").value
     };
 
-    fetch("https://script.google.com/macros/s/AKfycbyWWIJyD45VMSjMbY8pbJO9hHUmzgQMBVWLbHeLZjgc-tM9l751_uPz84JFiOj07r37CQ/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbx_3-dmL-ukasrrBpFTP676n1ZlrUYRljQ8JZE3G0l8d41Oulag9FgxqGssfjVsbJXJ/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
