@@ -2,231 +2,292 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Production Entry</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Production Input Form — Xero Premium</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Segoe UI, sans-serif;
-      background: #eef2f5;
-    }
+<style>
 
-    /* HEADER */
-    .header {
-      background: #0f80d9;
-      color: white;
-      padding: 20px 40px;
-      font-size: 22px;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
-    }
+/* ---------------------------
+GLOBAL BODY
+---------------------------- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Segoe UI, Tahoma, sans-serif;
+  background: #f5f7f9;
+}
 
-    /* CARD */
-    .card {
-      max-width: 950px;
-      margin: 40px auto;
-      background: white;
-      padding: 40px;
-      border-radius: 14px;
-      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.12);
-    }
+/* ---------------------------
+XERO BLUE HEADER BAR
+---------------------------- */
+.header {
+  background: #0066B8;
+  color: white;
+  padding: 18px 40px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
 
-    .section-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: #284b63;
-      margin-bottom: 20px;
-    }
+/* ---------------------------
+MAIN PAGE WRAPPER
+---------------------------- */
+.page {
+  max-width: 1050px;
+  margin: 35px auto;
+  background: white;
+  padding: 35px 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
 
-    .grid-4 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 25px;
-    }
+/* SECTION TITLE */
+.section-title {
+  font-size: 18px;
+  color: #2b4b68;
+  margin-bottom: 15px;
+  margin-top: 30px;
+  font-weight: 600;
+}
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-    }
+/* GRID */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
 
-    label {
-      font-size: 14px;
-      font-weight: 600;
-      display: block;
-      margin-bottom: 6px;
-      color: #394c5a;
-    }
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 25px;
+}
 
-    input,
-    select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1.5px solid #d4dbe3;
-      background: #fafbfd;
-      transition: .2s;
-      font-size: 15px;
-    }
+.grid-1 {
+  margin-top: 10px;
+}
 
-    input:focus,
-    select:focus {
-      border-color: #0f80d9;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(15, 128, 217, 0.25);
-      outline: none;
-    }
+/* INPUT FIELDS */
+label {
+  font-size: 14px;
+  color: #3d556c;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
 
-    button {
-      margin-top: 35px;
-      padding: 15px 24px;
-      background: #0f80d9;
-      color: white;
-      border-radius: 8px;
-      border: none;
-      font-size: 17px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: .2s;
-    }
+input, select, textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  transition: all .2s;
+  box-sizing: border-box;
+}
 
-    button:hover {
-      background: #0c68b3;
-    }
+input:focus, select:focus, textarea:focus {
+  border-color: #0093D0;
+  box-shadow: 0 0 0 2px rgba(0,147,208,0.25);
+  outline: none;
+}
 
-    button:active {
-      transform: scale(.97);
-    }
+textarea {
+  height: 110px;
+  resize: vertical;
+}
 
-    #errorMsg {
-      margin-top: 15px;
-      color: #d94141;
-      font-weight: 600;
-    }
+/* BUTTON */
+.button-primary {
+  padding: 14px 22px;
+  background: #0077CC;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 30px;
+  min-width: 160px;
+  transition: background .2s, transform .1s;
+}
 
-    #successMsg {
-      margin-top: 15px;
-      color: #1a8d2c;
-      font-weight: 700;
-    }
-  </style>
+.button-primary:hover {
+  background: #005fa3;
+}
+
+.button-primary:active {
+  transform: scale(.97);
+}
+
+.button-row {
+  margin-top: 35px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* STATUS TEXT */
+#status {
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#status.ok {
+  color: #1a8d2c;
+}
+
+#status.err {
+  color: #c72b2b;
+}
+
+/* RESPONSIVE */
+@media (max-width: 800px) {
+  .grid-2, .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+</style>
 </head>
 
 <body>
 
-  <div class="header">Production Entry</div>
+<div class="header">Production Entry</div>
 
-  <div class="card">
+<div class="page">
 
-    <div class="section-title">Production Details</div>
+<div class="section-title">Production Details</div>
 
-    <div class="grid-2">
-      <div>
-        <label>Product Produced</label>
-        <select id="productProduced"></select>
-      </div>
-
-      <div>
-        <label>Production Date</label>
-        <input type="date" id="productionDate">
-      </div>
-    </div>
-
-    <div class="grid-3" style="margin-top:25px;">
-      <div>
-        <label>Meter</label>
-        <input type="number" id="meter" min="0" placeholder="0">
-      </div>
-
-      <div>
-        <label>Quantity</label>
-        <input type="number" id="quantity" min="0" placeholder="0">
-      </div>
-
-      <div>
-        <label>Total (m)</label>
-        <input type="number" id="totalM" readonly style="background:#f3f4f6;">
-      </div>
-    </div>
-
-    <label style="margin-top:25px;">Notes</label>
-    <input type="text" id="notes" placeholder="Optional notes…">
-
-    <button onclick="submitForm()">Submit</button>
-
-    <div id="errorMsg"></div>
-    <div id="successMsg"></div>
-
+<div class="grid-2">
+  <div>
+    <label>Product Produced</label>
+    <select id="productProduced"></select>
   </div>
 
-  <script>
-    // LOAD PRODUCT LIST
-    window.onload = function () {
-      fetch("https://script.google.com/macros/s/AKfycbx_3-dmL-ukasrrBpFTP676n1ZlrUYRljQ8JZE3G0l8d41Oulag9FgxqGssfjVsbJXJ/exec?action=getitem")
-        .then(r => r.json())
-        .then(items => {
-          const p = document.getElementById("productProduced");
-          p.innerHTML = "";
-          items.forEach(i => {
-            const opt = document.createElement("option");
-            opt.value = i;
-            opt.textContent = i;
-            p.appendChild(opt);
-          });
-        });
-    };
+  <div>
+    <label>Production Date</label>
+    <input type="date" id="productionDate">
+  </div>
+</div>
 
-    // AUTO CALCULATE TOTAL
-    function calcTotal() {
-      let m = parseFloat(document.getElementById("meter").value) || 0;
-      let q = parseFloat(document.getElementById("quantity").value) || 0;
-      document.getElementById("totalM").value = m * q;
-    }
+<div class="grid-3" style="margin-top:20px;">
+  <div>
+    <label>Meter</label>
+    <input type="number" id="meter" min="0" placeholder="e.g. 3">
+  </div>
 
-    document.getElementById("meter").addEventListener("input", calcTotal);
-    document.getElementById("quantity").addEventListener("input", calcTotal);
+  <div>
+    <label>Quantity</label>
+    <input type="number" id="quantity" min="0" placeholder="e.g. 5">
+  </div>
 
-    // SUBMIT FORM
-    function submitForm() {
-      const p = document.getElementById("productProduced").value;
-      const d = document.getElementById("productionDate").value;
-      const m = parseFloat(document.getElementById("meter").value);
-      const q = parseFloat(document.getElementById("quantity").value);
-      const t = parseFloat(document.getElementById("totalM").value);
-      const n = document.getElementById("notes").value;
+  <div>
+    <label>Total (m)</label>
+    <input type="number" id="totalM" readonly style="background:#f1f3f5;">
+  </div>
+</div>
 
-      const errorMsg = document.getElementById("errorMsg");
-      const successMsg = document.getElementById("successMsg");
+<div class="section-title">Additional Notes</div>
+<div class="grid-1">
+  <textarea id="notes" placeholder="Optional notes about production..."></textarea>
+</div>
 
-      errorMsg.innerHTML = "";
-      successMsg.innerHTML = "";
+<div class="button-row">
+  <button class="button-primary" onclick="submitForm()">Submit</button>
+</div>
 
-      // VALIDATION
-      if (!p) return errorMsg.innerHTML = "Product cannot be empty.";
-      if (!d) return errorMsg.innerHTML = "Production Date is required.";
-      if (m < 0) return errorMsg.innerHTML = "Meter cannot be negative.";
-      if (q < 0) return errorMsg.innerHTML = "Quantity cannot be negative.";
+<p id="status"></p>
 
-      // SEND
-      fetch("https://script.google.com/macros/s/AKfycbx_3-dmL-ukasrrBpFTP676n1ZlrUYRljQ8JZE3G0l8d41Oulag9FgxqGssfjVsbJXJ/exec", {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify({
-          productProduced: p,
-          productionDate: d,
-          meter: m,
-          quantity: q,
-          totalM: t,
-          notes: n
-        })
+</div>
+
+<script>
+
+/* LOAD PRODUCT LIST */
+window.onload = function () {
+  fetch("https://script.google.com/macros/s/AKfycbx_3-dmL-ukasrrBpFTP676n1ZlrUYRljQ8JZE3G0l8d41Oulag9FgxqGssfjVsbJXJ/exec?action=getitem")
+    .then(r => r.json())
+    .then(items => {
+      const ddl = document.getElementById("productProduced");
+      ddl.innerHTML = "";
+      items.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item;
+        opt.textContent = item;
+        ddl.appendChild(opt);
       });
+    });
+};
 
-      successMsg.innerHTML = "✓ Successfully submitted!";
-    }
-  </script>
+/* AUTO CALCULATE TOTAL */
+function calculateTotal() {
+  const meter = parseFloat(document.getElementById("meter").value) || 0;
+  const qty = parseFloat(document.getElementById("quantity").value) || 0;
+  document.getElementById("totalM").value = meter * qty;
+}
 
+document.getElementById("meter").addEventListener("input", calculateTotal);
+document.getElementById("quantity").addEventListener("input", calculateTotal);
+
+/* SUBMIT FORM */
+function submitForm() {
+
+  const status = document.getElementById("status");
+  status.innerText = "";
+  status.className = "";
+
+  const productProduced = document.getElementById("productProduced").value;
+  const productionDate = document.getElementById("productionDate").value;
+  const meter = parseFloat(document.getElementById("meter").value);
+  const quantity = parseFloat(document.getElementById("quantity").value);
+  const totalM = meter * quantity;
+  const notes = document.getElementById("notes").value;
+
+  // VALIDATION
+  if (!productionDate) {
+    status.innerText = "❌ Production Date is required";
+    status.className = "err";
+    return;
+  }
+
+  if (meter < 0) {
+    status.innerText = "❌ Meter cannot be negative";
+    status.className = "err";
+    return;
+  }
+
+  if (quantity < 0) {
+    status.innerText = "❌ Quantity cannot be negative";
+    status.className = "err";
+    return;
+  }
+
+  // PREP DATA
+  const data = {
+    productProduced,
+    productionDate,
+    meter,
+    quantity,
+    totalM,
+    notes
+  };
+
+  // SEND
+  fetch("https://script.google.com/macros/s/AKfycbx_3-dmL-ukasrrBpFTP676n1ZlrUYRljQ8JZE3G0l8d41Oulag9FgxqGssfjVsbJXJ/exec", {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify(data)
+  });
+
+  status.innerText = "✓ Form submitted successfully!";
+  status.className = "ok";
+
+  setTimeout(() => status.innerText = "", 2500);
+}
+
+</script>
 </body>
-
 </html>
