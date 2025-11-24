@@ -7,12 +7,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
 body {
-  margin: 0; padding: 0;
+  margin: 0;
   font-family: Segoe UI, sans-serif;
   background: #f5f7f9;
 }
 
+/* HEADER */
 .header {
   background: #0f80d9;
   color: white;
@@ -21,6 +23,7 @@ body {
   font-weight: 600;
 }
 
+/* PAGE */
 .page {
   max-width: 1100px;
   margin: 35px auto;
@@ -33,8 +36,28 @@ body {
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 20px;
-  color: #27445c;
+  margin-bottom: 15px;
+  color: #24425c;
+}
+
+/* PRODUCTION DATE */
+.top-input {
+  max-width: 300px;
+  margin-bottom: 30px;
+}
+
+.top-input label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3b4a5a;
+}
+
+.top-input input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #cfd8e3;
+  font-size: 15px;
 }
 
 /* TABLE */
@@ -50,46 +73,51 @@ table {
 th {
   background: #eef1f4;
   padding: 10px;
-  font-size: 14px;
   text-align: left;
-  color: #3c4c5f;
+  font-size: 14px;
+  font-weight: 600;
+  color: #364b5c;
   border-bottom: 1px solid #d8dde3;
 }
 
 td {
   padding: 10px;
-  border-bottom: 1px solid #e8eaed;
+  border-bottom: 1px solid #e6e9ed;
 }
 
 .row-handle {
   width: 25px;
   text-align: center;
-  color: #777;
+  color: #888;
   cursor: grab;
+  font-size: 18px;
 }
 
-input.table-input, select.table-input {
+/* INPUT FIELDS */
+.table-input {
   width: 100%;
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #cfd7e0;
   font-size: 14px;
+  box-sizing: border-box;
 }
 
-input.table-input:focus, select.table-input:focus {
+.table-input:focus {
   border-color: #0f80d9;
   box-shadow: 0 0 0 2px rgba(15,128,217,.25);
   outline: none;
 }
 
+/* DELETE BUTTON */
 .delete-btn {
-  font-size: 18px;
   cursor: pointer;
+  font-size: 20px;
   color: #cc0000;
   text-align: center;
 }
 
-/* ADD ROW BUTTON */
+/* ADD ROW */
 .add-row-btn {
   margin-top: 15px;
   background: #e7f2ff;
@@ -98,13 +126,14 @@ input.table-input:focus, select.table-input:focus {
   font-size: 14px;
   color: #0f80d9;
   font-weight: 600;
-  border: 1px solid #bcd8f7;
   cursor: pointer;
+  border: 1px solid #bcd8f7;
 }
 
 .add-row-btn:hover {
   background: #d9ebff;
 }
+
 </style>
 </head>
 
@@ -114,55 +143,63 @@ input.table-input:focus, select.table-input:focus {
 
 <div class="page">
 
-<div class="section-title">Production Items</div>
+  <div class="section-title">Production Date</div>
 
-<div class="table-container">
-<table id="prodTable">
-  <thead>
-    <tr>
-      <th style="width:30px;"></th>
-      <th style="width:40%">Item</th>
-      <th style="width:15%">Meter</th>
-      <th style="width:15%">Qty</th>
-      <th style="width:20%">Total (m)</th>
-      <th style="width:40px;"></th>
-    </tr>
-  </thead>
+  <div class="top-input">
+    <label>Date</label>
+    <input type="date" id="productionDate">
+  </div>
 
-  <tbody id="tableBody">
-  </tbody>
-</table>
-</div>
+  <div class="section-title">Products Produced</div>
 
-<button class="add-row-btn" onclick="addRow()">+ Add row</button>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30px;"></th>
+          <th style="width:40%">Product Produced</th>
+          <th style="width:15%">Meter</th>
+          <th style="width:15%">Qty</th>
+          <th style="width:20%">Total (m)</th>
+          <th style="width:40px;"></th>
+        </tr>
+      </thead>
+
+      <tbody id="tableBody">
+      </tbody>
+
+    </table>
+  </div>
+
+  <button class="add-row-btn" onclick="addRow()">+ Add row</button>
 
 </div>
 
 
 <script>
+
 let itemList = [];
 
-/* LOAD ITEMS */
-window.onload = function() {
+/* LOAD PRODUCT LIST ON LOAD */
+window.onload = function () {
   fetch("https://script.google.com/macros/s/AKfycbx_3-dmL-ukasrrBpFTP676n1ZlrUYRljQ8JZE3G0l8d41Oulag9FgxqGssfjVsbJXJ/exec?action=getitem")
     .then(r => r.json())
-    .then(items => {
-      itemList = items;
-      addRow();  // start with 1 row
+    .then(list => {
+      itemList = list;
+      addRow(); // first row
     });
 };
 
-/* ADD NEW ROW */
+/* ADD ROW FUNCTION */
 function addRow() {
   const tbody = document.getElementById("tableBody");
 
   const tr = document.createElement("tr");
-
   tr.innerHTML = `
     <td class="row-handle">⋮⋮</td>
 
     <td>
-      <select class="table-input item-select">
+      <select class="table-input item">
         ${itemList.map(i => `<option value="${i}">${i}</option>`).join("")}
       </select>
     </td>
@@ -184,7 +221,6 @@ function addRow() {
 
   tbody.appendChild(tr);
 
-  // auto calc event
   tr.querySelector(".meter").addEventListener("input", updateTotals);
   tr.querySelector(".qty").addEventListener("input", updateTotals);
 }
@@ -205,23 +241,26 @@ function updateTotals() {
   });
 }
 
-/* EXPORT (FOR SUBMIT) */
-function getTableData() {
+/* EXPORT DATA FOR SUBMIT */
+function getProductionData() {
   const rows = document.querySelectorAll("#tableBody tr");
   const data = [];
 
   rows.forEach(row => {
     data.push({
-      item: row.querySelector(".item-select").value,
+      item: row.querySelector(".item").value,
       meter: row.querySelector(".meter").value,
       qty: row.querySelector(".qty").value,
       total: row.querySelector(".total").value
     });
   });
 
-  return data;
+  return {
+    productionDate: document.getElementById("productionDate").value,
+    items: data
+  };
 }
-</script>
 
+</script>
 </body>
 </html>
