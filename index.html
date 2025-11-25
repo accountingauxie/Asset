@@ -284,7 +284,7 @@ function submitForm() {
   // === VALIDASI DATE ===
   if (!date || date.trim() === "") {
     alert("⚠ Please select a Production Date before submitting.");
-    return;
+    return false; 
   }
 
   const rows = document.querySelectorAll("#tableBody tr");
@@ -305,11 +305,15 @@ function submitForm() {
     items: items
   };
 
+  // === FETCH POST (JANGAN DIUBAH) ===
   fetch("https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec", {
     method: "POST",
     body: JSON.stringify(payload)
+  })
+  .then(() => {
+    alert("Submitted!");
+  })
+  .catch(err => {
+    alert("Error submitting: " + err);
   });
-
-  alert("Submitted!");
 }
-
