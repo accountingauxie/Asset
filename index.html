@@ -56,14 +56,14 @@ label {
   display: block;
 }
 
-/* FLEX ROW */
+/* FORM ROW */
 .row-flex {
   display: flex;
   gap: 30px;
   margin-bottom: 30px;
 }
 
-/* INPUT BOX (top form) */
+/* INPUT BOX */
 .input-box {
   padding: 12px 13px;
   border: 1px solid #cfd7e0;
@@ -101,7 +101,7 @@ td {
   border-bottom: 1px solid #f1f3f5;
 }
 
-/* TABLE INPUTS */
+/* TABLE INPUT */
 .table-input {
   width: 100%;
   padding: 10px;
@@ -131,7 +131,7 @@ td {
   cursor: pointer;
 }
 
-/* ADD ROW BUTTON */
+/* ADD ROW */
 .add-row-btn {
   margin-top: 18px;
   padding: 9px 16px;
@@ -177,7 +177,7 @@ textarea {
   background: #0d6fbf;
 }
 
-/* AUTOCOMPLETE "DROPDOWN" */
+/* ===== AUTOCOMPLETE ===== */
 .autocomplete-wrapper {
   position: relative;
 }
@@ -191,20 +191,16 @@ textarea {
   background: #fff;
   border: 1px solid #cfd7e0;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
   max-height: 240px;
   overflow-y: auto;
-  z-index: 20;
-  display: none;
+  z-index: 9999 !important;
 }
 
 .autocomplete-item {
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 14px;
   cursor: pointer;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
 .autocomplete-item:hover {
@@ -212,9 +208,17 @@ textarea {
 }
 
 .autocomplete-empty {
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 13px;
   color: #999;
+}
+
+.item-input {
+  caret-color: transparent;
+}
+
+.item-input::placeholder {
+  color: #bbb;
 }
 </style>
 </head>
@@ -231,7 +235,7 @@ textarea {
 
   <div class="card-title">Production Entry</div>
 
-  <!-- TOP FORM -->
+  <!-- FORM TOP -->
   <div class="row-flex">
     <div>
       <label>Date</label>
@@ -276,7 +280,7 @@ textarea {
 <script>
 let itemList = [];
 
-/* ===== LOAD ITEMS FROM APPS SCRIPT ===== */
+/* LOAD MASTER ITEM */
 window.onload = async function () {
   try {
     const res = await fetch(
@@ -284,73 +288,68 @@ window.onload = async function () {
     );
     itemList = await res.json();
 
-    if (Array.isArray(itemList) && itemList.length > 0) {
+    if (itemList.length > 0) {
       addRow();
     }
+
   } catch (err) {
     console.error("Error loading items:", err);
   }
 };
 
-/* ===== AUTOCOMPLETE HELPER (DROPDOWN STYLE) ===== */
+/* ===== AUTOCOMPLETE ===== */
 function attachAutocomplete(wrapper, sourceItems) {
   const input = wrapper.querySelector(".item-input");
   const list = wrapper.querySelector(".autocomplete-list");
+  let lastValid = "";
 
-  function renderList(term) {
-    const search = term.trim().toLowerCase();
+  // Close when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!wrapper.contains(e.target)) list.style.display = "none";
+  });
+
+  // Input search behavior
+  input.addEventListener("input", () => {
+    const term = input.value.trim().toLowerCase();
     list.innerHTML = "";
 
-    let matches = sourceItems;
-
-    if (search) {
-      matches = sourceItems.filter(name =>
-        name.toLowerCase().includes(search)
-      );
+    if (!term) {
+      input.value = lastValid;
+      list.style.display = "none";
+      return;
     }
 
-    matches = matches.slice(0, 30); // limit rows
+    const matches = sourceItems
+      .filter(name => name.toLowerCase().includes(term))
+      .slice(0, 10);
 
     if (matches.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "autocomplete-empty";
-      empty.textContent = "No results found";
-      list.appendChild(empty);
+      list.innerHTML = `<div class="autocomplete-empty">No results found</div>`;
     } else {
       matches.forEach(name => {
-        const item = document.createElement("div");
-        item.className = "autocomplete-item";
-        item.textContent = name;
-        item.addEventListener("mousedown", (e) => {
-          e.preventDefault();
+        const div = document.createElement("div");
+        div.classList.add("autocomplete-item");
+        div.textContent = name;
+
+        div.addEventListener("mousedown", () => {
           input.value = name;
+          lastValid = name;
           list.style.display = "none";
         });
-        list.appendChild(item);
+
+        list.appendChild(div);
       });
     }
 
     list.style.display = "block";
-  }
-
-  // Show dropdown when focus (even tanpa ketik)
-  input.addEventListener("focus", () => {
-    renderList(input.value || "");
   });
 
-  input.addEventListener("input", () => {
-    renderList(input.value);
-  });
-
-  // close when click outside
-  document.addEventListener("click", (e) => {
-    if (!wrapper.contains(e.target)) {
-      list.style.display = "none";
-    }
+  input.addEventListener("blur", () => {
+    input.value = lastValid;
   });
 }
 
-/* ===== ADD NEW ROW ===== */
+/* ADD ROW FUNCTION */
 function addRow() {
   const tbody = document.getElementById("tableBody");
   const tr = document.createElement("tr");
@@ -360,10 +359,7 @@ function addRow() {
 
     <td>
       <div class="autocomplete-wrapper">
-        <input type="text"
-               class="table-input item-input"
-               placeholder="Search / select item..."
-               autocomplete="off">
+        <input type="text" class="table-input item-input" placeholder="Search item..." autocomplete="off">
         <div class="autocomplete-list"></div>
       </div>
     </td>
@@ -372,6 +368,7 @@ function addRow() {
     <td><input type="number" class="table-input qty" value="0"></td>
     <td><input type="number" class="table-input total" readonly style="background:#f4f6f9;"></td>
     <td><input type="text" class="table-input kpc"></td>
+
     <td class="delete-btn" onclick="deleteRow(this)">🗑</td>
   `;
 
@@ -383,36 +380,30 @@ function addRow() {
   tr.querySelector(".qty").addEventListener("input", updateTotals);
 }
 
-/* ===== DELETE ROW ===== */
+/* DELETE ROW */
 function deleteRow(btn) {
   btn.parentElement.remove();
 }
 
-/* ===== UPDATE TOTAL ===== */
+/* UPDATE TOTAL */
 function updateTotals() {
   document.querySelectorAll("#tableBody tr").forEach(r => {
-    const meter = parseFloat(r.querySelector(".meter").value) || 0;
-    const qty = parseFloat(r.querySelector(".qty").value) || 0;
-    r.querySelector(".total").value = meter * qty;
+    const m = parseFloat(r.querySelector(".meter").value) || 0;
+    const q = parseFloat(r.querySelector(".qty").value) || 0;
+    r.querySelector(".total").value = m * q;
   });
 }
 
-/* ===== SUBMIT FORM ===== */
+/* SUBMIT */
 function submitForm() {
-
   const date = document.getElementById("productionDate").value;
   const machine = document.getElementById("machineUsed").value;
   const notes = document.getElementById("notes").value;
 
-  if (!date) {
-    alert("⚠ Please select a Production Date.");
-    return;
-  }
+  if (!date) return alert("⚠ Please select a Production Date.");
 
-  const rows = document.querySelectorAll("#tableBody tr");
   const items = [];
-
-  rows.forEach(r => {
+  document.querySelectorAll("#tableBody tr").forEach(r => {
     items.push({
       item: r.querySelector(".item-input").value,
       meter: r.querySelector(".meter").value,
@@ -424,9 +415,9 @@ function submitForm() {
 
   const payload = {
     productionDate: date,
-    machine: machine,
-    notes: notes,
-    items: items
+    machine,
+    notes,
+    items
   };
 
   fetch(
