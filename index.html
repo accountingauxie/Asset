@@ -221,42 +221,51 @@ textarea {
 </div>
 
 <script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1tWm0s7MiXMNQWrQo_FXYzLheOMpHiBOLQD7bftymxIO-TB9d0PAvFStVyk2UswhHZg/exec";
 
 let itemList = [];
 let kpcList = [];
 
 /* LOAD ITEM + KPC LIST */
-window.onload = async function () {
+window.addEventListener("DOMContentLoaded", async () => {
   try {
-    const url = "https://script.google.com/macros/s/AKfycbz1tWm0s7MiXMNQWrQo_FXYzLheOMpHiBOLQD7bftymxIO-TB9d0PAvFStVyk2UswhHZg/exec";
+    const [resItem, resKpc] = await Promise.all([
+      fetch(`${SCRIPT_URL}?action=getitem`),
+      fetch(`${SCRIPT_URL}?action=getkpc`)
+    ]);
 
-    // Load Items
-    const resItem = await fetch(`${url}?action=getitem`);
     itemList = await resItem.json();
-
-    // Load KPC
-    const resKpc = await fetch(`${url}?action=getkpc`);
     kpcList = await resKpc.json();
+
+    console.log("Items loaded:", itemList);
+    console.log("KPC loaded:", kpcList);
 
     addRow();
 
   } catch (err) {
     console.error("ERROR loading lists:", err);
+    alert("Error loading Item/KPC list. Cek Apps Script & deploy Web App.");
   }
-};
-
+});
 
 /* ADD NEW ROW */
 function addRow() {
   const tbody = document.getElementById("tableBody");
   const tr = document.createElement("tr");
 
+  const itemOptions = ['— Select Item —', ...itemList];
+  const kpcOptions  = ['— Select KPC —', ...kpcList];
+
   tr.innerHTML = `
     <td class="row-handle">⋮⋮</td>
 
     <td>
       <select class="table-input item">
-        ${itemList.map(i => `<option value="${i}">${i}</option>`).join("")}
+        ${itemOptions.map((i, idx) =>
+          idx === 0
+            ? `<option value="">${i}</option>`
+            : `<option value="${i}">${i}</option>`
+        ).join("")}
       </select>
     </td>
 
@@ -267,7 +276,11 @@ function addRow() {
 
     <td>
       <select class="table-input kpc">
-        ${kpcList.map(k => `<option value="${k}">${k}</option>`).join("")}
+        ${kpcOptions.map((k, idx) =>
+          idx === 0
+            ? `<option value="">${k}</option>`
+            : `<option value="${k}">${k}</option>`
+        ).join("")}
       </select>
     </td>
 
@@ -296,7 +309,6 @@ function updateTotals() {
 
 /* SUBMIT */
 function submitForm() {
-
   const date = document.getElementById("productionDate").value;
   const machine = document.getElementById("machineUsed").value;
   const notes = document.getElementById("notes").value;
@@ -307,15 +319,19 @@ function submitForm() {
   }
 
   const rows = document.querySelectorAll("#tableBody tr");
-  const items = [];
+  if (rows.length === 0) {
+    alert("⚠ Please add at least one row.");
+    return;
+  }
 
+  const items = [];
   rows.forEach(r => {
     items.push({
-      item: r.querySelector(".item").value,
+      item:  r.querySelector(".item").value,
       meter: r.querySelector(".meter").value,
-      qty: r.querySelector(".qty").value,
+      qty:   r.querySelector(".qty").value,
       total: r.querySelector(".total").value,
-      kpc: r.querySelector(".kpc").value
+      kpc:   r.querySelector(".kpc").value
     });
   });
 
@@ -326,14 +342,16 @@ function submitForm() {
     items: items
   };
 
-  fetch(
-    "https://script.google.com/macros/s/AKfycbz1tWm0s7MiXMNQWrQo_FXYzLheOMpHiBOLQD7bftymxIO-TB9d0PAvFStVyk2UswhHZg/exec",
-    { method: "POST", body: JSON.stringify(payload) }
-  )
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
   .then(() => alert("Submitted!"))
-  .catch(err => alert("Error submitting: " + err));
+  .catch(err => {
+    console.error(err);
+    alert("Error submitting: " + err);
+  });
 }
-
 </script>
 
 </body>
