@@ -229,22 +229,22 @@ let kpcList = [];
 /* LOAD ITEM + KPC LIST */
 window.addEventListener("DOMContentLoaded", async () => {
   try {
-    const [resItem, resKpc] = await Promise.all([
+    const [itemsRes, kpcRes] = await Promise.all([
       fetch(`${SCRIPT_URL}?action=getitem`),
       fetch(`${SCRIPT_URL}?action=getkpc`)
     ]);
 
-    itemList = await resItem.json();
-    kpcList = await resKpc.json();
+    itemList = await itemsRes.json();
+    kpcList = await kpcRes.json();
 
-    console.log("Items loaded:", itemList);
-    console.log("KPC loaded:", kpcList);
+    console.log("Item list loaded:", itemList);
+    console.log("KPC list loaded:", kpcList);
 
     addRow();
 
   } catch (err) {
     console.error("ERROR loading lists:", err);
-    alert("Error loading Item/KPC list. Cek Apps Script & deploy Web App.");
+    alert("Error loading Item/KPC list. Please check Apps Script deployment.");
   }
 });
 
@@ -253,19 +253,13 @@ function addRow() {
   const tbody = document.getElementById("tableBody");
   const tr = document.createElement("tr");
 
-  const itemOptions = ['— Select Item —', ...itemList];
-  const kpcOptions  = ['— Select KPC —', ...kpcList];
-
   tr.innerHTML = `
     <td class="row-handle">⋮⋮</td>
 
     <td>
       <select class="table-input item">
-        ${itemOptions.map((i, idx) =>
-          idx === 0
-            ? `<option value="">${i}</option>`
-            : `<option value="${i}">${i}</option>`
-        ).join("")}
+        <option value="">— Select Item —</option>
+        ${itemList.map(i => `<option value="${i}">${i}</option>`).join("")}
       </select>
     </td>
 
@@ -276,11 +270,8 @@ function addRow() {
 
     <td>
       <select class="table-input kpc">
-        ${kpcOptions.map((k, idx) =>
-          idx === 0
-            ? `<option value="">${k}</option>`
-            : `<option value="${k}">${k}</option>`
-        ).join("")}
+        <option value="">— Select KPC —</option>
+        ${kpcList.map(k => `<option value="${k}">${k}</option>`).join("")}
       </select>
     </td>
 
@@ -319,12 +310,8 @@ function submitForm() {
   }
 
   const rows = document.querySelectorAll("#tableBody tr");
-  if (rows.length === 0) {
-    alert("⚠ Please add at least one row.");
-    return;
-  }
-
   const items = [];
+
   rows.forEach(r => {
     items.push({
       item:  r.querySelector(".item").value,
@@ -347,10 +334,7 @@ function submitForm() {
     body: JSON.stringify(payload)
   })
   .then(() => alert("Submitted!"))
-  .catch(err => {
-    console.error(err);
-    alert("Error submitting: " + err);
-  });
+  .catch(err => alert("Error submitting: " + err));
 }
 </script>
 
