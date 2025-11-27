@@ -228,7 +228,7 @@ let itemList = [];
 window.onload = async function () {
   try {
     const res = await fetch(
-      "https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec?action=getitem"
+      "https://script.google.com/macros/s/AKfycbz1tWm0s7MiXMNQWrQo_FXYzLheOMpHiBOLQD7bftymxIO-TB9d0PAvFStVyk2UswhHZg/exec?action=getitem"
     );
     itemList = await res.json();
 
@@ -320,7 +320,7 @@ function submitForm() {
   };
 
   fetch(
-    "https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec",
+    "https://script.google.com/macros/s/AKfycbz1tWm0s7MiXMNQWrQo_FXYzLheOMpHiBOLQD7bftymxIO-TB9d0PAvFStVyk2UswhHZg/exec",
     { method: "POST", body: JSON.stringify(payload) }
   )
   .then(() => alert("Submitted!"))
