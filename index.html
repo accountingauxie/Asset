@@ -223,22 +223,25 @@ textarea {
 <script>
 
 let itemList = [];
+let kpcList = [];
 
-/* LOAD ITEM LIST */
+/* LOAD ITEM + KPC LIST */
 window.onload = async function () {
   try {
-    const res = await fetch(
-      "https://script.google.com/macros/s/AKfycbz1tWm0s7MiXMNQWrQo_FXYzLheOMpHiBOLQD7bftymxIO-TB9d0PAvFStVyk2UswhHZg/exec?action=getitem"
-    );
-    itemList = await res.json();
+    const url = "https://script.google.com/macros/s/AKfycbz1tWm0s7MiXMNQWrQo_FXYzLheOMpHiBOLQD7bftymxIO-TB9d0PAvFStVyk2UswhHZg/exec";
 
-    if (Array.isArray(itemList) && itemList.length > 0) {
-      await new Promise(r => setTimeout(r, 80));
-      addRow();
-    }
+    // Load Items
+    const resItem = await fetch(`${url}?action=getitem`);
+    itemList = await resItem.json();
+
+    // Load KPC
+    const resKpc = await fetch(`${url}?action=getkpc`);
+    kpcList = await resKpc.json();
+
+    addRow();
 
   } catch (err) {
-    console.error("ERROR loading items:", err);
+    console.error("ERROR loading lists:", err);
   }
 };
 
@@ -262,7 +265,11 @@ function addRow() {
 
     <td><input type="number" class="table-input total" readonly style="background:#f4f6f9;"></td>
 
-    <td><input type="text" class="table-input kpc" placeholder=""></td>
+    <td>
+      <select class="table-input kpc">
+        ${kpcList.map(k => `<option value="${k}">${k}</option>`).join("")}
+      </select>
+    </td>
 
     <td class="delete-btn" onclick="deleteRow(this)">🗑</td>
   `;
