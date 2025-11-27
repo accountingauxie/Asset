@@ -6,10 +6,6 @@
 <title>Production Entry</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- SLIMSELECT (Xero-style searchable dropdown) -->
-<link href="https://cdn.jsdelivr.net/npm/slim-select@2.8.5/dist/slimselect.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.5/dist/slimselect.min.js"></script>
-
 <style>
 body {
   margin: 0;
@@ -67,7 +63,7 @@ label {
   margin-bottom: 30px;
 }
 
-/* INPUT BOX */
+/* INPUT BOX (top form) */
 .input-box {
   padding: 12px 13px;
   border: 1px solid #cfd7e0;
@@ -121,7 +117,6 @@ td {
   outline: none;
 }
 
-/* ROW HANDLE + DELETE */
 .row-handle {
   width: 25px;
   text-align: center;
@@ -182,64 +177,45 @@ textarea {
   background: #0d6fbf;
 }
 
-/* ======= XERO LOOK SLIMSELECT TUNING ======= */
-
-.ss-main {
-  border: 1px solid #cfd7e0 !important;
-  border-radius: 8px !important;
-  min-height: 42px !important;
-  padding: 6px 10px !important;
-  font-size: 14px !important;
-  background: #fff !important;
+/* AUTOCOMPLETE "DROPDOWN" */
+.autocomplete-wrapper {
+  position: relative;
 }
 
-.ss-main:focus-within {
-  border-color: #0f80d9 !important;
-  box-shadow: 0 0 0 2px rgba(15,128,217,.25) !important;
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #cfd7e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 20;
+  display: none;
 }
 
-.ss-arrow {
-  border-color: #444 !important;
-  margin-right: 6px;
+.autocomplete-item {
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-/* Dropdown panel */
-.ss-content {
-  border: 1px solid #cfd7e0 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.10) !important;
-  padding-top: 6px !important;
-  max-height: 250px !important;
+.autocomplete-item:hover {
+  background: #eef3fd;
 }
 
-/* Search box inside dropdown */
-.ss-content .ss-search input {
-  border: 1px solid #cfd7e0 !important;
-  border-radius: 6px !important;
-  padding: 8px 10px !important;
-  font-size: 14px !important;
+.autocomplete-empty {
+  padding: 6px 10px;
+  font-size: 13px;
+  color: #999;
 }
-
-.ss-content .ss-search input:focus {
-  border-color: #0f80d9 !important;
-  box-shadow: 0 0 0 2px rgba(15,128,217,.25) !important;
-}
-
-/* Item list */
-.ss-list .ss-option {
-  padding: 8px 12px !important;
-  font-size: 14px !important;
-  border-radius: 6px;
-}
-
-.ss-list .ss-option:hover {
-  background: #eef3fd !important;
-}
-
-.ss-option.ss-selected {
-  background: #dde9ff !important;
-}
-
 </style>
 </head>
 
@@ -250,10 +226,12 @@ textarea {
   <span>UXILIUM Accounting Management Services</span>
 </div>
 
+<!-- MAIN CARD -->
 <div class="card">
 
   <div class="card-title">Production Entry</div>
 
+  <!-- TOP FORM -->
   <div class="row-flex">
     <div>
       <label>Date</label>
@@ -270,6 +248,7 @@ textarea {
     </div>
   </div>
 
+  <!-- TABLE -->
   <table>
     <thead>
       <tr>
@@ -290,21 +269,88 @@ textarea {
   <textarea id="notes" placeholder="Additional notes..."></textarea>
 
   <button class="submit-btn" onclick="submitForm()">Submit</button>
+
 </div>
+
 
 <script>
 let itemList = [];
 
-/* LOAD ITEMS */
+/* ===== LOAD ITEMS FROM APPS SCRIPT ===== */
 window.onload = async function () {
-  const res = await fetch(
-    "https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec?action=getitem"
-  );
-  itemList = await res.json();
-  addRow();
+  try {
+    const res = await fetch(
+      "https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec?action=getitem"
+    );
+    itemList = await res.json();
+
+    if (Array.isArray(itemList) && itemList.length > 0) {
+      addRow();
+    }
+  } catch (err) {
+    console.error("Error loading items:", err);
+  }
 };
 
-/* ADD NEW ROW WITH XERO-STYLE SELECT */
+/* ===== AUTOCOMPLETE HELPER (DROPDOWN STYLE) ===== */
+function attachAutocomplete(wrapper, sourceItems) {
+  const input = wrapper.querySelector(".item-input");
+  const list = wrapper.querySelector(".autocomplete-list");
+
+  function renderList(term) {
+    const search = term.trim().toLowerCase();
+    list.innerHTML = "";
+
+    let matches = sourceItems;
+
+    if (search) {
+      matches = sourceItems.filter(name =>
+        name.toLowerCase().includes(search)
+      );
+    }
+
+    matches = matches.slice(0, 30); // limit rows
+
+    if (matches.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "autocomplete-empty";
+      empty.textContent = "No results found";
+      list.appendChild(empty);
+    } else {
+      matches.forEach(name => {
+        const item = document.createElement("div");
+        item.className = "autocomplete-item";
+        item.textContent = name;
+        item.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          input.value = name;
+          list.style.display = "none";
+        });
+        list.appendChild(item);
+      });
+    }
+
+    list.style.display = "block";
+  }
+
+  // Show dropdown when focus (even tanpa ketik)
+  input.addEventListener("focus", () => {
+    renderList(input.value || "");
+  });
+
+  input.addEventListener("input", () => {
+    renderList(input.value);
+  });
+
+  // close when click outside
+  document.addEventListener("click", (e) => {
+    if (!wrapper.contains(e.target)) {
+      list.style.display = "none";
+    }
+  });
+}
+
+/* ===== ADD NEW ROW ===== */
 function addRow() {
   const tbody = document.getElementById("tableBody");
   const tr = document.createElement("tr");
@@ -313,62 +359,62 @@ function addRow() {
     <td class="row-handle">⋮⋮</td>
 
     <td>
-      <select class="item-select">
-        <option value=""></option>
-        ${itemList.map(i => `<option value="${i}">${i}</option>`).join("")}
-      </select>
+      <div class="autocomplete-wrapper">
+        <input type="text"
+               class="table-input item-input"
+               placeholder="Search / select item..."
+               autocomplete="off">
+        <div class="autocomplete-list"></div>
+      </div>
     </td>
 
     <td><input type="number" class="table-input meter" value="6"></td>
     <td><input type="number" class="table-input qty" value="0"></td>
-
     <td><input type="number" class="table-input total" readonly style="background:#f4f6f9;"></td>
     <td><input type="text" class="table-input kpc"></td>
-
     <td class="delete-btn" onclick="deleteRow(this)">🗑</td>
   `;
 
   tbody.appendChild(tr);
 
-  new SlimSelect({
-    select: tr.querySelector('.item-select'),
-    showSearch: true,
-    searchPlaceholder: 'Search item…',
-    placeholder: 'Select item',
-    searchText: 'No results found',
-    closeOnSelect: true,
-    allowDeselect: false
-  });
+  attachAutocomplete(tr.querySelector(".autocomplete-wrapper"), itemList);
 
   tr.querySelector(".meter").addEventListener("input", updateTotals);
   tr.querySelector(".qty").addEventListener("input", updateTotals);
 }
 
+/* ===== DELETE ROW ===== */
 function deleteRow(btn) {
   btn.parentElement.remove();
 }
 
+/* ===== UPDATE TOTAL ===== */
 function updateTotals() {
   document.querySelectorAll("#tableBody tr").forEach(r => {
-    const m = parseFloat(r.querySelector(".meter").value) || 0;
-    const q = parseFloat(r.querySelector(".qty").value) || 0;
-    r.querySelector(".total").value = m * q;
+    const meter = parseFloat(r.querySelector(".meter").value) || 0;
+    const qty = parseFloat(r.querySelector(".qty").value) || 0;
+    r.querySelector(".total").value = meter * qty;
   });
 }
 
+/* ===== SUBMIT FORM ===== */
 function submitForm() {
+
   const date = document.getElementById("productionDate").value;
   const machine = document.getElementById("machineUsed").value;
   const notes = document.getElementById("notes").value;
 
-  if (!date) return alert("⚠ Please select a Production Date.");
+  if (!date) {
+    alert("⚠ Please select a Production Date.");
+    return;
+  }
 
   const rows = document.querySelectorAll("#tableBody tr");
   const items = [];
 
   rows.forEach(r => {
     items.push({
-      item: r.querySelector(".item-select").value,
+      item: r.querySelector(".item-input").value,
       meter: r.querySelector(".meter").value,
       qty: r.querySelector(".qty").value,
       total: r.querySelector(".total").value,
@@ -376,10 +422,19 @@ function submitForm() {
     });
   });
 
+  const payload = {
+    productionDate: date,
+    machine: machine,
+    notes: notes,
+    items: items
+  };
+
   fetch(
     "https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec",
-    { method: "POST", body: JSON.stringify({productionDate: date, machine, notes, items}) }
-  ).then(() => alert("Submitted!"));
+    { method: "POST", body: JSON.stringify(payload) }
+  )
+  .then(() => alert("Submitted!"))
+  .catch(err => alert("Error submitting: " + err));
 }
 </script>
 
