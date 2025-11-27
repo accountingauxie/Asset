@@ -1,439 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<title>Production Entry</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+/************************************************************
+ * CONFIG
+ ************************************************************/
+const SS_ID = "1KQ4uKabzjyVcw6a-wlqHFha7OWPfgqbghFXS59dZf5Q";
 
-<style>
-body {
-  margin: 0;
-  padding: 0;
-  background: #f4f6f8;
-  font-family: Segoe UI, sans-serif;
-}
 
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  background: #ffffff;
-  padding: 18px 40px;
-  border-bottom: 1px solid #e3e7ec;
-}
-.header span {
-  font-size: 15px;
-  font-weight: 600;
-  opacity: 0.85;
-}
-
-/* CARD */
-.card {
-  max-width: 1150px;
-  margin: 35px auto;
-  background: #fff;
-  padding: 35px;
-  border-radius: 14px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-}
-
-.card-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 25px;
-}
-
-/* LABEL */
-label {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-/* TOP ROW */
-.row-flex {
-  display: flex;
-  gap: 30px;
-  margin-bottom: 30px;
-}
-
-/* INPUT BOX */
-.input-box {
-  padding: 12px 13px;
-  border: 1px solid #cfd7e0;
-  border-radius: 8px;
-  font-size: 14px;
-  width: 240px;
-  background: #fff;
-}
-.input-box:focus {
-  border-color: #0f80d9;
-  box-shadow: 0 0 0 2px rgba(15,128,217,0.25);
-  outline: none;
-}
-
-/* TABLE */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th {
-  background: #eef2f6;
-  padding: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #2b3d55;
-}
-td {
-  padding: 12px;
-  border-bottom: 1px solid #f1f3f5;
-}
-
-/* TABLE INPUT */
-.table-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #cfd7e0;
-  border-radius: 8px;
-  font-size: 14px;
-}
-.table-input:focus {
-  border-color: #0f80d9;
-  box-shadow: 0 0 0 2px rgba(15,128,217,0.25);
-}
-
-.table-disabled {
-  background: #f4f6f9;
-}
-
-/* DELETE BTN */
-.delete-btn {
-  cursor: pointer;
-  font-size: 18px;
-  color: #d11a2a;
-  text-align: center;
-}
-
-/* ADD BUTTON */
-.add-row-btn {
-  margin-top: 18px;
-  padding: 9px 16px;
-  border-radius: 8px;
-  background: #e9f2ff;
-  color: #0f80d9;
-  border: 1px solid #c6dbf8;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* SUBMIT */
-.submit-btn {
-  padding: 12px 32px;
-  background: #0f80d9;
-  color: #fff;
-  border-radius: 10px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
+/************************************************************
+ * CORS WRAPPER (UNTUK GITHUB PAGES)
+ ************************************************************/
+function withCors(output) {
+  return output
+    .setHeader("Access-Control-Allow-Origin", "*")
+    .setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+    .setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
 
-/* ========= XERO COMBOBOX ========= */
-.combo, .combo-kpc {
-  position: relative;
+/************************************************************
+ * ENTRY POINT — GET
+ ************************************************************/
+function doGet(e) {
+  const result = handleGet(e);
+  return withCors(result);
 }
 
-.combo-display, .combo-display-kpc {
-  padding: 10px 12px;
-  border: 1px solid #cfd7e0;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+
+/************************************************************
+ * ENTRY POINT — POST
+ ************************************************************/
+function doPost(e) {
+  const result = handlePost(e);
+  return withCors(result);
 }
 
-.combo-text, .combo-text-kpc {
-  opacity: 0.7;
-}
 
-.combo-panel, .combo-panel-kpc {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #cfd7e0;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-  z-index: 99999;
-  display: none;
-}
+/************************************************************
+ * GET ROUTER
+ ************************************************************/
+function handleGet(e) {
+  try {
+    if (e && e.parameter) {
 
-.combo-search, .combo-search-kpc {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-bottom: 1px solid #e2e6eb;
-  font-size: 14px;
-}
+      if (e.parameter.action === "getitem") {
+        return getItemList();
+      }
 
-.combo-list, .combo-list-kpc {
-  max-height: 220px;
-  overflow-y: auto;
-}
-
-.combo-item {
-  padding: 10px 14px;
-  cursor: pointer;
-  font-size: 14px;
-}
-.combo-item:hover {
-  background: #eef3fd;
-}
-
-.combo-empty {
-  padding: 10px 14px;
-  font-size: 13px;
-  color: #888;
-}
-</style>
-</head>
-
-
-<body>
-
-<div class="header">
-  <span>UXILIUM Accounting Management Services</span>
-</div>
-
-<div class="card">
-
-  <div class="card-title">Production Entry</div>
-
-  <div class="row-flex">
-    <div>
-      <label>Date</label>
-      <input type="date" id="productionDate" class="input-box" />
-    </div>
-
-    <div>
-      <label>Production Machine</label>
-      <select id="machineUsed" class="input-box">
-        <option value="">— Select Machine —</option>
-        <option value="RENG__009_MX">RENG__009_MX</option>
-        <option value="TRUSS010">TRUSS010</option>
-      </select>
-    </div>
-  </div>
-
-
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th>Item</th>
-        <th>Meter</th>
-        <th>Qty</th>
-        <th>Total (m)</th>
-        <th>KPC</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-
-  <button class="add-row-btn" onclick="addRow()">+ Add row</button>
-
-  <textarea id="notes" placeholder="Additional notes..." style="width:100%; height:130px;"></textarea>
-
-  <br><br>
-  <button class="submit-btn" onclick="submitForm()">Submit</button>
-
-</div>
-
-
-
-<script>
-let itemList = [];
-let kpcList = [];
-
-
-/* LOAD BOTH LISTS */
-window.onload = async () => {
-
-  const itemRes = await fetch(
-    "https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec?action=getitem"
-  );
-  itemList = await itemRes.json();
-
-  const kpcRes = await fetch(
-    "https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec?action=getkpc"
-  );
-  kpcList = await kpcRes.json();
-
-  addRow();
-};
-
-
-
-/* ========= GENERIC COMBOBOX ========= */
-function attachCombo(combo, list, isKPC = false) {
-
-  const display = combo.querySelector(isKPC ? ".combo-display-kpc" : ".combo-display");
-  const panel = combo.querySelector(isKPC ? ".combo-panel-kpc" : ".combo-panel");
-  const search = combo.querySelector(isKPC ? ".combo-search-kpc" : ".combo-search");
-
-  /* FIX UTAMA */
-  const listBox = combo.querySelector(isKPC ? ".combo-list-kpc" : ".combo-list");
-
-  function closePanel() { panel.style.display = "none"; }
-
-  function openPanel() {
-    panel.style.display = "block";
-    search.value = "";
-    render(list);
-    search.focus();
-  }
-
-  function render(arr) {
-    listBox.innerHTML = "";
-    if (arr.length === 0) {
-      listBox.innerHTML = `<div class="combo-empty">No results found</div>`;
-      return;
+      if (e.parameter.action === "getkpc") {
+        return getKPCList();
+      }
     }
-    arr.forEach(v => {
-      const div = document.createElement("div");
-      div.className = "combo-item";
-      div.textContent = v;
-      div.onclick = () => {
-        display.dataset.value = v;
-        display.querySelector(isKPC ? ".combo-text-kpc" : ".combo-text").textContent = v;
-        closePanel();
-      };
-      listBox.appendChild(div);
-    });
+
+    return ContentService.createTextOutput("Production Web App Active");
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", message: err }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
-
-  display.onclick = openPanel;
-
-  search.oninput = () => {
-    const term = search.value.toLowerCase();
-    render(list.filter(v => v.toLowerCase().includes(term)));
-  };
-
-  document.addEventListener("click", e => {
-    if (!combo.contains(e.target)) closePanel();
-  });
 }
 
 
+/************************************************************
+ * POST HANDLER — SAVE PRODUCTION
+ ************************************************************/
+function handlePost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
 
-/* ========= ADD ROW ========= */
-function addRow() {
-  const tbody = document.getElementById("tableBody");
+    const ss = SpreadsheetApp.openById(SS_ID);
 
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>⋮⋮</td>
+    const sheetProses = ss.getSheetByName("Proses Produksi");
+    const sheetWE = ss.getSheetByName("WE - Production FG");
 
-    <td>
-      <div class="combo">
-        <div class="combo-display" data-value="">
-          <span class="combo-text">Select item…</span>
-          <div class="combo-arrow"></div>
-        </div>
-        <div class="combo-panel">
-          <input class="combo-search" placeholder="Search item..." />
-          <div class="combo-list"></div>
-        </div>
-      </div>
-    </td>
+    const timestamp = new Date();
+    const productionDate = data.productionDate;
+    const notes = data.notes || "";
+    const items = data.items;
 
-    <td><input type="number" class="table-input meter" value="6"></td>
-    <td><input type="number" class="table-input qty" value="0"></td>
-    <td><input type="number" class="table-input total table-disabled" readonly></td>
+    if (!items || items.length === 0) throw "No items received.";
 
-    <td>
-      <div class="combo-kpc">
-        <div class="combo-display-kpc" data-value="">
-          <span class="combo-text-kpc">Select KPC…</span>
-          <div class="combo-arrow"></div>
-        </div>
+    // Append to both sheets
+    items.forEach(row => {
+      const newRow = [
+        timestamp,        // A
+        row.item,         // B
+        productionDate,   // C
+        row.meter,        // D
+        row.qty,          // E
+        row.total,        // F
+        row.kpc,          // G
+        notes             // H
+      ];
 
-        <div class="combo-panel-kpc">
-          <input class="combo-search-kpc" placeholder="Search KPC..." />
-          <div class="combo-list-kpc"></div>
-        </div>
-      </div>
-    </td>
-
-    <td class="delete-btn" onclick="deleteRow(this)">🗑</td>
-  `;
-
-  tbody.appendChild(tr);
-
-  attachCombo(tr.querySelector(".combo"), itemList, false);
-  attachCombo(tr.querySelector(".combo-kpc"), kpcList, true);
-
-  tr.querySelector(".meter").oninput = updateTotals;
-  tr.querySelector(".qty").oninput = updateTotals;
-}
-
-
-
-/* DELETE ROW */
-function deleteRow(btn) { btn.parentElement.remove(); }
-
-
-
-/* TOTAL METER UPDATE */
-function updateTotals() {
-  document.querySelectorAll("#tableBody tr").forEach(r => {
-    const m = parseFloat(r.querySelector(".meter").value) || 0;
-    const q = parseFloat(r.querySelector(".qty").value) || 0;
-    r.querySelector(".total").value = m * q;
-  });
-}
-
-
-
-/* ========= SUBMIT ========= */
-function submitForm() {
-  const date = document.getElementById("productionDate").value;
-  const machine = document.getElementById("machineUsed").value;
-  const notes = document.getElementById("notes").value;
-
-  if (!date) return alert("Please choose a date.");
-
-  const items = [];
-  document.querySelectorAll("#tableBody tr").forEach(r => {
-    items.push({
-      item: r.querySelector(".combo-display").dataset.value,
-      meter: r.querySelector(".meter").value,
-      qty: r.querySelector(".qty").value,
-      total: r.querySelector(".total").value,
-      kpc: r.querySelector(".combo-display-kpc").dataset.value
+      sheetProses.appendRow(newRow);
+      sheetWE.appendRow(newRow);
     });
-  });
 
-  fetch(
-    "https://script.google.com/macros/s/AKfycbxxzisEzNtMxXEldQX2D7NxDI4ewWFLDBgYIzMyXGdhA3SI_e6dLmjrorAoPvCcxKMOjg/exec",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        productionDate: date,
-        machine,
-        notes,
-        items
-      })
-    }
-  ).then(()=>alert("Submitted!"));
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", message: err }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }
-</script>
 
-</body>
-</html>
+
+/************************************************************
+ * GET — Item List (Column A)
+ ************************************************************/
+function getItemList() {
+  const ss = SpreadsheetApp.openById(SS_ID);
+  const sheet = ss.getSheetByName("List Item FG");
+
+  const data = sheet.getRange("A2:A").getValues()
+    .flat()
+    .filter(v => v && String(v).trim() !== "");
+
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/************************************************************
+ * GET — KPC List (Column A)
+ ************************************************************/
+function getKPCList() {
+  const ss = SpreadsheetApp.openById(SS_ID);
+  const sheet = ss.getSheetByName("List KPC");
+
+  const data = sheet.getRange("A2:A").getValues()
+    .flat()
+    .filter(v => v && String(v).trim() !== "");
+
+  data.push("Others");
+
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
