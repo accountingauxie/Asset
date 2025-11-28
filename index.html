@@ -166,10 +166,39 @@ textarea {
 .submit-btn:hover {
   background: #0d6fbb;
 }
+
+/* ------------------ LOADING OVERLAY ------------------ */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+.spinner {
+  width: 58px;
+  height: 58px;
+  border: 6px solid #cce4f6;
+  border-top-color: #0075c9;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 </style>
 </head>
 
 <body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+</div>
 
 <div class="header">
   Production Entry
@@ -228,33 +257,38 @@ textarea {
 </div>
 
 <script>
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSdWIqUQocpCvxylChqOIE4Kc-KpnVlKF_urpzpX84pMqZq2c01g/exec";
 
 let itemList = [];
 let kpcList = [];
 
-/* ------------------ GENERATE ENTRY ID ------------------ */
+/* ------------------ LOADING FUNCTIONS ------------------ */
+function showLoading() {
+  document.getElementById("loadingOverlay").style.display = "flex";
+}
+
+function hideLoading() {
+  document.getElementById("loadingOverlay").style.display = "none";
+}
+
+/* ---------------- GENERATE ENTRY ID ---------------- */
 function generateEntryId() {
   const date = document.getElementById("productionDate").value;
-
-  if (!date) {
-    document.getElementById("entryId").value = "";
-    return;
-  }
+  if (!date) return (document.getElementById("entryId").value = "");
 
   const d = new Date(date);
   const yy = String(d.getFullYear()).slice(2);
   const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const seq = "0000001"; // static until backend integration
 
-  // Default sequence number (frontend only)
-  const seq = "0000001";
-
-  const id = `FGP${yy}${mm}${seq}`;
-  document.getElementById("entryId").value = id;
+  document.getElementById("entryId").value = `FGP${yy}${mm}${seq}`;
 }
 
-/* Load item + kpc */
+/* ------------------- LOAD ITEM + KPC ------------------- */
 window.addEventListener("DOMContentLoaded", async () => {
+  showLoading();
+
   try {
     const [itemsRes, kpcRes] = await Promise.all([
       fetch(`${SCRIPT_URL}?action=getitem`),
@@ -265,16 +299,17 @@ window.addEventListener("DOMContentLoaded", async () => {
     kpcList = await kpcRes.json();
 
     addRow();
-
   } catch (err) {
     alert("Error loading Item/KPC list.");
   }
+
+  hideLoading();
 });
 
 /* Update ID when date changes */
 document.getElementById("productionDate").addEventListener("change", generateEntryId);
 
-/* ADD ROW */
+/* ADD NEW ROW */
 function addRow() {
   const tbody = document.getElementById("tableBody");
   const tr = document.createElement("tr");
@@ -322,8 +357,9 @@ function updateTotals() {
   });
 }
 
-/* SUBMIT */
+/* ---------------------- SUBMIT ----------------------- */
 function submitForm() {
+
   const date = document.getElementById("productionDate").value;
   const machine = document.getElementById("machineUsed").value;
   const notes = document.getElementById("notes").value;
@@ -337,11 +373,11 @@ function submitForm() {
 
   rows.forEach(r => {
     items.push({
-      item:  r.querySelector(".item").value,
+      item: r.querySelector(".item").value,
       meter: r.querySelector(".meter").value,
-      qty:   r.querySelector(".qty").value,
+      qty: r.querySelector(".qty").value,
       total: r.querySelector(".total").value,
-      kpc:   r.querySelector(".kpc").value
+      kpc: r.querySelector(".kpc").value
     });
   });
 
@@ -353,14 +389,22 @@ function submitForm() {
     items: items
   };
 
+  showLoading();
+
   fetch(SCRIPT_URL, {
     method: "POST",
     body: JSON.stringify(payload)
   })
-  .then(() => alert("Submitted!"))
-  .catch(err => alert("Error submitting: " + err));
+  .then(() => {
+    hideLoading();
+    alert("Submitted!");
+  })
+  .catch(err => {
+    hideLoading();
+    alert("Error submitting: " + err);
+  });
 }
-</script>
 
+</script>
 </body>
 </html>
