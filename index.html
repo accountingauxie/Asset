@@ -16,7 +16,7 @@
 <style>
 /* ==========================
       GLOBAL + BACKGROUND
-=========================== */
+============================*/
 body {
   margin: 0;
   padding: 0;
@@ -26,7 +26,7 @@ body {
 
 /* ==========================
           HEADER
-=========================== */
+============================*/
 .header {
   display: flex;
   justify-content: space-between;
@@ -41,110 +41,113 @@ body {
 
 .header-right {
   font-size: 14px;
-  font-weight: 500;
-  opacity: .7;
+  opacity: .65;
 }
 
 /* ==========================
             PAGE
-=========================== */
+============================*/
 .page {
   max-width: 1200px;
-  margin: 25px auto;
+  margin: 30px auto;
 }
 
 /* ==========================
-          LABEL
-=========================== */
+            LABEL
+============================*/
 label {
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   display: block;
   color: #444;
 }
 
 /* ==========================
-       INPUT BOX (SMALL)
-=========================== */
+     INPUT BOX – SMALL
+============================*/
 .input-box {
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid #d0d5dd;
-  border-radius: 6px;
+  border-radius: 5px;
   font-size: 13px;
-  width: 180px;
-  background: #fff;
+  width: 160px;
+  height: 30px;
+  background: #fafafa;
 }
 
 /* FLEX ROW */
 .row-flex {
   display: flex;
-  gap: 22px;
+  gap: 20px;
   align-items: flex-end;
   margin-bottom: 18px;
 }
 
 /* ==========================
             TABLE
-=========================== */
+============================*/
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 10px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: visible !important;
   border: 1px solid #e5e7eb;
 }
 
 th {
-  background: #fafafa;
-  padding: 10px;
+  background: #f5f6f7;
+  padding: 8px;
   font-size: 13px;
   font-weight: 600;
-  border-bottom: 1px solid #e5e7eb;
   color: #333;
+  border-bottom: 1px solid #e2e4e7;
 }
 
 td {
-  padding: 10px;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-/* TABLE INPUT */
-.table-input {
-  width: 100%;
-  padding: 7px 8px;
-  border-radius: 6px;
-  border: 1px solid #d0d5dd;
-  font-size: 13px;
+  padding: 8px;
+  border-bottom: 1px solid #f1f2f3;
 }
 
 /* ==========================
-      SORT HANDLE + DELETE
-=========================== */
+     SMALL TABLE INPUT
+============================*/
+.table-input {
+  width: 100%;
+  padding: 6px 8px;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid #d0d5dd;
+  font-size: 13px;
+  background: #fafafa;
+}
+
+/* HANDLE */
 .row-handle {
   cursor: grab;
   width: 18px;
   text-align: center;
   color: #999;
-  font-size: 16px;
+  font-size: 14px;
 }
 
+/* DELETE BUTTON */
 .delete-btn {
   cursor: pointer;
-  font-size: 17px;
+  font-size: 15px;
   color: #d11a2a;
   text-align: center;
 }
 
 /* ==========================
         ADD ROW BTN
-=========================== */
+============================*/
 .add-row-btn {
   margin-top: 12px;
-  padding: 7px 14px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 5px;
   background: #f3f6ff;
   color: #2d6cdf;
   border: 1px solid #dce5ff;
@@ -158,28 +161,28 @@ td {
 }
 
 /* ==========================
-         NOTES BOX
-=========================== */
+          NOTES
+============================*/
 textarea {
   width: 100%;
-  height: 120px;
+  height: 110px;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #d0d5dd;
+  background: #fafafa;
   font-size: 14px;
-  background: #fff;
 }
 
 /* ==========================
           SUBMIT
-=========================== */
+============================*/
 .submit-btn {
   margin-top: 25px;
-  padding: 12px 28px;
+  padding: 10px 25px;
   background: #2d6cdf;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -190,48 +193,51 @@ textarea {
 }
 
 /* ==========================
-     CHOICES.JS FIX
-=========================== */
-table, tbody, tr, td {
-    overflow: visible !important;
-}
-
+     CHOICES – SMALL MODE
+============================*/
 .choices {
     width: 100% !important;
     z-index: 99999 !important;
 }
 
 .choices__inner {
-    min-height: 34px !important;
-    height: 34px !important;
-    padding: 4px 6px !important;
-    border-radius: 6px !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 3px 6px !important;
+    border-radius: 5px !important;
+    background: #fafafa !important;
+    border: 1px solid #d0d5dd !important;
+    font-size: 13px !important;
+}
+
+.choices__list--single {
+    padding-top: 2px !important;
     font-size: 13px !important;
 }
 
 .choices__list--dropdown,
 .choices__list[aria-expanded] {
-    z-index: 999999 !important;
-    position: absolute !important;
-    width: 100% !important;
-    background: white !important;
-    border-radius: 6px !important;
+    background: #ffffff !important;
     border: 1px solid #d0d5dd !important;
+    border-radius: 5px !important;
+    font-size: 13px !important;
+    z-index: 999999 !important;
 }
 </style>
 </head>
 
 <body>
 
+<!-- LOADING -->
 <div id="loadingOverlay" style="
   position:fixed; inset:0;
   background:rgba(255,255,255,0.7);
   display:none; justify-content:center; align-items:center; z-index:9999;">
-  <div class="loader" style="
+  <div style="
     border:6px solid #d1e3f5;
-    border-top:6px solid #0f80d9;
+    border-top:6px solid #2d6cdf;
     border-radius:50%;
-    width:55px; height:55px;
+    width:45px; height:45px;
     animation:spin 0.9s linear infinite;">
   </div>
 </div>
@@ -265,6 +271,7 @@ table, tbody, tr, td {
     </div>
   </div>
 
+  <!-- TABLE -->
   <table>
     <thead>
       <tr>
@@ -276,7 +283,7 @@ table, tbody, tr, td {
 
   <button class="add-row-btn" onclick="addRow()">+ Add row</button>
 
-  <div style="margin-top:35px; font-size:16px; font-weight:600;">Additional Notes</div>
+  <div style="margin-top:25px; font-size:15px; font-weight:600;">Additional Notes</div>
   <textarea id="notes"></textarea>
 
   <button class="submit-btn" onclick="submitForm()">Submit</button>
@@ -289,11 +296,10 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSd
 let itemList = [];
 let kpcList = [];
 
-/* Loading overlay */
 function showLoading() { document.getElementById("loadingOverlay").style.display = "flex"; }
 function hideLoading() { document.getElementById("loadingOverlay").style.display = "none"; }
 
-/* Generate entry ID */
+/* ENTRY ID */
 function generateEntryId() {
   const now = new Date();
   const yy = String(now.getFullYear()).slice(2);
@@ -321,7 +327,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     hideLoading();
 
   } catch (err) {
-    alert("Error loading dropdown list");
+    alert("Error loading dropdown data");
     hideLoading();
   }
 });
@@ -337,6 +343,7 @@ function setupSortable() {
 /* ADD ROW */
 function addRow() {
   const row = document.createElement("tr");
+
   row.innerHTML = `
     <td class="row-handle">⋮⋮</td>
 
@@ -345,7 +352,7 @@ function addRow() {
     <td><input type="number" class="table-input meter" value="6"></td>
     <td><input type="number" class="table-input qty" value="0"></td>
 
-    <td><input type="number" class="table-input total" readonly style="background:#f9fafb;"></td>
+    <td><input type="number" class="table-input total" readonly></td>
 
     <td><select class="kpc-select"></select></td>
 
@@ -365,21 +372,19 @@ function addRow() {
 function initChoices(selectEl, optionsArray) {
   optionsArray.forEach(v => {
     const opt = document.createElement("option");
-    opt.value = v; 
+    opt.value = v;
     opt.textContent = v;
     selectEl.appendChild(opt);
   });
 
   new Choices(selectEl, {
-    searchPlaceholderValue: "Search...",
-    shouldSort: false,
-    position: "bottom",
     searchEnabled: true,
     itemSelectText: "",
+    shouldSort: false
   });
 }
 
-/* TOTAL */
+/* CALCULATE TOTAL */
 function updateTotals() {
   document.querySelectorAll("#tableBody tr").forEach(r => {
     const m = parseFloat(r.querySelector(".meter").value) || 0;
@@ -392,17 +397,14 @@ function updateTotals() {
 function validateForm() {
   if (!productionDate.value) return "Date required.";
   if (!machineUsed.value) return "Machine required.";
-
   const rows = document.querySelectorAll("#tableBody tr");
   if (rows.length === 0) return "Add at least 1 item.";
-
   for (const r of rows) {
     if (!r.querySelector(".item-select").value) return "Item cannot be empty.";
-    if (!r.querySelector(".meter").value) return "Meter cannot be empty.";
-    if (!r.querySelector(".qty").value) return "Qty cannot be empty.";
-    if (!r.querySelector(".kpc-select").value) return "KPC cannot be empty.";
+    if (!r.querySelector(".meter").value) return "Meter required.";
+    if (!r.querySelector(".qty").value) return "Qty required.";
+    if (!r.querySelector(".kpc-select").value) return "KPC required.";
   }
-
   return null;
 }
 
