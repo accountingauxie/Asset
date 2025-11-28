@@ -46,7 +46,7 @@ label {
   display: block;
 }
 
-/* INPUT */
+/* INPUT BOX */
 .input-box {
   padding: 11px 13px;
   border: 1px solid #cfd8e3;
@@ -62,7 +62,7 @@ label {
   outline: none;
 }
 
-/* TWO-COLUMN ROW */
+/* FLEX ROW */
 .row-flex {
   display: flex;
   gap: 30px;
@@ -94,7 +94,7 @@ td {
   border-bottom: 1px solid #f0f3f7;
 }
 
-/* TABLE INPUTS */
+/* TABLE INPUT */
 .table-input {
   width: 100%;
   padding: 9px 10px;
@@ -123,7 +123,7 @@ td {
   cursor: pointer;
 }
 
-/* ADD ROW */
+/* ADD ROW BUTTON */
 .add-row-btn {
   margin-top: 15px;
   padding: 9px 16px;
@@ -150,7 +150,7 @@ textarea {
   background: #fff;
 }
 
-/* SUBMIT */
+/* SUBMIT BUTTON */
 .submit-btn {
   margin-top: 30px;
   padding: 14px 35px;
@@ -167,37 +167,42 @@ textarea {
   background: #0d6fbb;
 }
 
-/* ------------------ LOADING OVERLAY ------------------ */
-.loading-overlay {
+/* LOADING OVERLAY */
+#loadingOverlay {
   position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.75);
+  display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 99999;
+  z-index: 999;
+  display: none;
 }
 
-.spinner {
-  width: 58px;
-  height: 58px;
-  border: 6px solid #cce4f6;
-  border-top-color: #0075c9;
+.loader {
+  border: 6px solid #d1e3f5;
+  border-top: 6px solid #0f80d9;
   border-radius: 50%;
+  width: 55px;
+  height: 55px;
   animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
+
 </style>
 </head>
 
 <body>
 
-<!-- LOADING OVERLAY -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
+<div id="loadingOverlay">
+  <div class="loader"></div>
 </div>
 
 <div class="header">
@@ -207,13 +212,8 @@ textarea {
 
 <div class="page">
 
-  <!-- ID + DATE + MACHINE -->
+  <!-- DATE | MACHINE | ENTRY ID -->
   <div class="row-flex">
-
-    <div>
-      <label>Production Entry ID</label>
-      <input type="text" id="entryId" class="input-box" readonly style="background:#f4f7fb;">
-    </div>
 
     <div>
       <label>Date</label>
@@ -222,11 +222,16 @@ textarea {
 
     <div>
       <label>Production Machine</label>
-      <select id="machineUsed" class="input-box" style="width:220px;">
+      <select id="machineUsed" class="input-box">
         <option value="">— Select Machine —</option>
         <option value="RENG__009_MX">RENG__009_MX</option>
         <option value="TRUSS010">TRUSS010</option>
       </select>
+    </div>
+
+    <div>
+      <label>Production Entry ID</label>
+      <input type="text" id="entryId" class="input-box" readonly style="background:#f4f7fb;">
     </div>
 
   </div>
@@ -257,37 +262,34 @@ textarea {
 </div>
 
 <script>
-
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSdWIqUQocpCvxylChqOIE4Kc-KpnVlKF_urpzpX84pMqZq2c01g/exec";
 
 let itemList = [];
 let kpcList = [];
 
-/* ------------------ LOADING FUNCTIONS ------------------ */
+/* SHOW + HIDE LOADING */
 function showLoading() {
   document.getElementById("loadingOverlay").style.display = "flex";
 }
-
 function hideLoading() {
   document.getElementById("loadingOverlay").style.display = "none";
 }
 
-/* ---------------- GENERATE ENTRY ID ---------------- */
+/* GENERATE ENTRY ID BASED ON TODAY'S TIMESTAMP */
 function generateEntryId() {
-  const date = document.getElementById("productionDate").value;
-  if (!date) return (document.getElementById("entryId").value = "");
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(2);
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
 
-  const d = new Date(date);
-  const yy = String(d.getFullYear()).slice(2);
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const seq = "0000001"; // static until backend integration
+  const seq = "0000001"; // static for now
 
   document.getElementById("entryId").value = `FGP${yy}${mm}${seq}`;
 }
 
-/* ------------------- LOAD ITEM + KPC ------------------- */
+/* LOAD ITEMS */
 window.addEventListener("DOMContentLoaded", async () => {
   showLoading();
+  generateEntryId();
 
   try {
     const [itemsRes, kpcRes] = await Promise.all([
@@ -299,17 +301,16 @@ window.addEventListener("DOMContentLoaded", async () => {
     kpcList = await kpcRes.json();
 
     addRow();
-  } catch (err) {
-    alert("Error loading Item/KPC list.");
-  }
+    hideLoading();
 
-  hideLoading();
+  } catch (err) {
+    console.error(err);
+    alert("Failed loading Item/KPC list");
+    hideLoading();
+  }
 });
 
-/* Update ID when date changes */
-document.getElementById("productionDate").addEventListener("change", generateEntryId);
-
-/* ADD NEW ROW */
+/* ADD ROW */
 function addRow() {
   const tbody = document.getElementById("tableBody");
   const tr = document.createElement("tr");
@@ -345,10 +346,12 @@ function addRow() {
   tr.querySelector(".qty").addEventListener("input", updateTotals);
 }
 
+/* DELETE ROW */
 function deleteRow(btn) {
-  btn.parentElement.remove();
+  btn.parentElement.parentElement.remove();
 }
 
+/* UPDATE TOTAL */
 function updateTotals() {
   document.querySelectorAll("#tableBody tr").forEach(r => {
     const m = parseFloat(r.querySelector(".meter").value) || 0;
@@ -357,39 +360,41 @@ function updateTotals() {
   });
 }
 
-/* ---------------------- SUBMIT ----------------------- */
+/* SUBMIT FORM */
 function submitForm() {
+  showLoading();
 
   const date = document.getElementById("productionDate").value;
   const machine = document.getElementById("machineUsed").value;
   const notes = document.getElementById("notes").value;
   const entryId = document.getElementById("entryId").value;
 
-  if (!date) return alert("⚠ Please select a Production Date.");
-  if (!entryId) return alert("⚠ Entry ID not generated.");
+  if (!date) {
+    hideLoading();
+    alert("⚠ Please select a Production Date.");
+    return;
+  }
 
   const rows = document.querySelectorAll("#tableBody tr");
   const items = [];
 
   rows.forEach(r => {
     items.push({
-      item: r.querySelector(".item").value,
+      item:  r.querySelector(".item").value,
       meter: r.querySelector(".meter").value,
-      qty: r.querySelector(".qty").value,
+      qty:   r.querySelector(".qty").value,
       total: r.querySelector(".total").value,
-      kpc: r.querySelector(".kpc").value
+      kpc:   r.querySelector(".kpc").value
     });
   });
 
   const payload = {
-    entryId: entryId,
+    productionEntryId: entryId,
     productionDate: date,
     machine: machine,
     notes: notes,
     items: items
   };
-
-  showLoading();
 
   fetch(SCRIPT_URL, {
     method: "POST",
@@ -404,7 +409,7 @@ function submitForm() {
     alert("Error submitting: " + err);
   });
 }
-
 </script>
+
 </body>
 </html>
