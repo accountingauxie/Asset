@@ -33,7 +33,7 @@ body {
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
-  padding: 16px 30px;
+  padding: 16px 35px;
   font-size: 20px;
   font-weight: 600;
   border-bottom: 1px solid #e2e4e6;
@@ -48,12 +48,12 @@ body {
     PAGE WRAPPER
 =========================================== */
 .page {
-  max-width: 1200px;
-  margin: 20px auto;
+  max-width: 1100px;
+  margin: 25px auto;
 }
 
 /* ===========================================
-    LABELS (compact)
+    LABELS
 =========================================== */
 label {
   font-size: 12.5px;
@@ -63,7 +63,7 @@ label {
 }
 
 /* ===========================================
-   INPUTS — COMPACT++
+   INPUT COMPACT++
 =========================================== */
 .input-box,
 .table-input,
@@ -78,15 +78,21 @@ label {
   box-sizing: border-box;
 }
 
+/* ===========================================
+   TOP FORM (CENTERED)
+=========================================== */
 .row-flex {
-  display: flex;
-  gap: 15px;
-  align-items: flex-end;
-  margin-bottom: 15px;
+  display: grid;
+  grid-template-columns: 180px 220px 200px;
+  column-gap: 25px;
+  align-items: end;
+  margin-bottom: 20px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ===========================================
-    TABLE — COMPACT++
+    TABLE COMPACT++
 =========================================== */
 table {
   width: 100%;
@@ -120,18 +126,17 @@ table tr {
 #tableBody th:nth-child(4), #tableBody td:nth-child(4) { width: 7%; }  /* Qty */
 #tableBody th:nth-child(5), #tableBody td:nth-child(5) { width: 10%; } /* Total */
 #tableBody th:nth-child(6), #tableBody td:nth-child(6) { width: 20%; } /* KPC */
-#tableBody th:nth-child(1), #tableBody td:nth-child(1) { width: 20px; } /* Handle */
-#tableBody th:nth-child(7), #tableBody td:nth-child(7) { width: 20px; } /* Delete */
+#tableBody th:nth-child(1), #tableBody td:nth-child(1) { width: 20px; }
+#tableBody th:nth-child(7), #tableBody td:nth-child(7) { width: 20px; }
 
-/* Allow dropdown to float above */
+/* ===========================================
+    DROPDOWN ALWAYS ABOVE (FIX)
+=========================================== */
 table, tbody, tr, td {
   overflow: visible !important;
   position: relative !important;
 }
 
-/* ===========================================
-   DROPDOWN ALWAYS ABOVE ALL
-=========================================== */
 .choices__list--dropdown,
 .choices__list[aria-expanded] {
   position: absolute !important;
@@ -159,7 +164,7 @@ table, tbody, tr, td {
 }
 
 /* ===========================================
-    ADD ROW BTN
+    ADD ROW BUTTON
 =========================================== */
 .add-row-btn {
   margin-top: 8px;
@@ -170,11 +175,10 @@ table, tbody, tr, td {
   border: 1px solid #d6e4ff;
   color: #2e6de7;
   font-weight: 600;
-  cursor: pointer;
 }
 
 /* ===========================================
-    NOTES
+    NOTES (center width)
 =========================================== */
 textarea {
   width: 100%;
@@ -184,6 +188,7 @@ textarea {
   border-radius: 4px;
   border: 1px solid #d0d5dd;
   background: #f9fafb;
+  margin-top: 5px;
 }
 
 /* ===========================================
@@ -206,6 +211,7 @@ textarea {
 </style>
 
 </head>
+
 <body>
 
 <!-- LOADING -->
@@ -230,7 +236,7 @@ textarea {
 
 <div class="page">
 
-  <!-- TOP FORM -->
+  <!-- TOP FORM (CENTERED) -->
   <div class="row-flex">
     <div>
       <label>Date</label>
@@ -271,7 +277,7 @@ textarea {
 
   <button class="add-row-btn" onclick="addRow()">+ Add row</button>
 
-  <div style="margin-top:15px; font-size:13px; font-weight:600;">Additional Notes</div>
+  <div style="margin-top:18px; font-size:13px; font-weight:600;">Additional Notes</div>
   <textarea id="notes"></textarea>
 
   <button class="submit-btn" onclick="submitForm()">Submit</button>
@@ -288,16 +294,15 @@ let kpcList = [];
 function showLoading() { document.getElementById("loadingOverlay").style.display = "flex"; }
 function hideLoading() { document.getElementById("loadingOverlay").style.display = "none"; }
 
-/* ENTRY ID GENERATOR */
+/* GENERATE ENTRY ID */
 function generateEntryId() {
   const now = new Date();
   const yy = String(now.getFullYear()).slice(2);
   const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const seq = "0000001";
-  entryId.value = `FGP${yy}${mm}${seq}`;
+  entryId.value = `FGP${yy}${mm}0000001`;
 }
 
-/* ON LOAD */
+/* INITIAL LOAD */
 window.addEventListener("DOMContentLoaded", async () => {
   showLoading();
   generateEntryId();
@@ -351,26 +356,23 @@ function addRow() {
 
   tableBody.appendChild(row);
 
-initChoices(row.querySelector(".item-select"), itemList, "Select Item");
-initChoices(row.querySelector(".kpc-select"), kpcList, "Select KPC");
-
+  initChoices(row.querySelector(".item-select"), itemList, "Select Item");
+  initChoices(row.querySelector(".kpc-select"), kpcList, "Select KPC");
 
   row.querySelector(".meter").addEventListener("input", updateTotals);
   row.querySelector(".qty").addEventListener("input", updateTotals);
 }
 
-/* INIT CHOICES */
+/* INIT CHOICES WITH PLACEHOLDER */
 function initChoices(selectEl, optionsArray, placeholderText = "Select") {
 
-  // Add placeholder option
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = placeholderText;
   placeholder.disabled = true;
   placeholder.selected = true;
+  placeholder.textContent = placeholderText;
   selectEl.appendChild(placeholder);
 
-  // Add real options
   optionsArray.forEach(v => {
     const opt = document.createElement("option");
     opt.value = v;
@@ -385,7 +387,6 @@ function initChoices(selectEl, optionsArray, placeholderText = "Select") {
     placeholderValue: placeholderText
   });
 }
-
 
 /* UPDATE TOTALS */
 function updateTotals() {
