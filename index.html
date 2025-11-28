@@ -419,4 +419,92 @@ function addRow(){
 /* Choices.js initializer */
 function initChoices(selectEl, arr, placeholder){
   const ph = document.createElement("option");
-  ph.valu
+  ph.value = "";
+  ph.disabled = true;
+  ph.selected = true;
+  ph.textContent = placeholder;
+  selectEl.appendChild(ph);
+
+  arr.forEach(v=>{
+    const o = document.createElement("option");
+    o.value=v;
+    o.textContent=v;
+    selectEl.appendChild(o);
+  });
+
+  new Choices(selectEl,{
+    searchEnabled:true,
+    itemSelectText:"",
+    placeholderValue:placeholder,
+    shouldSort:false
+  });
+}
+
+/* Update totals */
+function updateTotals(){
+  tableBody.querySelectorAll("tr").forEach(r=>{
+    const m = parseFloat(r.querySelector(".meter").value)||0;
+    const q = parseFloat(r.querySelector(".qty").value)||0;
+    r.querySelector(".total").value = m*q;
+  });
+}
+
+/* Validate */
+function validateForm(){
+  if(!productionDate.value) return "Date is required.";
+  if(!machineUsed.value) return "Machine is required.";
+
+  const rows=[...document.querySelectorAll("#tableBody tr")];
+  if(!rows.length) return "At least 1 row required.";
+
+  for(const r of rows){
+    if(!r.querySelector(".item-select").value) return "Item required.";
+    if(!r.querySelector(".meter").value) return "Meter required.";
+    if(!r.querySelector(".qty").value) return "Qty required.";
+    if(!r.querySelector(".kpc-select").value) return "KPC required.";
+  }
+  return null;
+}
+
+/* Submit */
+function submitForm(){
+  showLoading();
+
+  const err = validateForm();
+  if(err){
+    hideLoading();
+    alert(err);
+    return;
+  }
+
+  const payload = {
+    productionEntryId: entryId.value,
+    productionDate: productionDate.value,
+    machine: machineUsed.value,
+    notes: notes.value,
+    items: [...document.querySelectorAll("#tableBody tr")].map(r=>({
+      item: r.querySelector(".item-select").value,
+      meter: r.querySelector(".meter").value,
+      qty: r.querySelector(".qty").value,
+      total: r.querySelector(".total").value,
+      kpc: r.querySelector(".kpc-select").value
+    }))
+  };
+
+  fetch(SCRIPT_URL,{
+    method:"POST",
+    body: JSON.stringify(payload)
+  })
+  .then(()=>{
+    hideLoading();
+    alert("Submitted!");
+  })
+  .catch(err=>{
+    hideLoading();
+    alert("Error submitting: "+err);
+  });
+}
+</script>
+
+</body>
+</html>
