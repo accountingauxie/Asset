@@ -14,101 +14,122 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
 <style>
-/* ===========================================
-    GLOBAL (Compact++)
-=========================================== */
+
+/* ==========================================================
+   GLOBAL BASE STYLE (Compact++ v3)
+========================================================== */
 body {
   margin: 0;
   padding: 0;
   background: #ffffff;
-  font-family: Segoe UI, sans-serif;
-  font-size: 12.5px;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  color: #333;
 }
 
-/* ===========================================
-    HEADER
-=========================================== */
+/* Smooth transition on inputs */
+input, select, textarea, .choices__inner {
+  transition: all 0.18s ease;
+}
+
+/* Input hover effect */
+input:hover, select:hover, textarea:hover, .choices__inner:hover {
+  border-color: #b9c4d0 !important;
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ffffff;
-  padding: 16px 35px;
-  font-size: 20px;
+  padding: 18px 35px;
+  font-size: 22px;
   font-weight: 600;
-  border-bottom: 1px solid #e2e4e6;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e4e8;
+  color: #1a1a1a;
 }
 
 .header-right {
   font-size: 13px;
-  opacity: .65;
+  opacity: 0.65;
 }
 
-/* ===========================================
-    PAGE WRAPPER
-=========================================== */
+/* ==========================================================
+   PAGE WRAPPER
+========================================================== */
 .page {
   max-width: 1100px;
   margin: 25px auto;
 }
 
-/* ===========================================
-    LABELS
-=========================================== */
+/* ==========================================================
+   LABEL
+========================================================== */
 label {
   font-size: 12.5px;
   font-weight: 600;
-  margin-bottom: 3px;
-  color: #444;
+  margin-bottom: 4px;
+  color: #4a4a4a;
 }
 
-/* ===========================================
-   INPUT COMPACT++
-=========================================== */
+/* ==========================================================
+   INPUT + DROPDOWN (COMPACT++)
+========================================================== */
 .input-box,
 .table-input,
 .choices__inner {
-  height: 24px !important;
-  min-height: 24px !important;
-  padding: 3px 6px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 3px 7px !important;
   font-size: 12.5px !important;
-  border: 1px solid #d0d5dd !important;
-  border-radius: 4px !important;
+  border: 1px solid #d0d7df !important;
+  border-radius: 5px !important;
   background: #f9fafb !important;
   box-sizing: border-box;
 }
 
-/* ===========================================
-   TOP FORM (CENTERED)
-=========================================== */
-.row-flex {
-  display: grid;
-  grid-template-columns: 180px 220px 200px;
-  column-gap: 25px;
-  align-items: end;
-  margin-bottom: 20px;
-  margin-left: auto;
-  margin-right: auto;
+/* Placeholder Xero style */
+.choices__placeholder {
+  color: #999 !important;
+  opacity: 1 !important;
 }
 
-/* ===========================================
-    TABLE COMPACT++
-=========================================== */
+/* ==========================================================
+   TOP FORM (CENTERED & BEAUTIFUL)
+========================================================== */
+.row-flex {
+  display: grid;
+  grid-template-columns: 180px 220px 220px;
+  column-gap: 32px;
+  row-gap: 8px;
+  align-items: end;
+  justify-content: center;
+  margin: 0 auto 22px auto;
+  max-width: 1100px;
+}
+
+/* ==========================================================
+   TABLE DESIGN (PREMIUM)
+========================================================== */
 table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  border-radius: 5px;
-  border: 1px solid #dde0e3;
+  border-radius: 8px;
+  border: 1px solid #e3e6ea;
   overflow: visible !important;
 }
 
 th {
-  background: #f5f6f7;
-  padding: 4px;
+  background: #f4f6f8;
+  padding: 6px;
   font-size: 12.5px;
   font-weight: 600;
   border-bottom: 1px solid #e1e4e9;
+  color: #313d4f;
 }
 
 td {
@@ -117,21 +138,33 @@ td {
 }
 
 table tr {
-  height: 32px !important;
+  height: 34px !important;
 }
 
-/* Column Width Optimized */
-#tableBody th:nth-child(2), #tableBody td:nth-child(2) { width: 28%; } /* Item */
-#tableBody th:nth-child(3), #tableBody td:nth-child(3) { width: 7%; }  /* Meter */
-#tableBody th:nth-child(4), #tableBody td:nth-child(4) { width: 7%; }  /* Qty */
-#tableBody th:nth-child(5), #tableBody td:nth-child(5) { width: 10%; } /* Total */
-#tableBody th:nth-child(6), #tableBody td:nth-child(6) { width: 20%; } /* KPC */
+/* Column widths */
+#tableBody th:nth-child(2), #tableBody td:nth-child(2) { width: 28%; }
+#tableBody th:nth-child(3), #tableBody td:nth-child(3) { width: 7%; }
+#tableBody th:nth-child(4), #tableBody td:nth-child(4) { width: 7%; }
+#tableBody th:nth-child(5), #tableBody td:nth-child(5) { width: 10%; }
+#tableBody th:nth-child(6), #tableBody td:nth-child(6) { width: 21%; }
 #tableBody th:nth-child(1), #tableBody td:nth-child(1) { width: 20px; }
 #tableBody th:nth-child(7), #tableBody td:nth-child(7) { width: 20px; }
 
-/* ===========================================
-    DROPDOWN ALWAYS ABOVE (FIX)
-=========================================== */
+/* Sort + delete icons */
+.row-handle {
+  font-size: 12px;
+  color: #999;
+  cursor: grab;
+}
+.delete-btn {
+  font-size: 14px;
+  color: #cc1f2f;
+  cursor: pointer;
+}
+
+/* ==========================================================
+   DROPDOWN ALWAYS ABOVE — FIXED
+========================================================== */
 table, tbody, tr, td {
   overflow: visible !important;
   position: relative !important;
@@ -142,93 +175,82 @@ table, tbody, tr, td {
   position: absolute !important;
   z-index: 99999999 !important;
   background: white !important;
-  border: 1px solid #d0d5dd !important;
-  border-radius: 4px !important;
-  font-size: 12.5px !important;
+  border: 1px solid #cfd7df !important;
+  border-radius: 5px !important;
   width: 100% !important;
+  font-size: 12.5px !important;
 }
 
-/* ===========================================
-    ICONS
-=========================================== */
-.row-handle {
+/* ==========================================================
+   ADD ROW BUTTON
+========================================================== */
+.add-row-btn {
+  margin-top: 10px;
+  padding: 5px 12px;
   font-size: 12px;
-  color: #999;
-  cursor: grab;
-}
-
-.delete-btn {
-  font-size: 13px;
-  color: #d11a2a;
+  border-radius: 5px;
+  background: #eef4ff;
+  border: 1px solid #cfe0ff;
+  color: #1f5ddb;
+  font-weight: 600;
   cursor: pointer;
 }
-
-/* ===========================================
-    ADD ROW BUTTON
-=========================================== */
-.add-row-btn {
-  margin-top: 8px;
-  padding: 4px 10px;
-  font-size: 11.5px;
-  border-radius: 4px;
-  background: #eef5ff;
-  border: 1px solid #d6e4ff;
-  color: #2e6de7;
-  font-weight: 600;
+.add-row-btn:hover {
+  background: #e2ebff;
 }
 
-/* ===========================================
-    NOTES (center width)
-=========================================== */
+/* ==========================================================
+   NOTES AREA
+========================================================== */
 textarea {
   width: 100%;
-  height: 100px;
-  padding: 7px;
+  height: 110px;
+  padding: 8px;
   font-size: 12.5px;
-  border-radius: 4px;
-  border: 1px solid #d0d5dd;
   background: #f9fafb;
-  margin-top: 5px;
+  border: 1px solid #d0d7df;
+  border-radius: 6px;
+  margin-top: 4px;
 }
 
-/* ===========================================
-    SUBMIT BUTTON
-=========================================== */
+/* ==========================================================
+   SUBMIT BUTTON
+========================================================== */
 .submit-btn {
-  margin-top: 20px;
-  padding: 8px 20px;
-  font-size: 13px;
+  margin-top: 25px;
+  padding: 9px 24px;
+  font-size: 13.5px;
   font-weight: 600;
-  border-radius: 5px;
-  background: #2d6cdf;
+  border-radius: 6px;
+  background: #2b6be8;
   color: white;
   border: none;
+  cursor: pointer;
 }
-
 .submit-btn:hover {
-  background: #1e54b7;
+  background: #2158c7;
 }
-</style>
 
+</style>
 </head>
 
 <body>
 
-<!-- LOADING -->
+<!-- Loading Overlay -->
 <div id="loadingOverlay" style="
   position:fixed; inset:0;
-  background:rgba(255,255,255,0.7);
+  background:rgba(255,255,255,0.75);
   display:none; justify-content:center; align-items:center; z-index:9999;">
   <div style="
-    border:6px solid #d1e3f5;
-    border-top:6px solid #2d6cdf;
+    border:5px solid #dae6f4;
+    border-top:5px solid #2b6be8;
     border-radius:50%;
-    width:45px; height:45px;
-    animation:spin 0.9s linear infinite;">
+    width:42px; height:42px;
+    animation:spin .85s linear infinite;">
   </div>
 </div>
 
-<!-- HEADER -->
+<!-- Header -->
 <div class="header">
   Production Entry
   <div class="header-right">UXILIUM — Accounting Management Services</div>
@@ -236,7 +258,7 @@ textarea {
 
 <div class="page">
 
-  <!-- TOP FORM (CENTERED) -->
+  <!-- Top Form (centered) -->
   <div class="row-flex">
     <div>
       <label>Date</label>
@@ -259,7 +281,7 @@ textarea {
     </div>
   </div>
 
-  <!-- TABLE -->
+  <!-- Table -->
   <table>
     <thead>
       <tr>
@@ -277,68 +299,67 @@ textarea {
 
   <button class="add-row-btn" onclick="addRow()">+ Add row</button>
 
-  <div style="margin-top:18px; font-size:13px; font-weight:600;">Additional Notes</div>
+  <div style="margin-top:20px; font-size:13.5px; font-weight:600;">Additional Notes</div>
   <textarea id="notes"></textarea>
 
   <button class="submit-btn" onclick="submitForm()">Submit</button>
-
 </div>
 
 <script>
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSdWIqUQocpCvxylChqOIE4Kc-KpnVlKF_urpzpX84pMqZq2c01g/exec";
 
 let itemList = [];
 let kpcList = [];
 
-/* LOADING HELPERS */
-function showLoading() { document.getElementById("loadingOverlay").style.display = "flex"; }
-function hideLoading() { document.getElementById("loadingOverlay").style.display = "none"; }
+/* Loading Helpers */
+function showLoading(){ loadingOverlay.style.display="flex"; }
+function hideLoading(){ loadingOverlay.style.display="none"; }
 
-/* GENERATE ENTRY ID */
-function generateEntryId() {
-  const now = new Date();
-  const yy = String(now.getFullYear()).slice(2);
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  entryId.value = `FGP${yy}${mm}0000001`;
+/* Generate Entry ID */
+function generateEntryId(){
+  const now=new Date();
+  const yy=String(now.getFullYear()).slice(2);
+  const mm=String(now.getMonth()+1).padStart(2,"0");
+  entryId.value=`FGP${yy}${mm}000001`;
 }
 
-/* INITIAL LOAD */
-window.addEventListener("DOMContentLoaded", async () => {
+/* On Load */
+window.addEventListener("DOMContentLoaded", async()=>{
+
   showLoading();
   generateEntryId();
 
-  try {
-    const [itemRes, kpcRes] = await Promise.all([
+  try{
+    const [itemRes,kpcRes]=await Promise.all([
       fetch(`${SCRIPT_URL}?action=getitem`),
       fetch(`${SCRIPT_URL}?action=getkpc`)
     ]);
-
-    itemList = await itemRes.json();
-    kpcList = await kpcRes.json();
+    itemList=await itemRes.json();
+    kpcList=await kpcRes.json();
 
     addRow();
     setupSortable();
 
-    hideLoading();
-  } catch (e) {
-    hideLoading();
-    alert("Error loading dropdown data.");
-  }
+  } catch(e){ alert("Error loading dropdown data."); }
+
+  hideLoading();
 });
 
-/* SORTABLE ROWS */
-function setupSortable() {
-  Sortable.create(tableBody, {
-    handle: ".row-handle",
-    animation: 150
+/* Sortable */
+function setupSortable(){
+  Sortable.create(tableBody,{
+    handle:".row-handle",
+    animation:150
   });
 }
 
-/* ADD ROW */
-function addRow() {
-  const row = document.createElement("tr");
+/* Add Row */
+function addRow(){
 
-  row.innerHTML = `
+  const row=document.createElement("tr");
+
+  row.innerHTML=`
     <td class="row-handle">⋮⋮</td>
 
     <td><select class="item-select"></select></td>
@@ -357,102 +378,92 @@ function addRow() {
   tableBody.appendChild(row);
 
   initChoices(row.querySelector(".item-select"), itemList, "Select Item");
-  initChoices(row.querySelector(".kpc-select"), kpcList, "Select KPC");
+  initChoices(row.querySelector(".kpc-select"),  kpcList,  "Select KPC");
 
   row.querySelector(".meter").addEventListener("input", updateTotals);
   row.querySelector(".qty").addEventListener("input", updateTotals);
 }
 
-/* INIT CHOICES WITH PLACEHOLDER */
-function initChoices(selectEl, optionsArray, placeholderText = "Select") {
+/* Initialize Choices.js */
+function initChoices(selectEl, optionsArray, placeholderText){
 
-  const placeholder = document.createElement("option");
-  placeholder.value = "";
-  placeholder.disabled = true;
-  placeholder.selected = true;
-  placeholder.textContent = placeholderText;
-  selectEl.appendChild(placeholder);
+  // placeholder
+  const ph=document.createElement("option");
+  ph.value="";
+  ph.disabled=true;
+  ph.selected=true;
+  ph.textContent=placeholderText;
+  selectEl.appendChild(ph);
 
-  optionsArray.forEach(v => {
-    const opt = document.createElement("option");
-    opt.value = v;
-    opt.textContent = v;
+  // real options
+  optionsArray.forEach(v=>{
+    const opt=document.createElement("option");
+    opt.value=v; opt.textContent=v;
     selectEl.appendChild(opt);
   });
 
-  new Choices(selectEl, {
-    searchEnabled: true,
-    itemSelectText: "",
-    shouldSort: false,
-    placeholderValue: placeholderText
+  new Choices(selectEl,{
+    searchEnabled:true,
+    itemSelectText:"",
+    shouldSort:false,
+    placeholderValue:placeholderText
   });
 }
 
-/* UPDATE TOTALS */
-function updateTotals() {
-  tableBody.querySelectorAll("tr").forEach(r => {
-    const m = parseFloat(r.querySelector(".meter").value) || 0;
-    const q = parseFloat(r.querySelector(".qty").value) || 0;
-    r.querySelector(".total").value = m * q;
+/* Update totals */
+function updateTotals(){
+  tableBody.querySelectorAll("tr").forEach(r=>{
+    const m=parseFloat(r.querySelector(".meter").value)||0;
+    const q=parseFloat(r.querySelector(".qty").value)||0;
+    r.querySelector(".total").value=m*q;
   });
 }
 
-/* VALIDATION */
-function validateForm() {
-  if (!productionDate.value) return "Date is required.";
-  if (!machineUsed.value) return "Machine is required.";
-
-  const rows = document.querySelectorAll("#tableBody tr");
-  if (!rows.length) return "At least 1 item required.";
-
-  for (const r of rows) {
-    if (!r.querySelector(".item-select").value) return "Item cannot be empty.";
-    if (!r.querySelector(".meter").value) return "Meter required.";
-    if (!r.querySelector(".qty").value) return "Qty required.";
-    if (!r.querySelector(".kpc-select").value) return "KPC required.";
+/* Validation */
+function validateForm(){
+  if(!productionDate.value) return "Date is required.";
+  if(!machineUsed.value) return "Machine is required.";
+  const rows=document.querySelectorAll("#tableBody tr");
+  if(!rows.length) return "At least 1 item required.";
+  for(const r of rows){
+    if(!r.querySelector(".item-select").value) return "Item required.";
+    if(!r.querySelector(".meter").value) return "Meter required.";
+    if(!r.querySelector(".qty").value) return "Qty required.";
+    if(!r.querySelector(".kpc-select").value) return "KPC required.";
   }
-
   return null;
 }
 
-/* SUBMIT */
-function submitForm() {
+/* Submit */
+function submitForm(){
+
   showLoading();
 
-  const err = validateForm();
-  if (err) {
-    hideLoading();
-    alert(err);
-    return;
-  }
+  const err=validateForm();
+  if(err){ hideLoading(); alert(err); return; }
 
-  const payload = {
-    productionEntryId: entryId.value,
-    productionDate: productionDate.value,
-    machine: machineUsed.value,
-    notes: notes.value,
-    items: Array.from(document.querySelectorAll("#tableBody tr")).map(r => ({
-      item: r.querySelector(".item-select").value,
-      meter: r.querySelector(".meter").value,
-      qty: r.querySelector(".qty").value,
-      total: r.querySelector(".total").value,
-      kpc: r.querySelector(".kpc-select").value
+  const payload={
+    productionEntryId:entryId.value,
+    productionDate:productionDate.value,
+    machine:machineUsed.value,
+    notes:notes.value,
+    items:Array.from(document.querySelectorAll("#tableBody tr")).map(r=>({
+      item:r.querySelector(".item-select").value,
+      meter:r.querySelector(".meter").value,
+      qty:r.querySelector(".qty").value,
+      total:r.querySelector(".total").value,
+      kpc:r.querySelector(".kpc-select").value
     }))
   };
 
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(payload)
+  fetch(SCRIPT_URL,{
+    method:"POST",
+    body:JSON.stringify(payload)
   })
-  .then(() => {
-    hideLoading();
-    alert("Submitted!");
-  })
-  .catch(err => {
-    hideLoading();
-    alert("Error submitting: " + err);
-  });
+  .then(()=>{ hideLoading(); alert("Submitted!"); })
+  .catch(err=>{ hideLoading(); alert("Error submitting: "+err); });
 }
+
 </script>
 
 </body>
