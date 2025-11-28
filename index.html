@@ -6,6 +6,9 @@
 <title>Production Entry</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Sortable.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
 <style>
 body {
   margin: 0;
@@ -38,7 +41,6 @@ body {
   margin: 25px auto;
 }
 
-/* LABEL */
 label {
   font-size: 14px;
   font-weight: 600;
@@ -46,7 +48,6 @@ label {
   display: block;
 }
 
-/* INPUT BOX */
 .input-box {
   padding: 11px 13px;
   border: 1px solid #cfd8e3;
@@ -62,7 +63,6 @@ label {
   outline: none;
 }
 
-/* FLEX ROW */
 .row-flex {
   display: flex;
   gap: 30px;
@@ -94,7 +94,6 @@ td {
   border-bottom: 1px solid #f0f3f7;
 }
 
-/* TABLE INPUT */
 .table-input {
   width: 100%;
   padding: 9px 10px;
@@ -114,6 +113,7 @@ td {
   text-align: center;
   color: #888;
   font-size: 18px;
+  cursor: grab;
 }
 
 .delete-btn {
@@ -123,7 +123,7 @@ td {
   cursor: pointer;
 }
 
-/* ADD ROW BUTTON */
+/* ADD ROW */
 .add-row-btn {
   margin-top: 15px;
   padding: 9px 16px;
@@ -134,10 +134,7 @@ td {
   font-weight: 600;
   cursor: pointer;
 }
-
-.add-row-btn:hover {
-  background: #dceaff;
-}
+.add-row-btn:hover { background: #dceaff; }
 
 /* NOTES */
 textarea {
@@ -150,7 +147,7 @@ textarea {
   background: #fff;
 }
 
-/* SUBMIT BUTTON */
+/* SUBMIT */
 .submit-btn {
   margin-top: 30px;
   padding: 14px 35px;
@@ -162,12 +159,9 @@ textarea {
   font-weight: 600;
   cursor: pointer;
 }
+.submit-btn:hover { background: #0d6fbb; }
 
-.submit-btn:hover {
-  background: #0d6fbb;
-}
-
-/* LOADING OVERLAY */
+/* LOADING */
 #loadingOverlay {
   position: fixed;
   top: 0;
@@ -175,11 +169,10 @@ textarea {
   width: 100%;
   height: 100%;
   background: rgba(255,255,255,0.75);
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   z-index: 999;
-  display: none;
 }
 
 .loader {
@@ -191,28 +184,23 @@ textarea {
   animation: spin 0.9s linear infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+@keyframes spin { 100% { transform: rotate(360deg); } }
 
+.drag-background { background: #eaf2ff !important; }
 </style>
 </head>
 
 <body>
 
-<div id="loadingOverlay">
-  <div class="loader"></div>
-</div>
+<div id="loadingOverlay"><div class="loader"></div></div>
 
 <div class="header">
   Production Entry
-  <div class="header-right">UXILIUM Accounting Management Services</div>
+  <div class="header-right">UXILIUM Accounting Management Services</div>
 </div>
 
 <div class="page">
 
-  <!-- DATE | MACHINE | ENTRY ID -->
   <div class="row-flex">
 
     <div>
@@ -226,6 +214,7 @@ textarea {
         <option value="">— Select Machine —</option>
         <option value="RENG__009_MX">RENG__009_MX</option>
         <option value="TRUSS010">TRUSS010</option>
+        <option value="OTHERS">Others</option>
       </select>
     </div>
 
@@ -236,7 +225,6 @@ textarea {
 
   </div>
 
-  <!-- TABLE -->
   <table>
     <thead>
       <tr>
@@ -267,26 +255,18 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSd
 let itemList = [];
 let kpcList = [];
 
-/* SHOW + HIDE LOADING */
-function showLoading() {
-  document.getElementById("loadingOverlay").style.display = "flex";
-}
-function hideLoading() {
-  document.getElementById("loadingOverlay").style.display = "none";
-}
+function showLoading() { document.getElementById("loadingOverlay").style.display = "flex"; }
+function hideLoading() { document.getElementById("loadingOverlay").style.display = "none"; }
 
-/* GENERATE ENTRY ID BASED ON TODAY'S TIMESTAMP */
+/* Generate ID using TODAY timestamp */
 function generateEntryId() {
   const now = new Date();
   const yy = String(now.getFullYear()).slice(2);
   const mm = String(now.getMonth() + 1).padStart(2, "0");
-
-  const seq = "0000001"; // static for now
-
+  const seq = "0000001"; 
   document.getElementById("entryId").value = `FGP${yy}${mm}${seq}`;
 }
 
-/* LOAD ITEMS */
 window.addEventListener("DOMContentLoaded", async () => {
   showLoading();
   generateEntryId();
@@ -303,6 +283,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     addRow();
     hideLoading();
 
+    // ENABLE DRAG & DROP
+    new Sortable(document.getElementById("tableBody"), {
+      animation: 150,
+      handle: ".row-handle",
+      ghostClass: "drag-background"
+    });
+
   } catch (err) {
     console.error(err);
     alert("Failed loading Item/KPC list");
@@ -310,7 +297,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-/* ADD ROW */
 function addRow() {
   const tbody = document.getElementById("tableBody");
   const tr = document.createElement("tr");
@@ -325,8 +311,8 @@ function addRow() {
       </select>
     </td>
 
-    <td><input type="number" class="table-input meter" value="6" min="0"></td>
-    <td><input type="number" class="table-input qty" value="0" min="0"></td>
+    <td><input type="number" class="table-input meter" value="" min="0"></td>
+    <td><input type="number" class="table-input qty" value="" min="0"></td>
 
     <td><input type="number" class="table-input total" readonly style="background:#f4f6f9;"></td>
 
@@ -346,21 +332,18 @@ function addRow() {
   tr.querySelector(".qty").addEventListener("input", updateTotals);
 }
 
-/* DELETE ROW */
 function deleteRow(btn) {
   btn.parentElement.parentElement.remove();
 }
 
-/* UPDATE TOTAL */
 function updateTotals() {
   document.querySelectorAll("#tableBody tr").forEach(r => {
-    const m = parseFloat(r.querySelector(".meter").value) || 0;
-    const q = parseFloat(r.querySelector(".qty").value) || 0;
+    const m = Number(r.querySelector(".meter").value) || 0;
+    const q = Number(r.querySelector(".qty").value) || 0;
     r.querySelector(".total").value = m * q;
   });
 }
 
-/* SUBMIT FORM */
 function submitForm() {
   showLoading();
 
@@ -369,24 +352,30 @@ function submitForm() {
   const notes = document.getElementById("notes").value;
   const entryId = document.getElementById("entryId").value;
 
-  if (!date) {
-    hideLoading();
-    alert("⚠ Please select a Production Date.");
-    return;
-  }
+  /* VALIDATION */
+  if (!date) return alertAndStop("Please select a date.");
+  if (!machine) return alertAndStop("Please select Production Machine.");
 
   const rows = document.querySelectorAll("#tableBody tr");
+  if (rows.length === 0) return alertAndStop("Please add at least one item.");
+
   const items = [];
 
-  rows.forEach(r => {
-    items.push({
-      item:  r.querySelector(".item").value,
-      meter: r.querySelector(".meter").value,
-      qty:   r.querySelector(".qty").value,
-      total: r.querySelector(".total").value,
-      kpc:   r.querySelector(".kpc").value
-    });
-  });
+  for (let r of rows) {
+    const item = r.querySelector(".item").value;
+    const meter = r.querySelector(".meter").value;
+    const qty = r.querySelector(".qty").value;
+    const total = r.querySelector(".total").value;
+    const kpc = r.querySelector(".kpc").value;
+
+    if (!item) return alertAndStop("Please select an Item.");
+    if (!meter) return alertAndStop("Meter cannot be empty.");
+    if (!qty) return alertAndStop("Qty cannot be empty.");
+    if (total == 0) return alertAndStop("Total cannot be 0.");
+    if (!kpc) return alertAndStop("Please select KPC.");
+
+    items.push({ item, meter, qty, total, kpc });
+  }
 
   const payload = {
     productionEntryId: entryId,
@@ -409,6 +398,13 @@ function submitForm() {
     alert("Error submitting: " + err);
   });
 }
+
+function alertAndStop(msg) {
+  hideLoading();
+  alert("⚠ " + msg);
+  throw new Error(msg);
+}
+
 </script>
 
 </body>
