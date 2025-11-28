@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <title>Production Entry</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Choices.js -->
+<!-- Choices.js (Searchable Dropdown) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
@@ -91,6 +92,7 @@ th {
 
 td {
   padding: 12px;
+  border-bottom: 1px solid #f0f3f7;
 }
 
 /* TABLE INPUT */
@@ -131,7 +133,11 @@ td {
   cursor: pointer;
 }
 
-/* TEXTAREA */
+.add-row-btn:hover {
+  background: #dceaff;
+}
+
+/* NOTES */
 textarea {
   width: 100%;
   height: 130px;
@@ -139,6 +145,7 @@ textarea {
   border-radius: 10px;
   border: 1px solid #cfd7e0;
   font-size: 15px;
+  background: #fff;
 }
 
 /* SUBMIT */
@@ -151,12 +158,23 @@ textarea {
   border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
+  cursor: pointer;
 }
 
-/* -----------------------------------------
-   FIX CHOICES.JS UI — EXACT MATCH INPUT SIZE
-------------------------------------------*/
+.submit-btn:hover {
+  background: #0d6fbb;
+}
 
+/* ------------------------------
+   FIX CHOICES.JS UI
+------------------------------ */
+
+/* Table must allow overflow */
+table, tbody, tr, td {
+    overflow: visible !important;
+}
+
+/* Choices smaller input */
 .choices {
     width: 100% !important;
     z-index: 99999 !important;
@@ -165,17 +183,10 @@ textarea {
 .choices__inner {
     min-height: 38px !important;
     height: 38px !important;
-    padding: 7px 10px !important;
+    padding: 6px 8px !important;
     border-radius: 8px !important;
-    border: 1px solid #cfd7e0 !important;
-    font-size: 14px !important;
 }
 
-.choices__placeholder {
-    opacity: 0.6 !important;
-}
-
-/* dropdown list must be above everything */
 .choices__list--dropdown,
 .choices__list[aria-expanded] {
     z-index: 999999 !important;
@@ -183,26 +194,32 @@ textarea {
     width: 100% !important;
 }
 
-.choices__list--dropdown .choices__item {
-    padding: 8px 10px !important;
-    font-size: 14px !important;
-}
-
 </style>
 </head>
 
 <body>
 
+<div id="loadingOverlay" style="
+  position:fixed; inset:0;
+  background:rgba(255,255,255,0.7);
+  display:none; justify-content:center; align-items:center; z-index:9999;">
+  <div class="loader" style="
+    border:6px solid #d1e3f5;
+    border-top:6px solid #0f80d9;
+    border-radius:50%;
+    width:55px; height:55px;
+    animation:spin 0.9s linear infinite;">
+  </div>
+</div>
+
 <div class="header">
   Production Entry
-  <div class="header-right">UXILIUM — Accounting Management Services</div>
+  <div class="header-right">UXILIUM Accounting Management Services</div>
 </div>
 
 <div class="page">
 
-  <!-- ENTRY ID + DATE + MACHINE -->
   <div class="row-flex">
-
     <div>
       <label>Date</label>
       <input type="date" id="productionDate" class="input-box">
@@ -222,20 +239,12 @@ textarea {
       <label>Production Entry ID</label>
       <input type="text" id="entryId" class="input-box" readonly>
     </div>
-
   </div>
 
-  <!-- TABLE -->
   <table>
     <thead>
       <tr>
-        <th></th>
-        <th>Item</th>
-        <th>Meter</th>
-        <th>Qty</th>
-        <th>Total (m)</th>
-        <th>KPC</th>
-        <th></th>
+        <th></th><th>Item</th><th>Meter</th><th>Qty</th><th>Total (m)</th><th>KPC</th><th></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -251,14 +260,16 @@ textarea {
 </div>
 
 <script>
-
-const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSdWIqUQocpCvxylChqOIE4Kc-KpnVlKF_urpzpX84pMqZq2c01g/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSdWIqUQocpCvxylChqOIE4Kc-KpnVlKF_urpzpX84pMqZq2c01g/exec";
 
 let itemList = [];
 let kpcList = [];
 
-/* CREATE ENTRY ID FROM TIMESTAMP */
+/* Loading overlay */
+function showLoading() { document.getElementById("loadingOverlay").style.display = "flex"; }
+function hideLoading() { document.getElementById("loadingOverlay").style.display = "none"; }
+
+/* Generate entry ID based on today's timestamp */
 function generateEntryId() {
   const now = new Date();
   const yy = String(now.getFullYear()).slice(2);
@@ -269,73 +280,27 @@ function generateEntryId() {
 
 /* INITIAL LOAD */
 window.addEventListener("DOMContentLoaded", async () => {
+  showLoading();
   generateEntryId();
 
-  const [itemsRes, kpcRes] = await Promise.all([
-    fetch(`${SCRIPT_URL}?action=getitem`),
-    fetch(`${SCRIPT_URL}?action=getkpc`)
-  ]);
+  try {
+    const [itemsRes, kpcRes] = await Promise.all([
+      fetch(`${SCRIPT_URL}?action=getitem`),
+      fetch(`${SCRIPT_URL}?action=getkpc`)
+    ]);
 
-  itemList = await itemsRes.json();
-  kpcList  = await kpcRes.json();
+    itemList = await itemsRes.json();
+    kpcList = await kpcRes.json();
 
-  addRow();
-  setupSortable();
+    addRow();
+    setupSortable();
+    hideLoading();
+
+  } catch (err) {
+    alert("Error loading dropdown list");
+    hideLoading();
+  }
 });
-
-/* CHOICES INIT */
-function initChoices(selectEl, arr, placeholderText) {
-
-  // placeholder
-  const plc = document.createElement("option");
-  plc.value = "";
-  plc.textContent = placeholderText;
-  selectEl.appendChild(plc);
-
-  arr.forEach(v => {
-    const o = document.createElement("option");
-    o.value = v;
-    o.textContent = v;
-    selectEl.appendChild(o);
-  });
-
-  new Choices(selectEl, {
-    searchEnabled: true,
-    shouldSort: false,
-    itemSelectText: "",
-    placeholder: true,
-    placeholderValue: placeholderText,
-    searchPlaceholderValue: "Search…",
-    allowHTML: false
-  });
-}
-
-/* ADD ROW */
-function addRow() {
-  const tbody = document.getElementById("tableBody");
-  const tr = document.createElement("tr");
-
-  tr.innerHTML = `
-    <td class="row-handle">⋮⋮</td>
-
-    <td><select class="table-input item"></select></td>
-    <td><input type="number" class="table-input meter" value="6" min="0"></td>
-    <td><input type="number" class="table-input qty" value="0" min="0"></td>
-    <td><input type="number" class="table-input total" readonly></td>
-
-    <td><select class="table-input kpc"></select></td>
-
-    <td class="delete-btn" onclick="deleteRow(this)">🗑</td>
-  `;
-
-  tbody.appendChild(tr);
-
-  initChoices(tr.querySelector(".item"), itemList, "— Select Item —");
-  initChoices(tr.querySelector(".kpc"),  kpcList,  "— Select KPC —");
-
-  tr.querySelector(".meter").addEventListener("input", updateTotal);
-  tr.querySelector(".qty").addEventListener("input", updateTotal);
-}
 
 /* SORTABLE */
 function setupSortable() {
@@ -345,38 +310,94 @@ function setupSortable() {
   });
 }
 
-/* DELETE ROW */
-function deleteRow(btn) { btn.closest("tr").remove(); }
+/* ADD ROW */
+function addRow() {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td class="row-handle">⋮⋮</td>
 
-/* TOTAL */
-function updateTotal() {
+    <td><select class="item-select"></select></td>
+
+    <td><input type="number" class="table-input meter" value="6"></td>
+    <td><input type="number" class="table-input qty" value="0"></td>
+
+    <td><input type="number" class="table-input total" readonly style="background:#f4f6f9;"></td>
+
+    <td><select class="kpc-select"></select></td>
+
+    <td class="delete-btn" onclick="this.closest('tr').remove()">🗑</td>
+  `;
+
+  document.getElementById("tableBody").appendChild(row);
+
+  initChoices(row.querySelector(".item-select"), itemList);
+  initChoices(row.querySelector(".kpc-select"), kpcList);
+
+  row.querySelector(".meter").addEventListener("input", updateTotals);
+  row.querySelector(".qty").addEventListener("input", updateTotals);
+}
+
+/* INIT CHOICES.JS */
+function initChoices(selectEl, optionsArray) {
+  optionsArray.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v; opt.textContent = v;
+    selectEl.appendChild(opt);
+  });
+
+  new Choices(selectEl, {
+    searchPlaceholderValue: "Search...",
+    shouldSort: false,
+    position: "bottom",
+    searchEnabled: true,
+    itemSelectText: "",
+  });
+}
+
+/* CALCULATE TOTAL */
+function updateTotals() {
   document.querySelectorAll("#tableBody tr").forEach(r => {
     const m = parseFloat(r.querySelector(".meter").value) || 0;
-    const q = parseFloat(r.querySelector(".qty").value)   || 0;
+    const q = parseFloat(r.querySelector(".qty").value) || 0;
     r.querySelector(".total").value = m * q;
   });
 }
 
+/* VALIDATION */
+function validateForm() {
+  if (!productionDate.value) return "Date required.";
+  if (!machineUsed.value) return "Machine required.";
+
+  const rows = document.querySelectorAll("#tableBody tr");
+  if (rows.length === 0) return "Add at least 1 item.";
+
+  for (const r of rows) {
+    if (!r.querySelector(".item-select").value) return "Item cannot be empty.";
+    if (!r.querySelector(".meter").value) return "Meter cannot be empty.";
+    if (!r.querySelector(".qty").value) return "Qty cannot be empty.";
+    if (!r.querySelector(".kpc-select").value) return "KPC cannot be empty.";
+  }
+
+  return null;
+}
+
 /* SUBMIT */
 function submitForm() {
-
-  const date = document.getElementById("productionDate").value;
-  const machine = document.getElementById("machineUsed").value;
-
-  if (!date) return alert("⚠ Please select Date");
-  if (!machine) return alert("⚠ Select Machine");
+  showLoading();
+  const err = validateForm();
+  if (err) { hideLoading(); alert(err); return; }
 
   const payload = {
-    productionEntryId: document.getElementById("entryId").value,
-    productionDate: date,
-    machine,
-    notes: document.getElementById("notes").value,
+    productionEntryId: entryId.value,
+    productionDate: productionDate.value,
+    machine: machineUsed.value,
+    notes: notes.value,
     items: Array.from(document.querySelectorAll("#tableBody tr")).map(r => ({
-      item:  r.querySelector(".item").value,
+      item: r.querySelector(".item-select").value,
       meter: r.querySelector(".meter").value,
-      qty:   r.querySelector(".qty").value,
+      qty: r.querySelector(".qty").value,
       total: r.querySelector(".total").value,
-      kpc:   r.querySelector(".kpc").value
+      kpc: r.querySelector(".kpc-select").value
     }))
   };
 
@@ -384,10 +405,10 @@ function submitForm() {
     method: "POST",
     body: JSON.stringify(payload)
   })
-  .then(() => alert("Submitted!"))
-  .catch(err => alert("ERR: " + err));
+  .then(() => { hideLoading(); alert("Submitted!"); })
+  .catch(err => { hideLoading(); alert("Submit error: " + err); });
 }
-
 </script>
+
 </body>
 </html>
