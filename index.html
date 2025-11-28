@@ -259,13 +259,15 @@ textarea {
 <div class="page">
 
   <!-- Top Form (centered) -->
+ <div style="display: flex; justify-content: center;">
   <div class="row-flex">
-    <div>
+
+    <div class="form-group">
       <label>Date</label>
       <input type="date" id="productionDate" class="input-box">
     </div>
 
-    <div>
+    <div class="form-group">
       <label>Production Machine</label>
       <select id="machineUsed" class="input-box">
         <option value="">— Select Machine —</option>
@@ -275,11 +277,13 @@ textarea {
       </select>
     </div>
 
-    <div>
+    <div class="form-group">
       <label>Production Entry ID</label>
       <input type="text" id="entryId" class="input-box" readonly>
     </div>
+
   </div>
+</div>
 
   <!-- Table -->
   <table>
