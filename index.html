@@ -317,6 +317,27 @@ textarea {
   height: 42px;
   animation: spin .85s linear infinite;
 }
+/* ===============================
+   FIX: Table middle alignment
+==================================*/
+
+/* Supaya semua cell tabel isi-nya di tengah secara vertikal */
+td {
+  vertical-align: middle !important;
+}
+
+/* Supaya placeholder dropdown “Select Item / Select KPC” center */
+.choices__inner {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Supaya input Meter / Qty / Total (m) tidak turun */
+.table-input {
+  display: flex;
+  align-items: center;
+}
+
 </style>
 </head>
 
