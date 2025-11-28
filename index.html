@@ -14,55 +14,89 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
 <style>
-
 /* ==========================================================
-   GLOBAL BASE STYLE (Compact++ v3)
+   GLOBAL BASE STYLE — Xero-like
 ========================================================== */
 body {
   margin: 0;
   padding: 0;
-  background: #ffffff;
+  background: #f5f7fa; /* soft grey like Xero */
   font-family: "Segoe UI", Roboto, sans-serif;
   font-size: 13px;
   color: #333;
 }
 
 /* Smooth transition on inputs */
-input, select, textarea, .choices__inner {
+input,
+select,
+textarea,
+.choices__inner {
   transition: all 0.18s ease;
 }
 
 /* Input hover effect */
-input:hover, select:hover, textarea:hover, .choices__inner:hover {
+input:hover,
+select:hover,
+textarea:hover,
+.choices__inner:hover {
   border-color: #b9c4d0 !important;
 }
 
+/* Spinner animation for loading overlay */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* ==========================================================
-   HEADER
+   TOP BRAND BAR (UXILIUM)
 ========================================================== */
-.header {
+.top-bar {
+  height: 50px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 18px 35px;
-  font-size: 22px;
-  font-weight: 600;
+  padding: 0 48px;
   background: #ffffff;
   border-bottom: 1px solid #e1e4e8;
-  color: #1a1a1a;
 }
 
-.header-right {
+.brand-main {
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: 0.08em;
+  margin-right: 6px;
+}
+
+.brand-sub {
   font-size: 13px;
-  opacity: 0.65;
+  color: #7a8699;
 }
 
 /* ==========================================================
-   PAGE WRAPPER
+   PAGE WRAPPER + CARD
 ========================================================== */
 .page {
-  max-width: 1100px;
-  margin: 25px auto;
+  max-width: 1120px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 14px 30px rgba(15, 23, 42, 0.08);
+  padding: 24px 26px 26px 26px;
+}
+
+/* Card header title */
+.card-header {
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2933;
 }
 
 /* ==========================================================
@@ -72,7 +106,8 @@ label {
   font-size: 12.5px;
   font-weight: 600;
   margin-bottom: 4px;
-  color: #4a4a4a;
+  color: #4a5568;
+  display: block;
 }
 
 /* ==========================================================
@@ -81,9 +116,9 @@ label {
 .input-box,
 .table-input,
 .choices__inner {
-  height: 26px !important;
-  min-height: 26px !important;
-  padding: 3px 7px !important;
+  height: 30px !important;       /* sedikit lebih tinggi, mirip Xero */
+  min-height: 30px !important;
+  padding: 5px 8px !important;
   font-size: 12.5px !important;
   border: 1px solid #d0d7df !important;
   border-radius: 5px !important;
@@ -97,44 +132,52 @@ label {
   opacity: 1 !important;
 }
 
-/* ==========================================================
-   TOP FORM (CENTERED & BEAUTIFUL)
-========================================================== */
-.row-flex {
-  display: grid;
-  grid-template-columns: 180px 220px 220px;
-  column-gap: 32px;
-  row-gap: 8px;
-  align-items: end;
-  justify-content: center;
-  margin: 0 auto 22px auto;
-  max-width: 1100px;
+/* Native date input: remove heavy inner shadow (browser default) */
+input[type="date"] {
+  padding-right: 26px !important;
 }
 
 /* ==========================================================
-   TABLE DESIGN (PREMIUM)
+   TOP FORM (3 columns like Xero header)
+========================================================== */
+.row-flex {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(200px, 1.1fr) minmax(210px, 1.1fr);
+  column-gap: 24px;
+  row-gap: 10px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+/* ==========================================================
+   TABLE DESIGN (Xero-ish)
 ========================================================== */
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 6px;
   border: 1px solid #e3e6ea;
   overflow: visible !important;
 }
 
+thead tr {
+  height: 32px;
+}
+
 th {
-  background: #f4f6f8;
+  background: #edf0f5;
   padding: 6px;
   font-size: 12.5px;
   font-weight: 600;
   border-bottom: 1px solid #e1e4e9;
   color: #313d4f;
+  text-align: left;
 }
 
 td {
   padding: 4px;
-  border-bottom: 1px solid #f1f2f3;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 table tr {
@@ -155,11 +198,14 @@ table tr {
   font-size: 12px;
   color: #999;
   cursor: grab;
+  text-align: center;
 }
+
 .delete-btn {
   font-size: 14px;
   color: #cc1f2f;
   cursor: pointer;
+  text-align: center;
 }
 
 /* ==========================================================
@@ -174,11 +220,17 @@ table, tbody, tr, td {
 .choices__list[aria-expanded] {
   position: absolute !important;
   z-index: 99999999 !important;
-  background: white !important;
+  background: #ffffff !important;
   border: 1px solid #cfd7df !important;
   border-radius: 5px !important;
   width: 100% !important;
   font-size: 12.5px !important;
+}
+
+/* Make dropdown list scrollable if long */
+.choices__list--dropdown .choices__list {
+  max-height: 210px !important;
+  overflow-y: auto !important;
 }
 
 /* ==========================================================
@@ -202,6 +254,13 @@ table, tbody, tr, td {
 /* ==========================================================
    NOTES AREA
 ========================================================== */
+.notes-label {
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
 textarea {
   width: 100%;
   height: 110px;
@@ -211,102 +270,129 @@ textarea {
   border: 1px solid #d0d7df;
   border-radius: 6px;
   margin-top: 4px;
+  resize: vertical;
 }
 
 /* ==========================================================
    SUBMIT BUTTON
 ========================================================== */
+.actions-row {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .submit-btn {
-  margin-top: 25px;
   padding: 9px 24px;
   font-size: 13.5px;
   font-weight: 600;
   border-radius: 6px;
-  background: #2b6be8;
-  color: white;
+  background: #0f80d9;
+  color: #ffffff;
   border: none;
   cursor: pointer;
 }
 .submit-btn:hover {
-  background: #2158c7;
+  background: #0b66ad;
 }
 
+/* ==========================================================
+   LOADING OVERLAY
+========================================================== */
+#loadingOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  border: 5px solid #dae6f4;
+  border-top: 5px solid #2b6be8;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  animation: spin .85s linear infinite;
+}
 </style>
 </head>
 
 <body>
 
 <!-- Loading Overlay -->
-<div id="loadingOverlay" style="
-  position:fixed; inset:0;
-  background:rgba(255,255,255,0.75);
-  display:none; justify-content:center; align-items:center; z-index:9999;">
-  <div style="
-    border:5px solid #dae6f4;
-    border-top:5px solid #2b6be8;
-    border-radius:50%;
-    width:42px; height:42px;
-    animation:spin .85s linear infinite;">
-  </div>
+<div id="loadingOverlay">
+  <div class="loading-spinner"></div>
 </div>
 
-<!-- Header -->
-<div class="header">
-  Production Entry
-  <div class="header-right">UXILIUM — Accounting Management Services</div>
+<!-- Top Brand Bar -->
+<div class="top-bar">
+  <span class="brand-main">UXILIUM</span>
+  <span class="brand-sub">Accounting Management Services</span>
 </div>
 
 <div class="page">
+  <div class="card">
 
-  <!-- Top Form (centered) -->
-  <div class="row-flex">
-    <div>
-      <label>Date</label>
-      <input type="date" id="productionDate" class="input-box">
+    <!-- Card Header -->
+    <div class="card-header">
+      <div class="card-title">Production Entry</div>
     </div>
 
-    <div>
-      <label>Production Machine</label>
-      <select id="machineUsed" class="input-box">
-        <option value="">— Select Machine —</option>
-        <option value="RENG__009_MX">RENG__009_MX</option>
-        <option value="TRUSS010">TRUSS010</option>
-        <option value="OTHERS">OTHERS</option>
-      </select>
+    <!-- Top Form (3 columns like Xero: Date / Machine / ID) -->
+    <div class="row-flex">
+      <div>
+        <label>Date</label>
+        <input type="date" id="productionDate" class="input-box">
+      </div>
+
+      <div>
+        <label>Production Machine</label>
+        <select id="machineUsed" class="input-box">
+          <option value="">— Select Machine —</option>
+          <option value="RENG__009_MX">RENG__009_MX</option>
+          <option value="TRUSS010">TRUSS010</option>
+          <option value="OTHERS">OTHERS</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Production Entry ID</label>
+        <input type="text" id="entryId" class="input-box" readonly>
+      </div>
     </div>
 
-    <div>
-      <label>Production Entry ID</label>
-      <input type="text" id="entryId" class="input-box" readonly>
+    <!-- Table -->
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Item</th>
+          <th>Meter</th>
+          <th>Qty</th>
+          <th>Total (m)</th>
+          <th>KPC</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <button class="add-row-btn" onclick="addRow()">+ Add row</button>
+
+    <div class="notes-label">Additional Notes</div>
+    <textarea id="notes"></textarea>
+
+    <div class="actions-row">
+      <button class="submit-btn" onclick="submitForm()">Submit</button>
     </div>
+
   </div>
-
-  <!-- Table -->
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th>Item</th>
-        <th>Meter</th>
-        <th>Qty</th>
-        <th>Total (m)</th>
-        <th>KPC</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-
-  <button class="add-row-btn" onclick="addRow()">+ Add row</button>
-
-  <div style="margin-top:20px; font-size:13.5px; font-weight:600;">Additional Notes</div>
-  <textarea id="notes"></textarea>
-
-  <button class="submit-btn" onclick="submitForm()">Submit</button>
 </div>
 
 <script>
-
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSdWIqUQocpCvxylChqOIE4Kc-KpnVlKF_urpzpX84pMqZq2c01g/exec";
 
 let itemList = [];
@@ -318,30 +404,31 @@ function hideLoading(){ loadingOverlay.style.display="none"; }
 
 /* Generate Entry ID */
 function generateEntryId(){
-  const now=new Date();
-  const yy=String(now.getFullYear()).slice(2);
-  const mm=String(now.getMonth()+1).padStart(2,"0");
-  entryId.value=`FGP${yy}${mm}000001`;
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(2);
+  const mm = String(now.getMonth() + 1).padStart(2,"0");
+  entryId.value = `FGP${yy}${mm}000001`;
 }
 
 /* On Load */
-window.addEventListener("DOMContentLoaded", async()=>{
-
+window.addEventListener("DOMContentLoaded", async () => {
   showLoading();
   generateEntryId();
 
-  try{
-    const [itemRes,kpcRes]=await Promise.all([
+  try {
+    const [itemRes, kpcRes] = await Promise.all([
       fetch(`${SCRIPT_URL}?action=getitem`),
       fetch(`${SCRIPT_URL}?action=getkpc`)
     ]);
-    itemList=await itemRes.json();
-    kpcList=await kpcRes.json();
+    itemList = await itemRes.json();
+    kpcList  = await kpcRes.json();
 
     addRow();
     setupSortable();
 
-  } catch(e){ alert("Error loading dropdown data."); }
+  } catch (e) {
+    alert("Error loading dropdown data.");
+  }
 
   hideLoading();
 });
@@ -356,22 +443,15 @@ function setupSortable(){
 
 /* Add Row */
 function addRow(){
+  const row = document.createElement("tr");
 
-  const row=document.createElement("tr");
-
-  row.innerHTML=`
+  row.innerHTML = `
     <td class="row-handle">⋮⋮</td>
-
     <td><select class="item-select"></select></td>
-
     <td><input type="number" class="table-input meter" value="6"></td>
-
     <td><input type="number" class="table-input qty" value="0"></td>
-
     <td><input type="number" class="table-input total" readonly></td>
-
     <td><select class="kpc-select"></select></td>
-
     <td class="delete-btn" onclick="this.closest('tr').remove()">🗑</td>
   `;
 
@@ -386,19 +466,19 @@ function addRow(){
 
 /* Initialize Choices.js */
 function initChoices(selectEl, optionsArray, placeholderText){
-
   // placeholder
-  const ph=document.createElement("option");
-  ph.value="";
-  ph.disabled=true;
-  ph.selected=true;
-  ph.textContent=placeholderText;
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.disabled = true;
+  ph.selected = true;
+  ph.textContent = placeholderText;
   selectEl.appendChild(ph);
 
   // real options
-  optionsArray.forEach(v=>{
-    const opt=document.createElement("option");
-    opt.value=v; opt.textContent=v;
+  optionsArray.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v;
+    opt.textContent = v;
     selectEl.appendChild(opt);
   });
 
@@ -413,57 +493,67 @@ function initChoices(selectEl, optionsArray, placeholderText){
 /* Update totals */
 function updateTotals(){
   tableBody.querySelectorAll("tr").forEach(r=>{
-    const m=parseFloat(r.querySelector(".meter").value)||0;
-    const q=parseFloat(r.querySelector(".qty").value)||0;
-    r.querySelector(".total").value=m*q;
+    const m = parseFloat(r.querySelector(".meter").value) || 0;
+    const q = parseFloat(r.querySelector(".qty").value) || 0;
+    r.querySelector(".total").value = m * q;
   });
 }
 
 /* Validation */
 function validateForm(){
   if(!productionDate.value) return "Date is required.";
-  if(!machineUsed.value) return "Machine is required.";
-  const rows=document.querySelectorAll("#tableBody tr");
+  if(!machineUsed.value)   return "Machine is required.";
+
+  const rows = document.querySelectorAll("#tableBody tr");
   if(!rows.length) return "At least 1 item required.";
+
   for(const r of rows){
-    if(!r.querySelector(".item-select").value) return "Item required.";
-    if(!r.querySelector(".meter").value) return "Meter required.";
-    if(!r.querySelector(".qty").value) return "Qty required.";
-    if(!r.querySelector(".kpc-select").value) return "KPC required.";
+    if(!r.querySelector(".item-select").value)  return "Item required.";
+    if(!r.querySelector(".meter").value)        return "Meter required.";
+    if(!r.querySelector(".qty").value)          return "Qty required.";
+    if(!r.querySelector(".kpc-select").value)   return "KPC required.";
   }
   return null;
 }
 
 /* Submit */
 function submitForm(){
-
   showLoading();
 
-  const err=validateForm();
-  if(err){ hideLoading(); alert(err); return; }
+  const err = validateForm();
+  if(err){
+    hideLoading();
+    alert(err);
+    return;
+  }
 
-  const payload={
-    productionEntryId:entryId.value,
-    productionDate:productionDate.value,
-    machine:machineUsed.value,
-    notes:notes.value,
-    items:Array.from(document.querySelectorAll("#tableBody tr")).map(r=>({
-      item:r.querySelector(".item-select").value,
-      meter:r.querySelector(".meter").value,
-      qty:r.querySelector(".qty").value,
-      total:r.querySelector(".total").value,
-      kpc:r.querySelector(".kpc-select").value
+  const payload = {
+    productionEntryId: entryId.value,
+    productionDate:    productionDate.value,
+    machine:           machineUsed.value,
+    notes:             notes.value,
+    items: Array.from(document.querySelectorAll("#tableBody tr")).map(r => ({
+      item:  r.querySelector(".item-select").value,
+      meter: r.querySelector(".meter").value,
+      qty:   r.querySelector(".qty").value,
+      total: r.querySelector(".total").value,
+      kpc:   r.querySelector(".kpc-select").value
     }))
   };
 
   fetch(SCRIPT_URL,{
     method:"POST",
-    body:JSON.stringify(payload)
+    body: JSON.stringify(payload)
   })
-  .then(()=>{ hideLoading(); alert("Submitted!"); })
-  .catch(err=>{ hideLoading(); alert("Error submitting: "+err); });
+  .then(()=>{
+    hideLoading();
+    alert("Submitted!");
+  })
+  .catch(err=>{
+    hideLoading();
+    alert("Error submitting: " + err);
+  });
 }
-
 </script>
 
 </body>
