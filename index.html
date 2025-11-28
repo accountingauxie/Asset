@@ -14,9 +14,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
 <style>
-/* ==========================
-      GLOBAL + BACKGROUND
-============================*/
+/* ===========================================
+    GLOBAL
+=========================================== */
 body {
   margin: 0;
   padding: 0;
@@ -24,204 +24,186 @@ body {
   font-family: Segoe UI, sans-serif;
 }
 
-/* ==========================
-          HEADER
-============================*/
+/* ===========================================
+    HEADER
+=========================================== */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
-  color: #1a1a1a;
-  padding: 18px 35px;
+  padding: 20px 35px;
   font-size: 22px;
   font-weight: 600;
-  border-bottom: 1px solid #e5e7eb;
+  color: #1a1a1a;
+  border-bottom: 1px solid #e3e6ea;
 }
 
 .header-right {
   font-size: 14px;
-  opacity: .65;
+  opacity: 0.65;
 }
 
-/* ==========================
-            PAGE
-============================*/
+/* ===========================================
+    PAGE
+=========================================== */
 .page {
   max-width: 1200px;
-  margin: 30px auto;
+  margin: 25px auto;
 }
 
-/* ==========================
-            LABEL
-============================*/
+/* ===========================================
+    LABEL
+=========================================== */
 label {
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   display: block;
   color: #444;
 }
 
-/* ==========================
-     INPUT BOX – SMALL
-============================*/
-.input-box {
-  padding: 6px 8px;
-  border: 1px solid #d0d5dd;
-  border-radius: 5px;
-  font-size: 13px;
-  width: 160px;
-  height: 30px;
-  background: #fafafa;
+/* ===========================================
+   INPUTS — EXACT SAME AS “FORM PEMESANAN”
+=========================================== */
+.input-box,
+.table-input,
+.choices__inner {
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 4px 8px !important;
+  font-size: 13px !important;
+  border: 1px solid #d0d5dd !important;
+  border-radius: 4px !important;
+  background: #f9fafb !important;
+  box-sizing: border-box;
 }
 
-/* FLEX ROW */
+/* Row layout */
 .row-flex {
   display: flex;
   gap: 20px;
   align-items: flex-end;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
-/* ==========================
-            TABLE
-============================*/
+/* ===========================================
+   TABLE
+=========================================== */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 6px;
+  border: 1px solid #e1e4e8;
   overflow: visible !important;
-  border: 1px solid #e5e7eb;
 }
 
 th {
   background: #f5f6f7;
-  padding: 8px;
+  padding: 6px;
   font-size: 13px;
   font-weight: 600;
+  border-bottom: 1px solid #e1e4e9;
   color: #333;
-  border-bottom: 1px solid #e2e4e7;
 }
 
 td {
-  padding: 8px;
-  border-bottom: 1px solid #f1f2f3;
+  padding: 6px;
+  border-bottom: 1px solid #f2f3f5;
 }
 
-/* ==========================
-     SMALL TABLE INPUT
-============================*/
-.table-input {
-  width: 100%;
-  padding: 6px 8px;
-  height: 30px;
-  border-radius: 5px;
-  border: 1px solid #d0d5dd;
-  font-size: 13px;
-  background: #fafafa;
+table tr {
+  height: 38px !important;
 }
 
-/* HANDLE */
+/* ===========================================
+   CHOICES.JS DROPDOWN
+=========================================== */
+.choices {
+  width: 100% !important;
+}
+
+.choices__list--single {
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 13px !important;
+}
+
+.choices__list--dropdown,
+.choices__list[aria-expanded] {
+  background: white !important;
+  border: 1px solid #d0d5dd !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  z-index: 999999 !important;
+}
+
+/* ===========================================
+   HANDLE + DELETE
+=========================================== */
 .row-handle {
-  cursor: grab;
-  width: 18px;
-  text-align: center;
-  color: #999;
-  font-size: 14px;
-}
-
-/* DELETE BUTTON */
-.delete-btn {
-  cursor: pointer;
-  font-size: 15px;
-  color: #d11a2a;
-  text-align: center;
-}
-
-/* ==========================
-        ADD ROW BTN
-============================*/
-.add-row-btn {
-  margin-top: 12px;
-  padding: 6px 14px;
-  border-radius: 5px;
-  background: #f3f6ff;
-  color: #2d6cdf;
-  border: 1px solid #dce5ff;
-  font-weight: 600;
   font-size: 13px;
+  width: 14px;
+  color: #999;
+  cursor: grab;
+}
+
+.delete-btn {
+  font-size: 14px;
+  color: #d11a2a;
+  cursor: pointer;
+}
+
+/* ===========================================
+   ADD ROW BUTTON
+=========================================== */
+.add-row-btn {
+  margin-top: 10px;
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: #eef5ff;
+  border: 1px solid #d6e4ff;
+  color: #2e6de7;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .add-row-btn:hover {
-  background: #e8eeff;
+  background: #e4edff;
 }
 
-/* ==========================
-          NOTES
-============================*/
+/* ===========================================
+   NOTES
+=========================================== */
 textarea {
   width: 100%;
-  height: 110px;
-  padding: 10px;
-  border-radius: 6px;
+  height: 120px;
+  padding: 8px;
+  font-size: 13px;
+  border-radius: 4px;
   border: 1px solid #d0d5dd;
-  background: #fafafa;
-  font-size: 14px;
+  background: #f9fafb;
 }
 
-/* ==========================
-          SUBMIT
-============================*/
+/* ===========================================
+   SUBMIT
+=========================================== */
 .submit-btn {
   margin-top: 25px;
   padding: 10px 25px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
   background: #2d6cdf;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
   cursor: pointer;
 }
 
 .submit-btn:hover {
   background: #1e54b7;
-}
-
-/* ==========================
-     CHOICES – SMALL MODE
-============================*/
-.choices {
-    width: 100% !important;
-    z-index: 99999 !important;
-}
-
-.choices__inner {
-    min-height: 30px !important;
-    height: 30px !important;
-    padding: 3px 6px !important;
-    border-radius: 5px !important;
-    background: #fafafa !important;
-    border: 1px solid #d0d5dd !important;
-    font-size: 13px !important;
-}
-
-.choices__list--single {
-    padding-top: 2px !important;
-    font-size: 13px !important;
-}
-
-.choices__list--dropdown,
-.choices__list[aria-expanded] {
-    background: #ffffff !important;
-    border: 1px solid #d0d5dd !important;
-    border-radius: 5px !important;
-    font-size: 13px !important;
-    z-index: 999999 !important;
 }
 </style>
 </head>
@@ -275,7 +257,13 @@ textarea {
   <table>
     <thead>
       <tr>
-        <th></th><th>Item</th><th>Meter</th><th>Qty</th><th>Total (m)</th><th>KPC</th><th></th>
+        <th></th>
+        <th>Item</th>
+        <th>Meter</th>
+        <th>Qty</th>
+        <th>Total (m)</th>
+        <th>KPC</th>
+        <th></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -283,7 +271,7 @@ textarea {
 
   <button class="add-row-btn" onclick="addRow()">+ Add row</button>
 
-  <div style="margin-top:25px; font-size:15px; font-weight:600;">Additional Notes</div>
+  <div style="margin-top:20px; font-size:14px; font-weight:600;">Additional Notes</div>
   <textarea id="notes"></textarea>
 
   <button class="submit-btn" onclick="submitForm()">Submit</button>
@@ -296,6 +284,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNyFxiIaOMUGfNRMnSd
 let itemList = [];
 let kpcList = [];
 
+/* LOADING */
 function showLoading() { document.getElementById("loadingOverlay").style.display = "flex"; }
 function hideLoading() { document.getElementById("loadingOverlay").style.display = "none"; }
 
