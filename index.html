@@ -217,6 +217,7 @@ textarea {
 
   <!-- DATE | MACHINE | ENTRY ID -->
   <div class="row-flex">
+
     <div>
       <label>Date</label>
       <input type="date" id="productionDate" class="input-box">
@@ -224,18 +225,21 @@ textarea {
 
     <div>
       <label>Production Machine</label>
-      <select id="machineUsed" class="input-box">
+      <select id="machineUsed" class="input-box" onchange="handleMachineOthers()">
         <option value="">— Select Machine —</option>
         <option value="RENG__009_MX">RENG__009_MX</option>
         <option value="TRUSS010">TRUSS010</option>
         <option value="OTHERS">OTHERS</option>
       </select>
+      <input type="text" id="machineOther" class="input-box" placeholder="Enter machine name"
+        style="margin-top:8px; display:none;">
     </div>
 
     <div>
       <label>Production Entry ID</label>
       <input type="text" id="entryId" class="input-box" readonly style="background:#f4f7fb;">
     </div>
+
   </div>
 
   <!-- TABLE -->
@@ -274,6 +278,12 @@ let kpcList = [];
 function showLoading() { document.getElementById("loadingOverlay").style.display = "flex"; }
 function hideLoading() { document.getElementById("loadingOverlay").style.display = "none"; }
 
+/* MACHINE "OTHERS" */
+function handleMachineOthers() {
+  const val = document.getElementById("machineUsed").value;
+  document.getElementById("machineOther").style.display = val === "OTHERS" ? "block" : "none";
+}
+
 /* GENERATE FGP ID BASED ON TODAY TIMESTAMP */
 function generateEntryId() {
   const now = new Date();
@@ -302,16 +312,14 @@ window.addEventListener("DOMContentLoaded", async () => {
     hideLoading();
 
   } catch (err) {
-    console.error(err);
-    alert("Failed loading Item/KPC list");
+    alert("Failed loading Item/KPC list.");
     hideLoading();
   }
 });
 
 /* SORTABLE ROWS */
 function setupSortable() {
-  const tbody = document.getElementById("tableBody");
-  Sortable.create(tbody, {
+  Sortable.create(document.getElementById("tableBody"), {
     handle: ".row-handle",
     animation: 150,
     ghostClass: "sortable-ghost"
@@ -351,9 +359,11 @@ function addRow() {
 
   tr.querySelector(".meter").addEventListener("input", updateTotals);
   tr.querySelector(".qty").addEventListener("input", updateTotals);
+
+  updateTotals();
 }
 
-/* DELETE ROW (FIXED) */
+/* DELETE ROW */
 function deleteRow(btn) {
   btn.closest("tr").remove();
 }
@@ -371,6 +381,10 @@ function updateTotals() {
 function validateForm() {
   if (!document.getElementById("productionDate").value) return "Date required";
   if (!document.getElementById("machineUsed").value) return "Machine required";
+
+  if (document.getElementById("machineUsed").value === "OTHERS" &&
+      !document.getElementById("machineOther").value.trim())
+      return "Machine (Others) must be filled";
 
   const rows = document.querySelectorAll("#tableBody tr");
   if (rows.length === 0) return "Add at least 1 item";
@@ -396,10 +410,15 @@ function submitForm() {
     return;
   }
 
+  const machineVal =
+    document.getElementById("machineUsed").value === "OTHERS"
+    ? document.getElementById("machineOther").value
+    : document.getElementById("machineUsed").value;
+
   const payload = {
     productionEntryId: document.getElementById("entryId").value,
     productionDate: document.getElementById("productionDate").value,
-    machine: document.getElementById("machineUsed").value,
+    machine: machineVal,
     notes: document.getElementById("notes").value,
     items: Array.from(document.querySelectorAll("#tableBody tr")).map(r => ({
       item: r.querySelector(".item").value,
