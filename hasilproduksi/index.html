@@ -2,25 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Production Realization</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Realization Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-  body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+  body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
   .active-tab { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
-  .inactive-tab { color: #64748b; }
-  .inactive-tab:hover { color: #334155; }
+  .inactive-tab { color: #64748b; border-bottom: 2px solid transparent; }
+  .inactive-tab:hover { color: #334155; border-bottom: 2px solid #e2e8f0; }
   
   /* Loading Overlay */
-  #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 50; display: flex; justify-content: center; align-items: center; }
-  .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+  #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.85); z-index: 50; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+  .spinner { border: 4px solid #e2e8f0; border-top: 4px solid #3b82f6; border-radius: 50%; width: 45px; height: 45px; animation: spin 0.8s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   
-  /* Table input small */
-  .input-xs { padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; width: 100%; }
-  .input-xs:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+  .input-xs { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; width: 100%; transition: border 0.2s; }
+  .input-xs:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 </style>
 </head>
 
@@ -28,51 +28,54 @@
 
 <div id="loading"><div class="spinner"></div></div>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
   
-  <div class="flex justify-between items-center mb-6">
+  <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-slate-900">Production Realization</h1>
-      <p class="text-sm text-slate-500 mt-1">Manage production results, approvals, and Xero sync.</p>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Production Realization</h1>
+      <p class="text-sm text-slate-500 mt-1">Monitor production queue, input results, and sync to accounting.</p>
     </div>
-    <button onclick="loadData()" class="bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+    <button onclick="fetchData()" class="bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 px-4 py-2.5 rounded-lg text-sm font-medium transition shadow-sm flex items-center justify-center">
       <i class="fas fa-sync-alt mr-2"></i> Refresh Data
     </button>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Queue</div>
-      <div class="mt-2 flex items-baseline">
-        <span class="text-3xl font-bold text-blue-600" id="count-queue">0</span>
-        <span class="ml-2 text-sm text-slate-500">Batches waiting</span>
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
+      <div class="absolute right-0 top-0 h-full w-1 bg-blue-500"></div>
+      <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Queue (Siap Produksi)</div>
+      <div class="flex items-baseline">
+        <span class="text-4xl font-bold text-slate-800" id="count-queue">0</span>
+        <span class="ml-2 text-sm text-slate-500">batches</span>
       </div>
     </div>
-    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Completed</div>
-      <div class="mt-2 flex items-baseline">
-        <span class="text-3xl font-bold text-emerald-600" id="count-completed">0</span>
-        <span class="ml-2 text-sm text-slate-500">Need Approval</span>
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
+      <div class="absolute right-0 top-0 h-full w-1 bg-emerald-500"></div>
+      <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Completed (Selesai)</div>
+      <div class="flex items-baseline">
+        <span class="text-4xl font-bold text-slate-800" id="count-completed">0</span>
+        <span class="ml-2 text-sm text-slate-500">need approval</span>
       </div>
     </div>
-    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Ready to Sync</div>
-      <div class="mt-2 flex items-baseline">
-        <span class="text-3xl font-bold text-indigo-600" id="count-import">0</span>
-        <span class="ml-2 text-sm text-slate-500">To Xero</span>
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
+      <div class="absolute right-0 top-0 h-full w-1 bg-indigo-500"></div>
+      <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Ready to Sync</div>
+      <div class="flex items-baseline">
+        <span class="text-4xl font-bold text-slate-800" id="count-import">0</span>
+        <span class="ml-2 text-sm text-slate-500">to Xero</span>
       </div>
     </div>
   </div>
 
   <div class="border-b border-slate-200 mb-6">
-    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-      <button onclick="switchTab('queue')" id="tab-queue" class="active-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+    <nav class="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
+      <button onclick="switchTab('queue')" id="tab-queue" class="active-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">
         Siap Untuk Di Produksi
       </button>
-      <button onclick="switchTab('completed')" id="tab-completed" class="inactive-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+      <button onclick="switchTab('completed')" id="tab-completed" class="inactive-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">
         Sudah Di Produksi
       </button>
-      <button onclick="switchTab('import')" id="tab-import" class="inactive-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+      <button onclick="switchTab('import')" id="tab-import" class="inactive-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">
         Siap Import Xero
       </button>
     </nav>
@@ -83,60 +86,61 @@
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         <i class="fas fa-search text-slate-400"></i>
       </div>
-      <input type="text" id="searchInput" onkeyup="renderData()" class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Search ID, Machine, or Item...">
+      <input type="text" id="searchInput" onkeyup="renderData()" class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm shadow-sm" placeholder="Search ID, Machine, or Item...">
     </div>
   </div>
 
-  <div id="list-container" class="space-y-4">
+  <div id="list-container" class="space-y-4 pb-20">
     </div>
 
 </div>
 
 <div id="modalResult" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
   <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity backdrop-blur-sm" aria-hidden="true"></div>
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+    <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
       
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-slate-100">
-        <div class="sm:flex sm:items-start justify-between">
-          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-            <h3 class="text-lg leading-6 font-medium text-slate-900" id="modal-title">Input Production Result</h3>
-            <div class="mt-1 text-sm text-slate-500" id="modal-subtitle">Entry ID: <span id="modal-batch-id" class="font-bold"></span></div>
-          </div>
-          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-500">
-            <i class="fas fa-times text-xl"></i>
-          </button>
+      <div class="bg-white px-6 py-5 border-b border-slate-100 flex justify-between items-start">
+        <div>
+          <h3 class="text-xl font-bold text-slate-900" id="modal-title">Input Production Result</h3>
+          <div class="mt-1 text-sm text-slate-500">Entry ID: <span id="modal-batch-id" class="font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"></span></div>
         </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition">
+          <i class="fas fa-times text-xl"></i>
+        </button>
       </div>
 
-      <div class="bg-slate-50 px-4 py-5 sm:p-6">
-        <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-          <table class="min-w-full divide-y divide-slate-200">
+      <div class="bg-slate-50 px-6 py-6">
+        <div class="overflow-hidden rounded-lg border border-slate-200 shadow-sm">
+          <table class="min-w-full divide-y divide-slate-200 bg-white">
             <thead class="bg-slate-50">
               <tr>
-                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase">Item</th>
-                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase w-32">Machine</th>
-                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase w-40">KPC</th>
-                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Meter (Input)</th>
-                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Qty (Input)</th>
-                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Preview</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Item</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-40">Machine</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-48">KPC</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-28">Meter</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-24">Qty</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">WE Number</th>
               </tr>
             </thead>
             <tbody id="modal-table-body" class="divide-y divide-slate-200">
               </tbody>
           </table>
         </div>
-        <p class="mt-4 text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-          <i class="fas fa-info-circle mr-1"></i> Note: You can edit Machine & KPC here. WE Number will auto-update. Ensure you input real Qty & Meter.
-        </p>
+        <div class="mt-4 flex items-start p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <i class="fas fa-exclamation-circle text-amber-500 mt-0.5 mr-2"></i>
+          <p class="text-xs text-amber-700">
+             <strong>Perhatian:</strong> Anda dapat mengubah Mesin & KPC jika terjadi perubahan rencana. WE Number akan dibuat ulang otomatis. Pastikan input <strong>Qty</strong> dan <strong>Meter</strong> aktual.
+          </p>
+        </div>
       </div>
 
-      <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-100">
-        <button type="button" onclick="submitResult()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+      <div class="bg-white px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-100">
+        <button type="button" onclick="submitResult()" class="inline-flex justify-center rounded-lg border border-transparent shadow-sm px-5 py-2.5 bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
           Submit & Complete
         </button>
-        <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+        <button type="button" onclick="closeModal()" class="inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-5 py-2.5 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none transition">
           Cancel
         </button>
       </div>
@@ -145,58 +149,69 @@
 </div>
 
 <script>
+// =================================================================
+// KONFIGURASI API (GANTI URL INI DENGAN URL DEPLOYMENT ANDA)
+// =================================================================
+const API_URL = "https://script.google.com/macros/s/AKfycbzKJuhE7_Sz46rtVaBWjJlNVVUlvNzPB4sCvJ5LDh77A6is6f4IOy7R0IJe8GWEsUaq/exec"; 
+// =================================================================
+
 let RAW_DATA = [];
 let GROUPED_DATA = {};
-let OPTIONS = { items: [], kpcs: [] }; // Store dropdown options
+let OPTIONS = { items: [], kpcs: [] };
 let CURRENT_TAB = 'queue';
 let CURRENT_BATCH_ID = null;
 
 // INIT
 window.addEventListener('DOMContentLoaded', () => {
-  loadData();
+  fetchData();
 });
 
-// LOAD DATA
-function loadData() {
+// 1. FETCH DATA (GET)
+async function fetchData() {
   document.getElementById('loading').style.display = 'flex';
   
-  google.script.run
-    .withSuccessHandler(onDataLoaded)
-    .withFailureHandler(err => { alert("Error: " + err); document.getElementById('loading').style.display = 'none'; })
-    .getProductionData();
+  try {
+    // Parallel Fetch (Data & Options)
+    const [dataRes, optionsRes] = await Promise.all([
+      fetch(`${API_URL}?action=getData`),
+      fetch(`${API_URL}?action=getOptions`)
+    ]);
+
+    const data = await dataRes.json();
+    const options = await optionsRes.json();
     
-  // Load options for dropdowns only once
-  google.script.run.withSuccessHandler(opts => { OPTIONS = opts; }).getDropdownOptions();
+    RAW_DATA = data;
+    OPTIONS = options;
+    
+    processData();
+    updateCounts();
+    renderData();
+    
+  } catch (err) {
+    alert("Gagal mengambil data: " + err);
+    console.error(err);
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
 }
 
-function onDataLoaded(data) {
-  RAW_DATA = data;
-  processData(); // Group by ID
-  updateCounts();
-  renderData();
-  document.getElementById('loading').style.display = 'none';
-}
-
-// GROUP DATA BY ID
+// 2. PROCESS DATA
 function processData() {
   GROUPED_DATA = {};
   
-  // Filter out archived rows if needed, or categorize
   RAW_DATA.forEach(row => {
-    // Only process rows relevant to our 3 tabs
+    // Validasi status
     if(!['Siap Untuk Di Produksi', 'Sudah Di Produksi', 'Siap Import', 'Sudah di Import Xero'].includes(row.status)) return;
 
     if (!GROUPED_DATA[row.id]) {
       GROUPED_DATA[row.id] = {
         id: row.id,
-        date: new Date(row.date).toLocaleDateString('id-ID'),
+        date: row.date,
         status: row.status,
         timestamp: row.timestamp,
         items: []
       };
     }
-    // Check consistency: if one item in batch is "Siap", treat batch as "Siap"
-    // Usually status is consistent per ID based on logic
     GROUPED_DATA[row.id].items.push(row);
   });
 }
@@ -204,8 +219,7 @@ function processData() {
 function updateCounts() {
   let q = 0, c = 0, i = 0;
   Object.values(GROUPED_DATA).forEach(batch => {
-    // Check status of first item (assuming batch consistency)
-    const st = batch.items[0].status;
+    const st = batch.items[0].status; // Asumsi status seragam per batch
     if (st === 'Siap Untuk Di Produksi') q++;
     else if (st === 'Sudah Di Produksi') c++;
     else if (st === 'Siap Import') i++;
@@ -216,11 +230,9 @@ function updateCounts() {
   document.getElementById('count-import').innerText = i;
 }
 
-// TAB SWITCHING
+// 3. UI RENDERING
 function switchTab(tabName) {
   CURRENT_TAB = tabName;
-  
-  // UI Update
   ['queue', 'completed', 'import'].forEach(t => {
     const el = document.getElementById('tab-' + t);
     if (t === tabName) {
@@ -231,42 +243,41 @@ function switchTab(tabName) {
       el.classList.add('inactive-tab');
     }
   });
-  
   renderData();
 }
 
-// RENDER CARDS
 function renderData() {
   const container = document.getElementById('list-container');
   container.innerHTML = '';
-  
   const search = document.getElementById('searchInput').value.toLowerCase();
   
-  // Filter Batches based on Tab & Search
+  // Filter Logic
   const batches = Object.values(GROUPED_DATA).filter(batch => {
-    // 1. Filter Tab
     const st = batch.items[0].status;
     let matchTab = false;
+    
     if (CURRENT_TAB === 'queue' && st === 'Siap Untuk Di Produksi') matchTab = true;
     if (CURRENT_TAB === 'completed' && st === 'Sudah Di Produksi') matchTab = true;
     if (CURRENT_TAB === 'import' && (st === 'Siap Import' || st === 'Sudah di Import Xero')) matchTab = true;
     
     if (!matchTab) return false;
 
-    // 2. Filter Search
     const searchString = (batch.id + batch.items.map(i => i.item + i.machine).join(' ')).toLowerCase();
     return searchString.includes(search);
   });
 
-  // Sort by date (newest first)
+  // Sort: Terbaru di atas
   batches.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   if (batches.length === 0) {
-    container.innerHTML = `<div class="text-center py-10 text-slate-400">No data found in this tab.</div>`;
+    container.innerHTML = `<div class="flex flex-col items-center justify-center py-16 text-slate-400">
+      <i class="fas fa-clipboard-list text-4xl mb-3 opacity-20"></i>
+      <p>Tidak ada data di tab ini.</p>
+    </div>`;
     return;
   }
 
-  // Generate HTML
+  // Generate Cards
   batches.forEach(batch => {
     const isQueue = CURRENT_TAB === 'queue';
     const isCompleted = CURRENT_TAB === 'completed';
@@ -276,62 +287,64 @@ function renderData() {
     
     if (isQueue) {
       actionBtn = `
-        <button onclick="openInputModal('${batch.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm transition">
-          <i class="fas fa-edit mr-1"></i> Input Result
+        <button onclick="openInputModal('${batch.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center">
+          <i class="fas fa-edit mr-2"></i> Input Result
         </button>`;
     } else if (isCompleted) {
       actionBtn = `
-        <button onclick="approveBatch('${batch.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm transition">
-          <i class="fas fa-check-circle mr-1"></i> Approve
+        <button onclick="approveBatch('${batch.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center">
+          <i class="fas fa-check-circle mr-2"></i> Approve
         </button>`;
     } else if (isImport) {
        const isSynced = batch.items[0].status === 'Sudah di Import Xero';
        if(!isSynced) {
          actionBtn = `
-          <button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm transition">
-            <i class="fas fa-cloud-upload-alt mr-1"></i> Sync Xero
+          <button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center">
+            <i class="fas fa-cloud-upload-alt mr-2"></i> Sync Xero
           </button>`;
        } else {
-          actionBtn = `<span class="px-3 py-1 bg-gray-100 text-gray-500 rounded text-xs font-bold">IMPORTED</span>`;
+          actionBtn = `<span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">IMPORTED</span>`;
        }
     }
 
-    // Item summary for card
     let itemRows = '';
     batch.items.forEach(item => {
-      // Display differs based on tab
       const resultDisplay = !isQueue ? 
-        `<span class="ml-4 text-xs font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-           Qty: <b>${item.qty}</b> | M: <b>${item.meter}</b>
-         </span>` : '';
+        `<div class="ml-auto text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded border border-slate-200 flex items-center gap-3">
+           <span>Qty: <b class="text-slate-800">${item.qty}</b></span>
+           <span class="border-l border-slate-300 pl-3">M: <b class="text-slate-800">${item.meter}</b></span>
+         </div>` : '<div class="ml-auto"></div>';
          
       itemRows += `
-        <div class="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-           <div class="flex items-center">
-             <span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
-             <span class="text-sm font-medium text-slate-700">${item.item}</span>
-             <span class="text-xs text-slate-400 ml-2">(${item.machine})</span>
-             ${resultDisplay}
+        <div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition px-2 -mx-2 rounded">
+           <div class="flex items-center flex-1">
+             <span class="w-2 h-2 rounded-full bg-blue-400 mr-3"></span>
+             <div>
+               <div class="text-sm font-medium text-slate-700">${item.item}</div>
+               <div class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+                  <span class="bg-slate-100 px-1.5 rounded">${item.machine}</span>
+                  <span>${item.kpc}</span>
+               </div>
+             </div>
            </div>
-           <div class="text-xs text-slate-400 font-mono">${item.kpc}</div>
+           ${resultDisplay}
         </div>
       `;
     });
 
     const card = `
-      <div class="bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition duration-200">
-        <div class="px-6 py-4 flex items-center justify-between bg-slate-50 border-b border-slate-100 rounded-t-lg">
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition duration-200 overflow-hidden">
+        <div class="px-6 py-4 flex items-center justify-between bg-slate-50 border-b border-slate-100">
           <div>
             <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Production ID</div>
-            <div class="text-lg font-bold text-slate-800">${batch.id}</div>
-            <div class="text-xs text-slate-500 mt-1"><i class="far fa-calendar-alt mr-1"></i> ${batch.date}</div>
+            <div class="text-lg font-bold text-slate-800 font-mono">${batch.id}</div>
+            <div class="text-xs text-slate-500 mt-1 flex items-center">
+               <i class="far fa-calendar-alt mr-1.5"></i> ${batch.date}
+            </div>
           </div>
-          <div>
-            ${actionBtn}
-          </div>
+          <div>${actionBtn}</div>
         </div>
         <div class="px-6 py-4">
-          <div class="text-xs text-slate-400 uppercase font-bold mb-2">Items Overview</div>
           ${itemRows}
         </div>
       </div>
@@ -341,8 +354,7 @@ function renderData() {
   });
 }
 
-// --- MODAL LOGIC (TAB 1 INPUT) ---
-
+// 4. MODAL & ACTIONS
 function openInputModal(batchId) {
   CURRENT_BATCH_ID = batchId;
   const batch = GROUPED_DATA[batchId];
@@ -351,19 +363,18 @@ function openInputModal(batchId) {
   const tbody = document.getElementById('modal-table-body');
   tbody.innerHTML = '';
   
-  batch.items.forEach((item, idx) => {
-    // Machine Dropdown
-    let machineOpts = OPTIONS.items.map(i => i.machine).filter((v, i, a) => a.indexOf(v) === i && v).sort(); // Unique machines
-    let machineSelect = `<select class="input-xs machine-select" onchange="updateRowWE(this)">`;
+  batch.items.forEach((item) => {
+    // Unique Machine Options
+    let machineOpts = [...new Set(OPTIONS.items.map(i => i.machine))].sort();
+    let machineSelect = `<select class="input-xs machine-select bg-white" onchange="updateRowWE(this)">`;
     machineOpts.forEach(m => {
        machineSelect += `<option value="${m}" ${m === item.machine ? 'selected' : ''}>${m}</option>`;
     });
     machineSelect += `</select>`;
 
-    // KPC Dropdown (simplified, showing all available for ease, or filter by item if stricter logic needed)
-    // For simplicity & flexibility in Edit, showing related item matches + current
+    // KPC Options (Filter by Item or Current KPC)
     let validKPCs = OPTIONS.kpcs.filter(k => k.relatedItem === item.item || k.name === item.kpc);
-    let kpcSelect = `<select class="input-xs kpc-select" onchange="updateRowWE(this)">`;
+    let kpcSelect = `<select class="input-xs kpc-select bg-white" onchange="updateRowWE(this)">`;
     validKPCs.forEach(k => {
        kpcSelect += `<option value="${k.name}" ${k.name === item.kpc ? 'selected' : ''}>${k.name}</option>`;
     });
@@ -371,12 +382,12 @@ function openInputModal(batchId) {
 
     const row = `
       <tr data-row-index="${item.rowIndex}" data-item-name="${item.item}">
-        <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-slate-800">${item.item}</td>
-        <td class="px-3 py-3">${machineSelect}</td>
-        <td class="px-3 py-3">${kpcSelect}</td>
-        <td class="px-3 py-3"><input type="number" class="input-xs input-meter" value="${item.meter || 0}" min="0"></td>
-        <td class="px-3 py-3"><input type="number" class="input-xs input-qty" value="${item.qty || 0}" min="0"></td>
-        <td class="px-3 py-3"><input type="text" class="input-xs bg-slate-100 text-slate-500 we-preview" value="${item.weNumber}" readonly></td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-800">${item.item}</td>
+        <td class="px-4 py-3">${machineSelect}</td>
+        <td class="px-4 py-3">${kpcSelect}</td>
+        <td class="px-4 py-3"><input type="number" class="input-xs input-meter text-center font-mono" value="${item.meter || 0}" min="0"></td>
+        <td class="px-4 py-3"><input type="number" class="input-xs input-qty text-center font-mono" value="${item.qty || 0}" min="0"></td>
+        <td class="px-4 py-3"><input type="text" class="input-xs bg-slate-50 text-slate-500 we-preview font-mono text-xs cursor-not-allowed" value="${item.weNumber}" readonly></td>
       </tr>
     `;
     tbody.innerHTML += row;
@@ -389,7 +400,6 @@ function closeModal() {
   document.getElementById('modalResult').classList.add('hidden');
 }
 
-// Logic untuk Auto-Generate WE Number di Modal saat edit Machine/KPC
 function updateRowWE(el) {
   const tr = el.closest('tr');
   const machine = tr.querySelector('.machine-select').value;
@@ -399,7 +409,7 @@ function updateRowWE(el) {
   
   if(!machine || !item || !kpc) return;
 
-  // 1. Machine Code logic
+  // Machine Logic
   let machineCode = "XX";
   const mUpper = machine.toUpperCase();
   if(mUpper.includes("RENG")) machineCode = "RG";
@@ -410,84 +420,77 @@ function updateRowWE(el) {
   const machineNum = machineDigits ? machineDigits[0].slice(-2) : "00";
   const finalMachine = machineCode + machineNum;
 
-  // 2. Item Suffix
+  // Item Suffix
   const itemDigitsMatch = item.match(/\d+/g); 
   let itemSuffix = "00";
   if(itemDigitsMatch && itemDigitsMatch.length > 0) {
       itemSuffix = itemDigitsMatch[itemDigitsMatch.length - 1].slice(-2);
   }
 
-  // Set Value
   tr.querySelector('.we-preview').value = `${finalMachine}_${kpc}_${prodId}_${itemSuffix}`;
 }
 
-function submitResult() {
+async function postAction(action, payload) {
+  document.getElementById('loading').style.display = 'flex';
+  
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ action, ...payload })
+    });
+    
+    const result = await res.json();
+    if(result.status === 'success') {
+      return true;
+    } else {
+      throw new Error(result.message);
+    }
+  } catch(e) {
+    alert("Error: " + e.message);
+    return false;
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+async function submitResult() {
   const rows = document.querySelectorAll('#modal-table-body tr');
-  const payload = [];
-  let isValid = true;
+  const items = [];
 
   rows.forEach(tr => {
-    const meter = tr.querySelector('.input-meter').value;
-    const qty = tr.querySelector('.input-qty').value;
-    
-    // Validasi sederhana: Qty tidak boleh 0 jika mau selesai? (Optional)
-    if (qty <= 0) {
-       // alert("Warning: Qty is 0 for some items."); // Uncomment if strict
-    }
-
-    payload.push({
+    items.push({
       rowIndex: tr.getAttribute('data-row-index'),
       machine: tr.querySelector('.machine-select').value,
       kpc: tr.querySelector('.kpc-select').value,
-      meter: meter,
-      qty: qty,
+      meter: tr.querySelector('.input-meter').value,
+      qty: tr.querySelector('.input-qty').value,
       weNumber: tr.querySelector('.we-preview').value
     });
   });
 
-  if(!confirm("Are you sure you want to complete production for this batch?")) return;
-
-  // Show loading
-  document.getElementById('modalResult').classList.add('hidden');
-  document.getElementById('loading').style.display = 'flex';
-
-  google.script.run
-    .withSuccessHandler(res => {
-       if(res.status === 'success') {
-         alert("Success! Production data updated.");
-         loadData(); // Reload
-       } else {
-         alert("Error: " + res.message);
-         document.getElementById('loading').style.display = 'none';
-       }
-    })
-    .submitProductionResult({ itemsData: JSON.stringify(payload) });
+  if(!confirm("Simpan hasil produksi?")) return;
+  
+  closeModal();
+  const success = await postAction('submitResult', { payload: items });
+  if(success) {
+    alert("Data produksi berhasil disimpan!");
+    fetchData();
+  }
 }
 
-// --- APPROVE & SYNC LOGIC ---
-
-function approveBatch(batchId) {
-  if(!confirm(`Approve Batch ${batchId} for Import?`)) return;
-  
-  document.getElementById('loading').style.display = 'flex';
-  google.script.run
-    .withSuccessHandler(res => {
-      loadData();
-    })
-    .approveBatch(batchId);
+async function approveBatch(batchId) {
+  if(!confirm(`Approve Batch ${batchId} untuk Import?`)) return;
+  const success = await postAction('approve', { batchId });
+  if(success) fetchData();
 }
 
-function syncXero(batchId) {
-  // Disini nanti bisa panggil API Xero beneran
-  if(!confirm(`Sync Batch ${batchId} to Xero?`)) return;
-  
-  document.getElementById('loading').style.display = 'flex';
-  google.script.run
-    .withSuccessHandler(res => {
-      alert("Synced to Xero successfully (Status Updated).");
-      loadData();
-    })
-    .syncBatchToXero(batchId);
+async function syncXero(batchId) {
+  if(!confirm(`Sync Batch ${batchId} ke Xero?`)) return;
+  const success = await postAction('syncXero', { batchId });
+  if(success) {
+    alert("Status berhasil diupdate ke 'Sudah di Import Xero'");
+    fetchData();
+  }
 }
 </script>
 
