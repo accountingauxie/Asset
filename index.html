@@ -67,12 +67,11 @@ tr:last-child td { border-bottom: none; }
   display: flex !important; 
   align-items: center !important; 
   font-size: 13.5px !important;
-  position: relative; /* Penting untuk placeholder absolute */
+  position: relative;
 }
 .choices.is-focused .choices__inner { border-color: var(--primary-blue) !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; }
 
-/* !!! ULTIMATE FIX FOR PLACEHOLDER OVERLAP !!! */
-/* Jika sudah ada item terpilih, placeholder di-hidden total */
+/* FIX PLACEHOLDER MENUMPUK: Sembunyikan total jika ada item terpilih */
 .choices.is-item-selected .choices__placeholder { 
     position: absolute; 
     opacity: 0; 
@@ -174,7 +173,7 @@ textarea:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(5
 
 <script>
 // !!! GANTI URL INI DENGAN DEPLOYMENT ID TERBARU ANDA !!!
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTTDpY9PcBzMW2VR4fpLDmsludQtk66b55EKRxfapWEvjnOzaTC8DLHIZPgBno3_Uh/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZL1s4_yGpIWAHWS3crlPMy6NHLr6ICEko9J_oFvyJtTYI0Fpw0dOO8_PX18zr0Ixq-g/exec";
 
 let allItemsData = []; 
 let allKPCData = [];    
@@ -241,10 +240,9 @@ function addRow() {
 
   // EVENT: Machine Change
   machineSelect.addEventListener("change", function(e) {
-    // Reset child inputs
     updateDropdown(itemSelect, [], "Select Machine First");
     updateDropdown(kpcSelect, [], "Select Item First", true);
-    row.querySelector(".we-number").value = ""; // Reset WE
+    row.querySelector(".we-number").value = "";
 
     if (e.target.value) {
       const filtered = allItemsData
@@ -259,24 +257,20 @@ function addRow() {
     const selectedItem = e.target.value;
     let placeholder = "Select Item First";
     
-    row.querySelector(".we-number").value = ""; // Reset WE
+    row.querySelector(".we-number").value = ""; 
     
-    // Siapkan opsi KPC dasar
     let kpcOptions = [];
     if (selectedItem) {
         placeholder = "Select KPC";
         kpcOptions = allKPCData.filter(k => k.relatedItem === selectedItem);
     }
 
-    // UPDATE DROPDOWN dengan LOGIKA NO-DUPLICATE
     refreshKPCOptionsForElement(kpcSelect, kpcOptions, placeholder);
   });
 
   // EVENT: KPC Change (Trigger WE Number & Lock other rows)
   kpcSelect.addEventListener("change", function(e) {
-      calculateWENumber(row); // Generate WE Number
-      // (Optional) Trigger refresh on other rows if needed, 
-      // but simpler to just filter on *opening* other rows (handled in 'change' of Item usually)
+      calculateWENumber(row); 
   });
 }
 
@@ -300,48 +294,38 @@ function calculateWENumber(row) {
         return;
     }
 
-    // 1. Machine Code Logic (RENG->RG, TRUSS->TS, else First 2 letters)
+    // 1. Machine Code
     let machineCode = "XX";
     const mUpper = machine.toUpperCase();
     if(mUpper.includes("RENG")) machineCode = "RG";
     else if(mUpper.includes("TRUSS")) machineCode = "TS";
     else machineCode = mUpper.substring(0,2);
 
-    // Ambil angka dari machine (misal 009 dari RENG__009_MX -> 09)
     const machineDigits = machine.match(/\d+/);
     const machineNum = machineDigits ? machineDigits[0].slice(-2) : "00";
-    
     const finalMachineSegment = machineCode + machineNum;
 
-    // 2. Item Suffix (2 digit terakhir)
-    // Mencari angka di akhir string atau angka terakhir yang ditemukan
-    const itemDigitsMatch = item.match(/\d+/g); // ambil semua grup angka
+    // 2. Item Suffix
+    const itemDigitsMatch = item.match(/\d+/g); 
     let itemSuffix = "00";
     if(itemDigitsMatch && itemDigitsMatch.length > 0) {
-        // Ambil grup angka terakhir, lalu ambil 2 digit terakhirnya
         const lastGroup = itemDigitsMatch[itemDigitsMatch.length - 1];
         itemSuffix = lastGroup.slice(-2);
     }
 
-    // FORMAT: Mesin_KPC_ProdID_ItemSuffix
     weInput.value = `${finalMachineSegment}_${kpc}_${prodId}_${itemSuffix}`;
 }
 
 /* --- LOGIC: PREVENT DUPLICATE KPC --- */
-// Fungsi ini dipanggil saat Item dipilih, untuk merender opsi KPC yang BELUM dipakai
 function refreshKPCOptionsForElement(el, rawData, placeholder) {
-    // 1. Ambil semua KPC yang sedang dipilih di baris LAIN
     const allSelects = document.querySelectorAll(".kpc-select");
-    const currentVal = el.value; // Nilai KPC baris ini (jika ada)
-    
     const usedValues = [];
     allSelects.forEach(sel => {
-        if(sel !== el && sel.value) { // Jangan hitung diri sendiri
+        if(sel !== el && sel.value) { 
             usedValues.push(sel.value);
         }
     });
 
-    // 2. Filter data: Hanya tampilkan yang TIDAK ada di usedValues
     const filteredOptions = rawData
         .filter(k => !usedValues.includes(k.name))
         .map(k => {
