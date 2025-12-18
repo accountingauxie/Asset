@@ -13,14 +13,12 @@
   .active-tab { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
   .inactive-tab { color: #64748b; border-bottom: 2px solid transparent; }
   .inactive-tab:hover { color: #334155; border-bottom: 2px solid #e2e8f0; }
-  
-  /* Loading Overlay */
   #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.85); z-index: 50; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
   .spinner { border: 4px solid #e2e8f0; border-top: 4px solid #3b82f6; border-radius: 50%; width: 45px; height: 45px; animation: spin 0.8s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  
   .input-xs { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; width: 100%; transition: border 0.2s; }
   .input-xs:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .input-readonly { background-color: #f1f5f9; border-color: #e2e8f0; color: #64748b; cursor: not-allowed; }
 </style>
 </head>
 
@@ -69,15 +67,9 @@
 
   <div class="border-b border-slate-200 mb-6">
     <nav class="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
-      <button onclick="switchTab('queue')" id="tab-queue" class="active-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">
-        Siap Untuk Di Produksi
-      </button>
-      <button onclick="switchTab('completed')" id="tab-completed" class="inactive-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">
-        Sudah Di Produksi
-      </button>
-      <button onclick="switchTab('import')" id="tab-import" class="inactive-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">
-        Siap Import Xero
-      </button>
+      <button onclick="switchTab('queue')" id="tab-queue" class="active-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">Siap Untuk Di Produksi</button>
+      <button onclick="switchTab('completed')" id="tab-completed" class="inactive-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">Sudah Di Produksi</button>
+      <button onclick="switchTab('import')" id="tab-import" class="inactive-tab whitespace-nowrap py-4 px-1 font-medium text-sm transition-colors">Siap Import Xero</button>
     </nav>
   </div>
 
@@ -90,8 +82,7 @@
     </div>
   </div>
 
-  <div id="list-container" class="space-y-4 pb-20">
-    </div>
+  <div id="list-container" class="space-y-4 pb-20"></div>
 
 </div>
 
@@ -99,16 +90,14 @@
   <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
     <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity backdrop-blur-sm" aria-hidden="true"></div>
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-    <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+    <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full">
       
       <div class="bg-white px-6 py-5 border-b border-slate-100 flex justify-between items-start">
         <div>
           <h3 class="text-xl font-bold text-slate-900" id="modal-title">Input Production Result</h3>
           <div class="mt-1 text-sm text-slate-500">Entry ID: <span id="modal-batch-id" class="font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"></span></div>
         </div>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition">
-          <i class="fas fa-times text-xl"></i>
-        </button>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fas fa-times text-xl"></i></button>
       </div>
 
       <div class="bg-slate-50 px-6 py-6">
@@ -116,42 +105,31 @@
           <table class="min-w-full divide-y divide-slate-200 bg-white">
             <thead class="bg-slate-50">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Item</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-40">Machine</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-48">KPC</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-28">Meter</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-24">Qty</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">WE Number</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-48">Item</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-40">Machine</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-48">KPC</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-28">Meter</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Qty</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Number</th>
               </tr>
             </thead>
-            <tbody id="modal-table-body" class="divide-y divide-slate-200">
-              </tbody>
+            <tbody id="modal-table-body" class="divide-y divide-slate-200"></tbody>
           </table>
         </div>
-        <div class="mt-4 flex items-start p-3 bg-amber-50 border border-amber-200 rounded-lg">
+        <div class="mt-4 flex items-start p-3 bg-amber-50 border border-amber-200 rounded-lg" id="modal-warning">
           <i class="fas fa-exclamation-circle text-amber-500 mt-0.5 mr-2"></i>
-          <p class="text-xs text-amber-700">
-             <strong>Perhatian:</strong> Anda dapat mengubah Mesin & KPC jika terjadi perubahan rencana. WE Number akan dibuat ulang otomatis. Pastikan input <strong>Qty</strong> dan <strong>Meter</strong> aktual.
-          </p>
+          <p class="text-xs text-amber-700" id="modal-warning-text"></p>
         </div>
       </div>
 
-      <div class="bg-white px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-100">
-        <button type="button" onclick="submitResult()" class="inline-flex justify-center rounded-lg border border-transparent shadow-sm px-5 py-2.5 bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
-          Submit & Complete
-        </button>
-        <button type="button" onclick="closeModal()" class="inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-5 py-2.5 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none transition">
-          Cancel
-        </button>
-      </div>
+      <div class="bg-white px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-100" id="modal-footer"></div>
     </div>
   </div>
 </div>
 
 <script>
 // =================================================================
-// KONFIGURASI API (GANTI URL INI DENGAN URL DEPLOYMENT ANDA)
-// =================================================================
+// GANTI URL API
 const API_URL = "https://script.google.com/macros/s/AKfycbxUfpilmFvWfagXXPxYk66S0HVVDPNHNeiCyOEi3hq7NvHv8_gE1g6A1Fzsmb6i_qBq/exec"; 
 // =================================================================
 
@@ -160,57 +138,34 @@ let GROUPED_DATA = {};
 let OPTIONS = { items: [], kpcs: [] };
 let CURRENT_TAB = 'queue';
 let CURRENT_BATCH_ID = null;
+let IS_EDIT_MODE = false; // Flag untuk membedakan mode Input vs Edit
 
-// INIT
 window.addEventListener('DOMContentLoaded', () => {
   fetchData();
 });
 
-// 1. FETCH DATA (GET)
 async function fetchData() {
   document.getElementById('loading').style.display = 'flex';
-  
   try {
-    // Parallel Fetch (Data & Options)
     const [dataRes, optionsRes] = await Promise.all([
       fetch(`${API_URL}?action=getData`),
       fetch(`${API_URL}?action=getOptions`)
     ]);
-
-    const data = await dataRes.json();
-    const options = await optionsRes.json();
-    
-    RAW_DATA = data;
-    OPTIONS = options;
-    
+    RAW_DATA = await dataRes.json();
+    OPTIONS = await optionsRes.json();
     processData();
     updateCounts();
     renderData();
-    
-  } catch (err) {
-    alert("Gagal mengambil data: " + err);
-    console.error(err);
-  } finally {
-    document.getElementById('loading').style.display = 'none';
-  }
+  } catch (err) { alert("Error: " + err); } 
+  finally { document.getElementById('loading').style.display = 'none'; }
 }
 
-// 2. PROCESS DATA
 function processData() {
   GROUPED_DATA = {};
-  
   RAW_DATA.forEach(row => {
-    // Validasi status
     if(!['Siap Untuk Di Produksi', 'Sudah Di Produksi', 'Siap Import', 'Sudah di Import Xero'].includes(row.status)) return;
-
     if (!GROUPED_DATA[row.id]) {
-      GROUPED_DATA[row.id] = {
-        id: row.id,
-        date: row.date,
-        status: row.status,
-        timestamp: row.timestamp,
-        items: []
-      };
+      GROUPED_DATA[row.id] = { id: row.id, date: row.date, status: row.status, timestamp: row.timestamp, items: [] };
     }
     GROUPED_DATA[row.id].items.push(row);
   });
@@ -219,29 +174,21 @@ function processData() {
 function updateCounts() {
   let q = 0, c = 0, i = 0;
   Object.values(GROUPED_DATA).forEach(batch => {
-    const st = batch.items[0].status; // Asumsi status seragam per batch
+    const st = batch.items[0].status;
     if (st === 'Siap Untuk Di Produksi') q++;
     else if (st === 'Sudah Di Produksi') c++;
     else if (st === 'Siap Import') i++;
   });
-  
   document.getElementById('count-queue').innerText = q;
   document.getElementById('count-completed').innerText = c;
   document.getElementById('count-import').innerText = i;
 }
 
-// 3. UI RENDERING
 function switchTab(tabName) {
   CURRENT_TAB = tabName;
   ['queue', 'completed', 'import'].forEach(t => {
     const el = document.getElementById('tab-' + t);
-    if (t === tabName) {
-      el.classList.remove('inactive-tab');
-      el.classList.add('active-tab');
-    } else {
-      el.classList.remove('active-tab');
-      el.classList.add('inactive-tab');
-    }
+    t === tabName ? (el.classList.remove('inactive-tab'), el.classList.add('active-tab')) : (el.classList.remove('active-tab'), el.classList.add('inactive-tab'));
   });
   renderData();
 }
@@ -251,57 +198,48 @@ function renderData() {
   container.innerHTML = '';
   const search = document.getElementById('searchInput').value.toLowerCase();
   
-  // Filter Logic
   const batches = Object.values(GROUPED_DATA).filter(batch => {
     const st = batch.items[0].status;
     let matchTab = false;
-    
     if (CURRENT_TAB === 'queue' && st === 'Siap Untuk Di Produksi') matchTab = true;
     if (CURRENT_TAB === 'completed' && st === 'Sudah Di Produksi') matchTab = true;
     if (CURRENT_TAB === 'import' && (st === 'Siap Import' || st === 'Sudah di Import Xero')) matchTab = true;
-    
     if (!matchTab) return false;
-
     const searchString = (batch.id + batch.items.map(i => i.item + i.machine).join(' ')).toLowerCase();
     return searchString.includes(search);
   });
 
-  // Sort: Terbaru di atas
   batches.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   if (batches.length === 0) {
-    container.innerHTML = `<div class="flex flex-col items-center justify-center py-16 text-slate-400">
-      <i class="fas fa-clipboard-list text-4xl mb-3 opacity-20"></i>
-      <p>Tidak ada data di tab ini.</p>
-    </div>`;
+    container.innerHTML = `<div class="text-center py-16 text-slate-400">Tidak ada data.</div>`;
     return;
   }
 
-  // Generate Cards
   batches.forEach(batch => {
     const isQueue = CURRENT_TAB === 'queue';
-    const isCompleted = CURRENT_TAB === 'completed';
-    const isImport = CURRENT_TAB === 'import';
-    
     let actionBtn = '';
     
+    // LOGIC TOMBOL PER TAB
     if (isQueue) {
       actionBtn = `
-        <button onclick="openInputModal('${batch.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center">
-          <i class="fas fa-edit mr-2"></i> Input Result
-        </button>`;
-    } else if (isCompleted) {
+        <div class="flex gap-2">
+          <button onclick="openInputModal('${batch.id}', 'edit')" class="bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-200 px-3 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center">
+            <i class="fas fa-edit mr-2"></i> Edit
+          </button>
+          <button onclick="openInputModal('${batch.id}', 'input')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center">
+            <i class="fas fa-clipboard-check mr-2"></i> Input Result
+          </button>
+        </div>`;
+    } else if (CURRENT_TAB === 'completed') {
       actionBtn = `
         <button onclick="approveBatch('${batch.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center">
           <i class="fas fa-check-circle mr-2"></i> Approve
         </button>`;
-    } else if (isImport) {
+    } else if (CURRENT_TAB === 'import') {
        const isSynced = batch.items[0].status === 'Sudah di Import Xero';
        if(!isSynced) {
-         actionBtn = `
-          <button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center">
-            <i class="fas fa-cloud-upload-alt mr-2"></i> Sync Xero
-          </button>`;
+         actionBtn = `<button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-cloud-upload-alt mr-2"></i> Sync Xero</button>`;
        } else {
           actionBtn = `<span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">IMPORTED</span>`;
        }
@@ -309,12 +247,7 @@ function renderData() {
 
     let itemRows = '';
     batch.items.forEach(item => {
-      const resultDisplay = !isQueue ? 
-        `<div class="ml-auto text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded border border-slate-200 flex items-center gap-3">
-           <span>Qty: <b class="text-slate-800">${item.qty}</b></span>
-           <span class="border-l border-slate-300 pl-3">M: <b class="text-slate-800">${item.meter}</b></span>
-         </div>` : '<div class="ml-auto"></div>';
-         
+      const resultDisplay = !isQueue ? `<div class="ml-auto text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded border border-slate-200 flex gap-3"><span>Qty: <b>${item.qty}</b></span><span class="border-l border-slate-300 pl-3">M: <b>${item.meter}</b></span></div>` : '<div class="ml-auto"></div>';
       itemRows += `
         <div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition px-2 -mx-2 rounded">
            <div class="flex items-center flex-1">
@@ -328,88 +261,102 @@ function renderData() {
              </div>
            </div>
            ${resultDisplay}
-        </div>
-      `;
+        </div>`;
     });
 
-    const card = `
+    container.innerHTML += `
       <div class="bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition duration-200 overflow-hidden">
         <div class="px-6 py-4 flex items-center justify-between bg-slate-50 border-b border-slate-100">
           <div>
-            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Production ID</div>
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">ID</div>
             <div class="text-lg font-bold text-slate-800 font-mono">${batch.id}</div>
-            <div class="text-xs text-slate-500 mt-1 flex items-center">
-               <i class="far fa-calendar-alt mr-1.5"></i> ${batch.date}
-            </div>
+            <div class="text-xs text-slate-500 mt-1"><i class="far fa-calendar-alt mr-1.5"></i> ${batch.date}</div>
           </div>
           <div>${actionBtn}</div>
         </div>
-        <div class="px-6 py-4">
-          ${itemRows}
-        </div>
-      </div>
-    `;
-    
-    container.innerHTML += card;
+        <div class="px-6 py-4">${itemRows}</div>
+      </div>`;
   });
 }
 
-// 4. MODAL & ACTIONS
-function openInputModal(batchId) {
+// 4. MODAL LOGIC (INPUT vs EDIT)
+function openInputModal(batchId, mode) {
   CURRENT_BATCH_ID = batchId;
+  IS_EDIT_MODE = (mode === 'edit');
   const batch = GROUPED_DATA[batchId];
   document.getElementById('modal-batch-id').innerText = batchId;
+  
+  // Set Title & Warning
+  document.getElementById('modal-title').innerText = IS_EDIT_MODE ? "Edit Production Plan" : "Input Production Result";
+  document.getElementById('modal-warning-text').innerHTML = IS_EDIT_MODE 
+    ? "<strong>Mode Edit:</strong> Anda dapat mengubah Mesin & KPC jika terjadi perubahan rencana. Anda juga bisa menyimpan perubahan tanpa menyelesaikan produksi." 
+    : "<strong>Mode Input:</strong> Mesin & KPC terkunci. Silakan input <strong>Qty</strong> dan <strong>Meter</strong> aktual untuk menyelesaikan.";
   
   const tbody = document.getElementById('modal-table-body');
   tbody.innerHTML = '';
   
   batch.items.forEach((item) => {
-    // Unique Machine Options
-    let machineOpts = [...new Set(OPTIONS.items.map(i => i.machine))].sort();
-    let machineSelect = `<select class="input-xs machine-select bg-white" onchange="updateRowWE(this)">`;
-    machineOpts.forEach(m => {
-       machineSelect += `<option value="${m}" ${m === item.machine ? 'selected' : ''}>${m}</option>`;
-    });
-    machineSelect += `</select>`;
+    let machineEl = '', kpcEl = '';
+    
+    // JIKA MODE EDIT: Render Dropdown
+    if (IS_EDIT_MODE) {
+       let machineOpts = [...new Set(OPTIONS.items.map(i => i.machine))].sort();
+       machineEl = `<select class="input-xs machine-select bg-white" onchange="updateRowWE(this)">`;
+       machineOpts.forEach(m => { machineEl += `<option value="${m}" ${m === item.machine ? 'selected' : ''}>${m}</option>`; });
+       machineEl += `</select>`;
 
-    // KPC Options (Filter by Item or Current KPC)
-    let validKPCs = OPTIONS.kpcs.filter(k => k.relatedItem === item.item || k.name === item.kpc);
-    let kpcSelect = `<select class="input-xs kpc-select bg-white" onchange="updateRowWE(this)">`;
-    validKPCs.forEach(k => {
-       kpcSelect += `<option value="${k.name}" ${k.name === item.kpc ? 'selected' : ''}>${k.name}</option>`;
-    });
-    kpcSelect += `</select>`;
+       let validKPCs = OPTIONS.kpcs.filter(k => k.relatedItem === item.item || k.name === item.kpc);
+       kpcEl = `<select class="input-xs kpc-select bg-white" onchange="updateRowWE(this)">`;
+       validKPCs.forEach(k => { kpcEl += `<option value="${k.name}" ${k.name === item.kpc ? 'selected' : ''}>${k.name}</option>`; });
+       kpcEl += `</select>`;
+    } 
+    // JIKA MODE INPUT: Render Text Readonly
+    else {
+       machineEl = `<input type="text" class="input-xs input-readonly machine-select" value="${item.machine}" readonly>`;
+       kpcEl = `<input type="text" class="input-xs input-readonly kpc-select" value="${item.kpc}" readonly>`;
+    }
 
-    const row = `
+    tbody.innerHTML += `
       <tr data-row-index="${item.rowIndex}" data-item-name="${item.item}">
         <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-800">${item.item}</td>
-        <td class="px-4 py-3">${machineSelect}</td>
-        <td class="px-4 py-3">${kpcSelect}</td>
+        <td class="px-4 py-3">${machineEl}</td>
+        <td class="px-4 py-3">${kpcEl}</td>
         <td class="px-4 py-3"><input type="number" class="input-xs input-meter text-center font-mono" value="${item.meter || 0}" min="0"></td>
         <td class="px-4 py-3"><input type="number" class="input-xs input-qty text-center font-mono" value="${item.qty || 0}" min="0"></td>
         <td class="px-4 py-3"><input type="text" class="input-xs bg-slate-50 text-slate-500 we-preview font-mono text-xs cursor-not-allowed" value="${item.weNumber}" readonly></td>
-      </tr>
-    `;
-    tbody.innerHTML += row;
+      </tr>`;
   });
 
+  // Render Tombol Footer
+  const footer = document.getElementById('modal-footer');
+  let buttons = `
+    <button type="button" onclick="submitResult(true)" class="inline-flex justify-center rounded-lg border border-transparent shadow-sm px-5 py-2.5 bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition">Submit & Complete</button>
+    <button type="button" onclick="closeModal()" class="inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-5 py-2.5 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition">Cancel</button>
+  `;
+  
+  if (IS_EDIT_MODE) {
+    // Tambah tombol Save Changes untuk Mode Edit
+    buttons = `
+      <button type="button" onclick="submitResult(true)" class="inline-flex justify-center rounded-lg border border-transparent shadow-sm px-5 py-2.5 bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition">Complete Production</button>
+      <button type="button" onclick="submitResult(false)" class="inline-flex justify-center rounded-lg border border-amber-300 shadow-sm px-5 py-2.5 bg-amber-100 text-sm font-semibold text-amber-800 hover:bg-amber-200 transition">Save Changes</button>
+      <button type="button" onclick="closeModal()" class="inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-5 py-2.5 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition">Cancel</button>
+    `;
+  }
+  footer.innerHTML = buttons;
   document.getElementById('modalResult').classList.remove('hidden');
 }
 
-function closeModal() {
-  document.getElementById('modalResult').classList.add('hidden');
-}
+function closeModal() { document.getElementById('modalResult').classList.add('hidden'); }
 
 function updateRowWE(el) {
   const tr = el.closest('tr');
   const machine = tr.querySelector('.machine-select').value;
   const kpc = tr.querySelector('.kpc-select').value;
   const item = tr.getAttribute('data-item-name');
-  const prodId = CURRENT_BATCH_ID;
   
   if(!machine || !item || !kpc) return;
 
-  // Machine Logic
+  // WE Number Logic
   let machineCode = "XX";
   const mUpper = machine.toUpperCase();
   if(mUpper.includes("RENG")) machineCode = "RG";
@@ -420,43 +367,27 @@ function updateRowWE(el) {
   const machineNum = machineDigits ? machineDigits[0].slice(-2) : "00";
   const finalMachine = machineCode + machineNum;
 
-  // Item Suffix
   const itemDigitsMatch = item.match(/\d+/g); 
   let itemSuffix = "00";
-  if(itemDigitsMatch && itemDigitsMatch.length > 0) {
-      itemSuffix = itemDigitsMatch[itemDigitsMatch.length - 1].slice(-2);
-  }
+  if(itemDigitsMatch) itemSuffix = itemDigitsMatch[itemDigitsMatch.length - 1].slice(-2);
 
-  tr.querySelector('.we-preview').value = `${finalMachine}_${kpc}_${prodId}_${itemSuffix}`;
+  tr.querySelector('.we-preview').value = `${finalMachine}_${kpc}_${CURRENT_BATCH_ID}_${itemSuffix}`;
 }
 
 async function postAction(action, payload) {
   document.getElementById('loading').style.display = 'flex';
-  
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({ action, ...payload })
-    });
-    
+    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action, ...payload }) });
     const result = await res.json();
-    if(result.status === 'success') {
-      return true;
-    } else {
-      throw new Error(result.message);
-    }
-  } catch(e) {
-    alert("Error: " + e.message);
-    return false;
-  } finally {
-    document.getElementById('loading').style.display = 'none';
-  }
+    if(result.status === 'success') return true;
+    else throw new Error(result.message);
+  } catch(e) { alert("Error: " + e.message); return false; } 
+  finally { document.getElementById('loading').style.display = 'none'; }
 }
 
-async function submitResult() {
+async function submitResult(isComplete) {
   const rows = document.querySelectorAll('#modal-table-body tr');
   const items = [];
-
   rows.forEach(tr => {
     items.push({
       rowIndex: tr.getAttribute('data-row-index'),
@@ -468,31 +399,29 @@ async function submitResult() {
     });
   });
 
-  if(!confirm("Simpan hasil produksi?")) return;
+  const msg = isComplete ? "Selesaikan produksi? Status akan berubah." : "Simpan perubahan data?";
+  if(!confirm(msg)) return;
   
   closeModal();
-  const success = await postAction('submitResult', { payload: items });
+  // Tentukan Action: submitResult (Selesai) atau updatePlan (Simpan Saja)
+  const action = isComplete ? 'submitResult' : 'updatePlan';
+  const success = await postAction(action, { payload: items });
+  
   if(success) {
-    alert("Data produksi berhasil disimpan!");
+    alert(isComplete ? "Produksi selesai!" : "Data berhasil diperbarui!");
     fetchData();
   }
 }
 
 async function approveBatch(batchId) {
-  if(!confirm(`Approve Batch ${batchId} untuk Import?`)) return;
-  const success = await postAction('approve', { batchId });
-  if(success) fetchData();
+  if(!confirm(`Approve Batch ${batchId}?`)) return;
+  if(await postAction('approve', { batchId })) fetchData();
 }
 
 async function syncXero(batchId) {
-  if(!confirm(`Sync Batch ${batchId} ke Xero?`)) return;
-  const success = await postAction('syncXero', { batchId });
-  if(success) {
-    alert("Status berhasil diupdate ke 'Sudah di Import Xero'");
-    fetchData();
-  }
+  if(!confirm(`Sync Batch ${batchId}?`)) return;
+  if(await postAction('syncXero', { batchId })) { alert("Synced!"); fetchData(); }
 }
 </script>
-
 </body>
 </html>
