@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
-  
 <style>
 /* --- 1. MODERN VARIABLES & RESET --- */
 :root { 
@@ -33,7 +32,7 @@ body { margin: 0; background: var(--bg-color); font-family: 'Inter', system-ui, 
 .nav-item { text-decoration: none; color: var(--text-gray); padding: 8px 12px; border-radius: 6px; font-weight: 500; transition: all 0.2s; font-size: 13px; }
 .nav-item:hover, .nav-item.active { background: #eff6ff; color: var(--primary-blue); }
 
-.page { max-width: 1280px; margin: 32px auto; padding: 0 24px; }
+.page { max-width: 1380px; margin: 32px auto; padding: 0 24px; }
 .card { background: #fff; border-radius: 12px; box-shadow: var(--shadow-sm); padding: 32px; border: 1px solid var(--border-color); }
 .card-title { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: var(--text-dark); display: flex; justify-content: space-between; align-items: center; }
 
@@ -47,47 +46,47 @@ label { font-size: 12px; font-weight: 700; color: var(--text-gray); display: blo
 
 /* --- 4. TABLE --- */
 table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; }
-th { background: #f8fafc; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-gray); border-bottom: 1px solid var(--border-color); text-align: left; }
+th { background: #f8fafc; padding: 12px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-gray); border-bottom: 1px solid var(--border-color); text-align: left; }
 td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); background: #fff; vertical-align: top; }
 tr:last-child td { border-bottom: none; }
 
 .hidden-col { display: none; }
 .table-input { width: 100%; height: 38px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; font-size: 13.5px; }
 
-/* --- 5. CHOICES.JS CUSTOMIZATION (FIXED) --- */
+/* WE Number Input (Auto Generated) */
+.we-number { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-weight: 600; font-family: 'Monaco', 'Consolas', monospace; font-size: 12px; }
+
+/* --- 5. CHOICES.JS FIXED --- */
 .choices { margin-bottom: 0; overflow: visible; }
 .choices__inner { 
   min-height: 40px !important; 
-  padding: 0 8px !important; /* Padding dikurangi agar rapi */
+  padding: 0 8px !important; 
   border: 1px solid var(--border-color) !important; 
   background-color: #fff !important; 
   border-radius: 6px !important; 
   display: flex !important; 
   align-items: center !important; 
   font-size: 13.5px !important;
+  position: relative; /* Penting untuk placeholder absolute */
 }
 .choices.is-focused .choices__inner { border-color: var(--primary-blue) !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; }
 
-/* --- !!! FIX PLACEHOLDER GANTUNG !!! --- */
-/* Ini memaksa placeholder HILANG TOTAL saat item dipilih */
-.choices.is-item-selected .choices__placeholder,
-.choices.has-value .choices__placeholder { 
-    display: none !important; 
-    opacity: 0 !important;
-    visibility: hidden !important;
+/* !!! ULTIMATE FIX FOR PLACEHOLDER OVERLAP !!! */
+/* Jika sudah ada item terpilih, placeholder di-hidden total */
+.choices.is-item-selected .choices__placeholder { 
+    position: absolute; 
+    opacity: 0; 
+    pointer-events: none; 
+    z-index: -1;
 }
-/* --------------------------------------- */
 
-/* Input Search: Pastikan tidak gepeng */
 .choices__input { background: transparent !important; border: none !important; margin: 0 !important; padding: 0 8px !important; height: auto !important; width: auto !important; min-width: 10ch !important; }
 .choices__input:focus { box-shadow: none !important; }
 
-/* Dropdown Menu */
 .choices__list--dropdown { border: 1px solid var(--border-color) !important; border-radius: 8px !important; box-shadow: var(--shadow-lg) !important; margin-top: 6px !important; padding: 6px !important; z-index: 9999 !important; }
 .choices__list--dropdown .choices__item { border-radius: 6px !important; font-size: 13px !important; padding: 8px 12px !important; margin-bottom: 2px !important; }
 .choices__list--dropdown .choices__item--selectable.is-highlighted { background-color: #eff6ff !important; color: var(--primary-blue) !important; }
 
-/* Style Badge Sisa Coil */
 .kpc-balance { float: right; font-size: 11px; background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 99px; font-weight: 600; border: 1px solid #e2e8f0; }
 
 /* --- 6. BUTTONS --- */
@@ -146,12 +145,13 @@ textarea:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(5
       <thead>
         <tr>
           <th style="width:30px;"></th>
-          <th style="width:22%;">Machine</th> 
-          <th style="width:28%;">Item</th>
+          <th style="width:20%;">Machine</th> 
+          <th style="width:20%;">Item</th>
           <th class="hidden-col">Meter</th>
           <th class="hidden-col">Qty</th>
           <th class="hidden-col">Total</th>
-          <th>KPC</th> 
+          <th style="width:25%;">KPC</th> 
+          <th>WE Number</th>
           <th style="width:40px;"></th>
         </tr>
       </thead>
@@ -224,6 +224,7 @@ function addRow() {
     <td class="hidden-col"><input class="table-input qty" type="number" value="0"></td>
     <td class="hidden-col"><input class="table-input total" type="number" value="0"></td>
     <td><select class="kpc-select"></select></td>
+    <td><input class="table-input we-number" readonly placeholder="Auto..."></td>
     <td class="delete-cell">
        <div class="delete-btn" onclick="removeRow(this)">✕</div>
     </td>
@@ -238,9 +239,12 @@ function addRow() {
   initChoices(itemSelect, [], "Select Machine First");
   initChoices(kpcSelect, [], "Select Item First", true); 
 
+  // EVENT: Machine Change
   machineSelect.addEventListener("change", function(e) {
+    // Reset child inputs
     updateDropdown(itemSelect, [], "Select Machine First");
     updateDropdown(kpcSelect, [], "Select Item First", true);
+    row.querySelector(".we-number").value = ""; // Reset WE
 
     if (e.target.value) {
       const filtered = allItemsData
@@ -250,25 +254,29 @@ function addRow() {
     }
   });
 
+  // EVENT: Item Change (Filter KPC options)
   itemSelect.addEventListener("change", function(e) {
     const selectedItem = e.target.value;
-    let kpcOptions = [];
     let placeholder = "Select Item First";
-
+    
+    row.querySelector(".we-number").value = ""; // Reset WE
+    
+    // Siapkan opsi KPC dasar
+    let kpcOptions = [];
     if (selectedItem) {
-      placeholder = "Select KPC";
-      kpcOptions = allKPCData
-        .filter(k => k.relatedItem === selectedItem)
-        .map(k => {
-          const formattedSisa = new Intl.NumberFormat('id-ID').format(k.sisa || 0);
-          return {
-            value: k.name,            
-            label: k.name,            
-            customProperties: { sisa: formattedSisa }
-          };
-        });
+        placeholder = "Select KPC";
+        kpcOptions = allKPCData.filter(k => k.relatedItem === selectedItem);
     }
-    updateDropdown(kpcSelect, kpcOptions, placeholder, true);
+
+    // UPDATE DROPDOWN dengan LOGIKA NO-DUPLICATE
+    refreshKPCOptionsForElement(kpcSelect, kpcOptions, placeholder);
+  });
+
+  // EVENT: KPC Change (Trigger WE Number & Lock other rows)
+  kpcSelect.addEventListener("change", function(e) {
+      calculateWENumber(row); // Generate WE Number
+      // (Optional) Trigger refresh on other rows if needed, 
+      // but simpler to just filter on *opening* other rows (handled in 'change' of Item usually)
   });
 }
 
@@ -278,6 +286,76 @@ function removeRow(btn) {
     row.remove();
   }
 }
+
+/* --- LOGIC: WE NUMBER GENERATOR --- */
+function calculateWENumber(row) {
+    const machine = row.querySelector(".machine-select").value;
+    const item = row.querySelector(".item-select").value;
+    const kpc = row.querySelector(".kpc-select").value;
+    const prodId = document.getElementById("entryId").value;
+    const weInput = row.querySelector(".we-number");
+
+    if(!machine || !item || !kpc || !prodId) {
+        weInput.value = "";
+        return;
+    }
+
+    // 1. Machine Code Logic (RENG->RG, TRUSS->TS, else First 2 letters)
+    let machineCode = "XX";
+    const mUpper = machine.toUpperCase();
+    if(mUpper.includes("RENG")) machineCode = "RG";
+    else if(mUpper.includes("TRUSS")) machineCode = "TS";
+    else machineCode = mUpper.substring(0,2);
+
+    // Ambil angka dari machine (misal 009 dari RENG__009_MX -> 09)
+    const machineDigits = machine.match(/\d+/);
+    const machineNum = machineDigits ? machineDigits[0].slice(-2) : "00";
+    
+    const finalMachineSegment = machineCode + machineNum;
+
+    // 2. Item Suffix (2 digit terakhir)
+    // Mencari angka di akhir string atau angka terakhir yang ditemukan
+    const itemDigitsMatch = item.match(/\d+/g); // ambil semua grup angka
+    let itemSuffix = "00";
+    if(itemDigitsMatch && itemDigitsMatch.length > 0) {
+        // Ambil grup angka terakhir, lalu ambil 2 digit terakhirnya
+        const lastGroup = itemDigitsMatch[itemDigitsMatch.length - 1];
+        itemSuffix = lastGroup.slice(-2);
+    }
+
+    // FORMAT: Mesin_KPC_ProdID_ItemSuffix
+    weInput.value = `${finalMachineSegment}_${kpc}_${prodId}_${itemSuffix}`;
+}
+
+/* --- LOGIC: PREVENT DUPLICATE KPC --- */
+// Fungsi ini dipanggil saat Item dipilih, untuk merender opsi KPC yang BELUM dipakai
+function refreshKPCOptionsForElement(el, rawData, placeholder) {
+    // 1. Ambil semua KPC yang sedang dipilih di baris LAIN
+    const allSelects = document.querySelectorAll(".kpc-select");
+    const currentVal = el.value; // Nilai KPC baris ini (jika ada)
+    
+    const usedValues = [];
+    allSelects.forEach(sel => {
+        if(sel !== el && sel.value) { // Jangan hitung diri sendiri
+            usedValues.push(sel.value);
+        }
+    });
+
+    // 2. Filter data: Hanya tampilkan yang TIDAK ada di usedValues
+    const filteredOptions = rawData
+        .filter(k => !usedValues.includes(k.name))
+        .map(k => {
+            const formattedSisa = new Intl.NumberFormat('id-ID').format(k.sisa || 0);
+            return {
+                value: k.name,            
+                label: k.name,            
+                customProperties: { sisa: formattedSisa }
+            };
+        });
+
+    updateDropdown(el, filteredOptions, placeholder, true);
+}
+
 
 /* --- CHOICES HELPER --- */
 function updateDropdown(el, options, placeholder, useTemplate = false) {
@@ -297,14 +375,13 @@ function initChoices(el, options, placeholder, useTemplate = false) {
     placeholder: true,
     placeholderValue: placeholder,
     allowHTML: true,
-    removeItemButton: true, // Tombol silang untuk clear
+    removeItemButton: true, 
   };
 
   if (useTemplate) {
     config.callbackOnCreateTemplates = function(template) {
       return {
         item: ({ classNames }, data) => {
-          // Tampilan saat SUDAH DIPILIH: HANYA NAMA (Bersih)
           return template(`
             <div class="${classNames.item} ${classNames.itemChoice} ${classNames.itemSelectable}" data-item data-id="${data.id}" data-value="${data.value}" ${data.active ? 'aria-selected="true"' : ''} ${data.disabled ? 'aria-disabled="true"' : ''}>
               ${data.label}
@@ -312,7 +389,6 @@ function initChoices(el, options, placeholder, useTemplate = false) {
           `);
         },
         choice: ({ classNames }, data) => {
-          // Tampilan LIST: Nama + Badge Sisa Coil
           const sisa = data.customProperties && data.customProperties.sisa 
                        ? `<span class="kpc-balance">Sisa: ${data.customProperties.sisa}</span>` 
                        : '';
@@ -367,14 +443,13 @@ function submitForm() {
     const iSelect = r.querySelector(".item-select");
     const kSelect = r.querySelector(".kpc-select");
     
-    // Ambil value aman dari Choices atau native
     const m = mSelect.choicesInstance ? mSelect.choicesInstance.getValue(true) : mSelect.value;
     const i = iSelect.choicesInstance ? iSelect.choicesInstance.getValue(true) : iSelect.value;
     const k = kSelect.choicesInstance ? kSelect.choicesInstance.getValue(true) : kSelect.value;
+    const we = r.querySelector(".we-number").value;
 
     if(!m || !i || !k) {
         isValid = false;
-        // Visual feedback sederhana
         if(!m) mSelect.closest('.choices').style.borderColor = "#ef4444";
         if(!i) iSelect.closest('.choices').style.borderColor = "#ef4444";
         if(!k) kSelect.closest('.choices').style.borderColor = "#ef4444";
@@ -384,13 +459,14 @@ function submitForm() {
         machine: m, 
         item: i, 
         kpc: k, 
+        weNumber: we,
         meter: r.querySelector(".meter").value, 
         qty: r.querySelector(".qty").value, 
         total: r.querySelector(".total").value 
     });
   });
 
-  if (!isValid) return alert("Please fill all required fields (Machine, Item, KPC)");
+  if (!isValid) return alert("Please fill all required fields");
 
   if(!confirm("Submit this production entry?")) return;
 
