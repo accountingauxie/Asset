@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Production Realization</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+  .active-tab { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
+  .inactive-tab { color: #64748b; }
+  .inactive-tab:hover { color: #334155; }
+  
+  /* Loading Overlay */
+  #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 50; display: flex; justify-content: center; align-items: center; }
+  .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  
+  /* Table input small */
+  .input-xs { padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; width: 100%; }
+  .input-xs:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+</style>
+</head>
+
+<body class="text-slate-800">
+
+<div id="loading"><div class="spinner"></div></div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Production Realization</h1>
+      <p class="text-sm text-slate-500 mt-1">Manage production results, approvals, and Xero sync.</p>
+    </div>
+    <button onclick="loadData()" class="bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+      <i class="fas fa-sync-alt mr-2"></i> Refresh Data
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+      <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Queue</div>
+      <div class="mt-2 flex items-baseline">
+        <span class="text-3xl font-bold text-blue-600" id="count-queue">0</span>
+        <span class="ml-2 text-sm text-slate-500">Batches waiting</span>
+      </div>
+    </div>
+    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+      <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Completed</div>
+      <div class="mt-2 flex items-baseline">
+        <span class="text-3xl font-bold text-emerald-600" id="count-completed">0</span>
+        <span class="ml-2 text-sm text-slate-500">Need Approval</span>
+      </div>
+    </div>
+    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+      <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Ready to Sync</div>
+      <div class="mt-2 flex items-baseline">
+        <span class="text-3xl font-bold text-indigo-600" id="count-import">0</span>
+        <span class="ml-2 text-sm text-slate-500">To Xero</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-b border-slate-200 mb-6">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <button onclick="switchTab('queue')" id="tab-queue" class="active-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+        Siap Untuk Di Produksi
+      </button>
+      <button onclick="switchTab('completed')" id="tab-completed" class="inactive-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+        Sudah Di Produksi
+      </button>
+      <button onclick="switchTab('import')" id="tab-import" class="inactive-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+        Siap Import Xero
+      </button>
+    </nav>
+  </div>
+
+  <div class="mb-6">
+    <div class="relative max-w-md">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i class="fas fa-search text-slate-400"></i>
+      </div>
+      <input type="text" id="searchInput" onkeyup="renderData()" class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Search ID, Machine, or Item...">
+    </div>
+  </div>
+
+  <div id="list-container" class="space-y-4">
+    </div>
+
+</div>
+
+<div id="modalResult" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+      
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-slate-100">
+        <div class="sm:flex sm:items-start justify-between">
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-slate-900" id="modal-title">Input Production Result</h3>
+            <div class="mt-1 text-sm text-slate-500" id="modal-subtitle">Entry ID: <span id="modal-batch-id" class="font-bold"></span></div>
+          </div>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-500">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 px-4 py-5 sm:p-6">
+        <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase">Item</th>
+                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase w-32">Machine</th>
+                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase w-40">KPC</th>
+                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Meter (Input)</th>
+                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Qty (Input)</th>
+                <th class="px-3 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Preview</th>
+              </tr>
+            </thead>
+            <tbody id="modal-table-body" class="divide-y divide-slate-200">
+              </tbody>
+          </table>
+        </div>
+        <p class="mt-4 text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
+          <i class="fas fa-info-circle mr-1"></i> Note: You can edit Machine & KPC here. WE Number will auto-update. Ensure you input real Qty & Meter.
+        </p>
+      </div>
+
+      <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-100">
+        <button type="button" onclick="submitResult()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+          Submit & Complete
+        </button>
+        <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let RAW_DATA = [];
+let GROUPED_DATA = {};
+let OPTIONS = { items: [], kpcs: [] }; // Store dropdown options
+let CURRENT_TAB = 'queue';
+let CURRENT_BATCH_ID = null;
+
+// INIT
+window.addEventListener('DOMContentLoaded', () => {
+  loadData();
+});
+
+// LOAD DATA
+function loadData() {
+  document.getElementById('loading').style.display = 'flex';
+  
+  google.script.run
+    .withSuccessHandler(onDataLoaded)
+    .withFailureHandler(err => { alert("Error: " + err); document.getElementById('loading').style.display = 'none'; })
+    .getProductionData();
+    
+  // Load options for dropdowns only once
+  google.script.run.withSuccessHandler(opts => { OPTIONS = opts; }).getDropdownOptions();
+}
+
+function onDataLoaded(data) {
+  RAW_DATA = data;
+  processData(); // Group by ID
+  updateCounts();
+  renderData();
+  document.getElementById('loading').style.display = 'none';
+}
+
+// GROUP DATA BY ID
+function processData() {
+  GROUPED_DATA = {};
+  
+  // Filter out archived rows if needed, or categorize
+  RAW_DATA.forEach(row => {
+    // Only process rows relevant to our 3 tabs
+    if(!['Siap Untuk Di Produksi', 'Sudah Di Produksi', 'Siap Import', 'Sudah di Import Xero'].includes(row.status)) return;
+
+    if (!GROUPED_DATA[row.id]) {
+      GROUPED_DATA[row.id] = {
+        id: row.id,
+        date: new Date(row.date).toLocaleDateString('id-ID'),
+        status: row.status,
+        timestamp: row.timestamp,
+        items: []
+      };
+    }
+    // Check consistency: if one item in batch is "Siap", treat batch as "Siap"
+    // Usually status is consistent per ID based on logic
+    GROUPED_DATA[row.id].items.push(row);
+  });
+}
+
+function updateCounts() {
+  let q = 0, c = 0, i = 0;
+  Object.values(GROUPED_DATA).forEach(batch => {
+    // Check status of first item (assuming batch consistency)
+    const st = batch.items[0].status;
+    if (st === 'Siap Untuk Di Produksi') q++;
+    else if (st === 'Sudah Di Produksi') c++;
+    else if (st === 'Siap Import') i++;
+  });
+  
+  document.getElementById('count-queue').innerText = q;
+  document.getElementById('count-completed').innerText = c;
+  document.getElementById('count-import').innerText = i;
+}
+
+// TAB SWITCHING
+function switchTab(tabName) {
+  CURRENT_TAB = tabName;
+  
+  // UI Update
+  ['queue', 'completed', 'import'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (t === tabName) {
+      el.classList.remove('inactive-tab');
+      el.classList.add('active-tab');
+    } else {
+      el.classList.remove('active-tab');
+      el.classList.add('inactive-tab');
+    }
+  });
+  
+  renderData();
+}
+
+// RENDER CARDS
+function renderData() {
+  const container = document.getElementById('list-container');
+  container.innerHTML = '';
+  
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  
+  // Filter Batches based on Tab & Search
+  const batches = Object.values(GROUPED_DATA).filter(batch => {
+    // 1. Filter Tab
+    const st = batch.items[0].status;
+    let matchTab = false;
+    if (CURRENT_TAB === 'queue' && st === 'Siap Untuk Di Produksi') matchTab = true;
+    if (CURRENT_TAB === 'completed' && st === 'Sudah Di Produksi') matchTab = true;
+    if (CURRENT_TAB === 'import' && (st === 'Siap Import' || st === 'Sudah di Import Xero')) matchTab = true;
+    
+    if (!matchTab) return false;
+
+    // 2. Filter Search
+    const searchString = (batch.id + batch.items.map(i => i.item + i.machine).join(' ')).toLowerCase();
+    return searchString.includes(search);
+  });
+
+  // Sort by date (newest first)
+  batches.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  if (batches.length === 0) {
+    container.innerHTML = `<div class="text-center py-10 text-slate-400">No data found in this tab.</div>`;
+    return;
+  }
+
+  // Generate HTML
+  batches.forEach(batch => {
+    const isQueue = CURRENT_TAB === 'queue';
+    const isCompleted = CURRENT_TAB === 'completed';
+    const isImport = CURRENT_TAB === 'import';
+    
+    let actionBtn = '';
+    
+    if (isQueue) {
+      actionBtn = `
+        <button onclick="openInputModal('${batch.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm transition">
+          <i class="fas fa-edit mr-1"></i> Input Result
+        </button>`;
+    } else if (isCompleted) {
+      actionBtn = `
+        <button onclick="approveBatch('${batch.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm transition">
+          <i class="fas fa-check-circle mr-1"></i> Approve
+        </button>`;
+    } else if (isImport) {
+       const isSynced = batch.items[0].status === 'Sudah di Import Xero';
+       if(!isSynced) {
+         actionBtn = `
+          <button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm transition">
+            <i class="fas fa-cloud-upload-alt mr-1"></i> Sync Xero
+          </button>`;
+       } else {
+          actionBtn = `<span class="px-3 py-1 bg-gray-100 text-gray-500 rounded text-xs font-bold">IMPORTED</span>`;
+       }
+    }
+
+    // Item summary for card
+    let itemRows = '';
+    batch.items.forEach(item => {
+      // Display differs based on tab
+      const resultDisplay = !isQueue ? 
+        `<span class="ml-4 text-xs font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+           Qty: <b>${item.qty}</b> | M: <b>${item.meter}</b>
+         </span>` : '';
+         
+      itemRows += `
+        <div class="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
+           <div class="flex items-center">
+             <span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
+             <span class="text-sm font-medium text-slate-700">${item.item}</span>
+             <span class="text-xs text-slate-400 ml-2">(${item.machine})</span>
+             ${resultDisplay}
+           </div>
+           <div class="text-xs text-slate-400 font-mono">${item.kpc}</div>
+        </div>
+      `;
+    });
+
+    const card = `
+      <div class="bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition duration-200">
+        <div class="px-6 py-4 flex items-center justify-between bg-slate-50 border-b border-slate-100 rounded-t-lg">
+          <div>
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Production ID</div>
+            <div class="text-lg font-bold text-slate-800">${batch.id}</div>
+            <div class="text-xs text-slate-500 mt-1"><i class="far fa-calendar-alt mr-1"></i> ${batch.date}</div>
+          </div>
+          <div>
+            ${actionBtn}
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <div class="text-xs text-slate-400 uppercase font-bold mb-2">Items Overview</div>
+          ${itemRows}
+        </div>
+      </div>
+    `;
+    
+    container.innerHTML += card;
+  });
+}
+
+// --- MODAL LOGIC (TAB 1 INPUT) ---
+
+function openInputModal(batchId) {
+  CURRENT_BATCH_ID = batchId;
+  const batch = GROUPED_DATA[batchId];
+  document.getElementById('modal-batch-id').innerText = batchId;
+  
+  const tbody = document.getElementById('modal-table-body');
+  tbody.innerHTML = '';
+  
+  batch.items.forEach((item, idx) => {
+    // Machine Dropdown
+    let machineOpts = OPTIONS.items.map(i => i.machine).filter((v, i, a) => a.indexOf(v) === i && v).sort(); // Unique machines
+    let machineSelect = `<select class="input-xs machine-select" onchange="updateRowWE(this)">`;
+    machineOpts.forEach(m => {
+       machineSelect += `<option value="${m}" ${m === item.machine ? 'selected' : ''}>${m}</option>`;
+    });
+    machineSelect += `</select>`;
+
+    // KPC Dropdown (simplified, showing all available for ease, or filter by item if stricter logic needed)
+    // For simplicity & flexibility in Edit, showing related item matches + current
+    let validKPCs = OPTIONS.kpcs.filter(k => k.relatedItem === item.item || k.name === item.kpc);
+    let kpcSelect = `<select class="input-xs kpc-select" onchange="updateRowWE(this)">`;
+    validKPCs.forEach(k => {
+       kpcSelect += `<option value="${k.name}" ${k.name === item.kpc ? 'selected' : ''}>${k.name}</option>`;
+    });
+    kpcSelect += `</select>`;
+
+    const row = `
+      <tr data-row-index="${item.rowIndex}" data-item-name="${item.item}">
+        <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-slate-800">${item.item}</td>
+        <td class="px-3 py-3">${machineSelect}</td>
+        <td class="px-3 py-3">${kpcSelect}</td>
+        <td class="px-3 py-3"><input type="number" class="input-xs input-meter" value="${item.meter || 0}" min="0"></td>
+        <td class="px-3 py-3"><input type="number" class="input-xs input-qty" value="${item.qty || 0}" min="0"></td>
+        <td class="px-3 py-3"><input type="text" class="input-xs bg-slate-100 text-slate-500 we-preview" value="${item.weNumber}" readonly></td>
+      </tr>
+    `;
+    tbody.innerHTML += row;
+  });
+
+  document.getElementById('modalResult').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modalResult').classList.add('hidden');
+}
+
+// Logic untuk Auto-Generate WE Number di Modal saat edit Machine/KPC
+function updateRowWE(el) {
+  const tr = el.closest('tr');
+  const machine = tr.querySelector('.machine-select').value;
+  const kpc = tr.querySelector('.kpc-select').value;
+  const item = tr.getAttribute('data-item-name');
+  const prodId = CURRENT_BATCH_ID;
+  
+  if(!machine || !item || !kpc) return;
+
+  // 1. Machine Code logic
+  let machineCode = "XX";
+  const mUpper = machine.toUpperCase();
+  if(mUpper.includes("RENG")) machineCode = "RG";
+  else if(mUpper.includes("TRUSS")) machineCode = "TS";
+  else machineCode = mUpper.substring(0,2);
+  
+  const machineDigits = machine.match(/\d+/);
+  const machineNum = machineDigits ? machineDigits[0].slice(-2) : "00";
+  const finalMachine = machineCode + machineNum;
+
+  // 2. Item Suffix
+  const itemDigitsMatch = item.match(/\d+/g); 
+  let itemSuffix = "00";
+  if(itemDigitsMatch && itemDigitsMatch.length > 0) {
+      itemSuffix = itemDigitsMatch[itemDigitsMatch.length - 1].slice(-2);
+  }
+
+  // Set Value
+  tr.querySelector('.we-preview').value = `${finalMachine}_${kpc}_${prodId}_${itemSuffix}`;
+}
+
+function submitResult() {
+  const rows = document.querySelectorAll('#modal-table-body tr');
+  const payload = [];
+  let isValid = true;
+
+  rows.forEach(tr => {
+    const meter = tr.querySelector('.input-meter').value;
+    const qty = tr.querySelector('.input-qty').value;
+    
+    // Validasi sederhana: Qty tidak boleh 0 jika mau selesai? (Optional)
+    if (qty <= 0) {
+       // alert("Warning: Qty is 0 for some items."); // Uncomment if strict
+    }
+
+    payload.push({
+      rowIndex: tr.getAttribute('data-row-index'),
+      machine: tr.querySelector('.machine-select').value,
+      kpc: tr.querySelector('.kpc-select').value,
+      meter: meter,
+      qty: qty,
+      weNumber: tr.querySelector('.we-preview').value
+    });
+  });
+
+  if(!confirm("Are you sure you want to complete production for this batch?")) return;
+
+  // Show loading
+  document.getElementById('modalResult').classList.add('hidden');
+  document.getElementById('loading').style.display = 'flex';
+
+  google.script.run
+    .withSuccessHandler(res => {
+       if(res.status === 'success') {
+         alert("Success! Production data updated.");
+         loadData(); // Reload
+       } else {
+         alert("Error: " + res.message);
+         document.getElementById('loading').style.display = 'none';
+       }
+    })
+    .submitProductionResult({ itemsData: JSON.stringify(payload) });
+}
+
+// --- APPROVE & SYNC LOGIC ---
+
+function approveBatch(batchId) {
+  if(!confirm(`Approve Batch ${batchId} for Import?`)) return;
+  
+  document.getElementById('loading').style.display = 'flex';
+  google.script.run
+    .withSuccessHandler(res => {
+      loadData();
+    })
+    .approveBatch(batchId);
+}
+
+function syncXero(batchId) {
+  // Disini nanti bisa panggil API Xero beneran
+  if(!confirm(`Sync Batch ${batchId} to Xero?`)) return;
+  
+  document.getElementById('loading').style.display = 'flex';
+  google.script.run
+    .withSuccessHandler(res => {
+      alert("Synced to Xero successfully (Status Updated).");
+      loadData();
+    })
+    .syncBatchToXero(batchId);
+}
+</script>
+
+</body>
+</html>
