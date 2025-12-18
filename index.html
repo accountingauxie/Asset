@@ -1,65 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <title>Production Entry</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
 <style>
-/* ... CSS DASAR ... */
+/* CSS DASAR */
 :root { --border: #d6dce1; --border-light: #e3e7eb; --header-bg: #f7f8fa; --text-muted: #697386; --blue: #0075c9; --bg: #f5f7fa; }
 * { box-sizing: border-box; }
 body { margin: 0; padding: 0; background: var(--bg); font-family: "Segoe UI", Roboto, "Arial", sans-serif; font-size: 13px; color: #333; overflow-x: hidden; }
 
-/* ... CSS UTAMA SAMA SEPERTI SEBELUMNYA ... */
+/* TOP BAR */
 .top-bar { padding: 10px 36px; background: #ffffff; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 600; position: sticky; top: 0; z-index: 1000; }
 .logo-section { display: flex; align-items: center; gap: 8px; color: #1e1e1e; }
 .nav-menu { display: flex; gap: 8px; align-items: center; }
 .nav-item { text-decoration: none; color: #64748b; font-size: 14px; font-weight: 500; padding: 8px 16px; border-radius: 6px; transition: all 0.2s ease; }
 .nav-item:hover { background-color: #f1f5f9; color: var(--blue); }
 .nav-item.active { background-color: #eff6ff; color: var(--blue); font-weight: 600; }
+
+/* PAGE & CARD */
 .page { max-width: 1120px; margin: 32px auto; padding: 0 16px; }
 .card { background: #ffffff; border-radius: 8px; box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 14px 30px rgba(15, 23, 42, 0.08); padding: 24px 26px 26px 26px; }
 .card-header { margin-bottom: 18px; }
 .card-title { font-size: 20px; font-weight: 600; color: #1f2933; }
 
-/* FORM */
+/* FORM ELEMENTS */
 label { font-size: 12.5px; font-weight: 600; margin-bottom: 4px; color: #4a5568; display: block; }
 .input-box, .table-input, .choices__inner { height: 30px !important; min-height: 30px !important; padding: 5px 8px !important; font-size: 12.5px !important; border: 1px solid #d0d7df !important; border-radius: 5px !important; background: #f9fafb !important; transition: all 0.18s ease; }
 input[type="date"] { padding-right: 26px !important; }
 
-/* LAYOUT INPUTS */
-.row-flex { display: grid; grid-template-columns: 1.2fr 1fr 1fr; column-gap: 24px; row-gap: 10px; align-items: end; margin-bottom: 18px; }
+/* LAYOUT ATAS (Hanya Date & ID) */
+.row-flex { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; row-gap: 10px; align-items: end; margin-bottom: 18px; }
 
 /* TABLE */
 table { width: 100%; border-collapse: collapse; background: #ffffff; border-radius: 6px; border: 1px solid #e3e6ea; overflow: visible !important; }
 thead tr { height: 32px; }
 th { background: #edf0f5; padding: 6px; font-size: 12.5px; font-weight: 600; border-bottom: 1px solid #e1e4e9; color: #313d4f; text-align: left; }
 td { padding: 4px; border-bottom: 1px solid #f3f4f6; vertical-align: middle !important; }
+
+/* DROPDOWN & CHOICES FIX */
+.choices__list--dropdown { z-index: 999999 !important; }
 .row-handle { font-size: 12px; color: #999; cursor: grab; text-align: center; width: 20px; }
 .delete-btn { font-size: 14px; color: #cc1f2f; cursor: pointer; text-align: center; width: 20px; }
 
-/* DROPDOWN FIX */
-.choices__list--dropdown { z-index: 999999 !important; }
+/* HIDDEN COLUMNS */
+.hidden-col { display: none !important; }
 
 /* BUTTONS */
 .add-row-btn { margin-top: 10px; padding: 5px 12px; font-size: 12px; border-radius: 5px; background: #eef4ff; border: 1px solid #cfe0ff; color: #1f5ddb; font-weight: 600; cursor: pointer; }
 .actions-row { margin-top: 22px; display: flex; justify-content: flex-end; }
 .submit-btn { padding: 9px 24px; font-size: 13.5px; font-weight: 600; border-radius: 6px; background: #0f80d9; color: #ffffff; border: none; cursor: pointer; }
 
-/* ==========================================================
-   KHUSUS HIDDEN COLUMN (QTY, METER, TOTAL)
-   ========================================================== */
-.hidden-col {
-  display: none !important;
-}
-
-/* Loading */
+/* LOADING */
 #loadingOverlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.75); display: none; justify-content: center; align-items: center; z-index: 9999; }
 .loading-spinner { border: 5px solid #dae6f4; border-top: 5px solid #2b6be8; border-radius: 50%; width: 42px; height: 42px; animation: spin .85s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -67,7 +63,6 @@ td { padding: 4px; border-bottom: 1px solid #f3f4f6; vertical-align: middle !imp
 </head>
 
 <body>
-
 <div id="loadingOverlay"><div class="loading-spinner"></div></div>
 
 <div class="top-bar">
@@ -86,22 +81,10 @@ td { padding: 4px; border-bottom: 1px solid #f3f4f6; vertical-align: middle !imp
     <div class="card-header"><div class="card-title">Production Entry</div></div>
 
     <div class="row-flex">
-      
-      <div>
-        <label>Production Machine</label>
-        <select id="machineUsed" class="input-box" onchange="onMachineChanged()">
-          <option value="">— Select Machine First —</option>
-          <option value="RENG__009_MX">RENG__009_MX</option>
-          <option value="TRUSS010">TRUSS010</option>
-          <option value="OTHERS">OTHERS</option>
-        </select>
-      </div>
-
       <div>
         <label>Date</label>
         <input type="date" id="productionDate" class="input-box">
       </div>
-
       <div>
         <label>Production Entry ID</label>
         <input type="text" id="entryId" class="input-box" readonly>
@@ -112,7 +95,7 @@ td { padding: 4px; border-bottom: 1px solid #f3f4f6; vertical-align: middle !imp
       <thead>
         <tr>
           <th style="width:20px;"></th>
-          <th>Item</th>
+          <th style="width:25%;">Machine</th> <th style="width:30%;">Item</th>
           <th class="hidden-col">Meter</th>
           <th class="hidden-col">Qty</th>
           <th class="hidden-col">Total (m)</th>
@@ -132,16 +115,15 @@ td { padding: 4px; border-bottom: 1px solid #f3f4f6; vertical-align: middle !imp
     <div class="actions-row">
       <button class="submit-btn" onclick="submitForm()">Submit</button>
     </div>
-
   </div>
 </div>
 
 <script>
 // !!! GANTI URL INI DENGAN DEPLOYMENT ID TERBARU ANDA !!!
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxN4aATAbbnERImp6C7W0vcptthsD7-VMGu_uuxLCdtPFj5GSNnGz4EzKvTxPlpXn7qIg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxoxnblzjR30DLNsNoalW0CMPqKIA9w81WvViHV_Km07hBI8lgcl78FVb6u3k2XoCKq/exec";
 
-let allItemsData = []; // Menyimpan semua data {name, machine}
-let currentFilteredItems = []; // Menyimpan list item untuk mesin yang dipilih
+let allItemsData = []; // [{name: "ItemA", machine: "M1"}, ...]
+let uniqueMachines = []; // List unik mesin
 let kpcList = [];
 
 function showLoading() { document.getElementById("loadingOverlay").style.display = "flex"; }
@@ -160,11 +142,14 @@ window.addEventListener("DOMContentLoaded", async () => {
       fetch(`${SCRIPT_URL}?action=getkpc`)
     ]);
 
-    allItemsData = await itemRes.json(); // Format: [{name: "A", machine: "X"}, ...]
+    allItemsData = await itemRes.json();
     kpcList = await kpcRes.json();
 
-    // Default: Add one row (but items will be empty until Machine is selected)
-    addRow();
+    // Ekstrak list mesin unik dari data item
+    const machinesSet = new Set(allItemsData.map(i => i.machine).filter(m => m && m.trim() !== ""));
+    uniqueMachines = Array.from(machinesSet).sort();
+
+    addRow(); // Tambah baris pertama
     setupSortable();
 
   } catch (e) {
@@ -175,55 +160,17 @@ window.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ======================================================
-   LOGIC: MACHINE CHANGED
-====================================================== */
-function onMachineChanged() {
-  const machineSelect = document.getElementById("machineUsed");
-  const selectedMachine = machineSelect.value;
-  
-  if (!selectedMachine) {
-    currentFilteredItems = [];
-  } else {
-    // Filter item berdasarkan kolom F (Machine)
-    // Menggunakan normalize/trim agar pencocokan string aman
-    currentFilteredItems = allItemsData
-      .filter(i => i.machine && i.machine.trim() === selectedMachine.trim())
-      .map(i => i.name);
-  }
-
-  // Reset tabel karena pilihan item sebelumnya mungkin tidak valid untuk mesin baru
-  // Atau kita bisa membiarkan barisnya tapi mengupdate dropdownnya.
-  // Untuk keamanan data, lebih baik kita update dropdownnya saja.
-  
-  const allItemSelects = document.querySelectorAll(".item-select");
-  allItemSelects.forEach(selectEl => {
-    // Ambil instance choices yang menempel
-    const choiceInstance = selectEl.choicesInstance;
-    if (choiceInstance) {
-      // Hancurkan instance lama
-      choiceInstance.destroy();
-    }
-    
-    // Kosongkan option
-    selectEl.innerHTML = "";
-    
-    // Re-init dengan list baru
-    initChoices(selectEl, currentFilteredItems, "Select Item");
-    // Simpan instance baru ke properti element agar bisa diakses nanti
-  });
-}
-
-/* ======================================================
-   ADD ROW
+   ADD ROW (Dengan Machine Dropdown)
 ====================================================== */
 function addRow() {
   const row = document.createElement("tr");
   const tableBody = document.getElementById("tableBody");
 
-  // Perhatikan class 'hidden-col' pada td Meter, Qty, Total
-  // Value default Qty = 0, Meter = 0 agar backend tidak error hitung
   row.innerHTML = `
     <td class="row-handle">⋮⋮</td>
+    
+    <td><select class="machine-select"></select></td>
+
     <td><select class="item-select"></select></td>
     
     <td class="hidden-col"><input type="number" class="table-input meter" value="0"></td>
@@ -236,25 +183,58 @@ function addRow() {
 
   tableBody.appendChild(row);
 
+  // 1. Init Machine Select
+  const machineSelect = row.querySelector(".machine-select");
+  initChoices(machineSelect, uniqueMachines, "Select Machine");
+
+  // 2. Init Item Select (Kosong dulu)
   const itemSelect = row.querySelector(".item-select");
-  
-  // Gunakan list yang sudah difilter (currentFilteredItems)
-  initChoices(itemSelect, currentFilteredItems, "Select Item");
-  
+  initChoices(itemSelect, [], "Select Machine First"); // Placeholder awal
+
+  // 3. Init KPC Select
   initChoices(row.querySelector(".kpc-select"), kpcList, "Select KPC");
+
+  // EVENT LISTENER: Saat Mesin berubah di baris ini
+  machineSelect.addEventListener("change", function(e) {
+    const selectedMachine = e.target.value;
+    updateItemDropdownForRow(row, selectedMachine);
+  });
+}
+
+/* ======================================================
+   LOGIC: UPDATE ITEM PER ROW
+====================================================== */
+function updateItemDropdownForRow(rowElement, machineName) {
+  const itemSelect = rowElement.querySelector(".item-select");
+
+  // Filter items sesuai mesin yang dipilih
+  let filteredItems = [];
+  if (machineName) {
+    filteredItems = allItemsData
+      .filter(i => i.machine === machineName)
+      .map(i => i.name);
+  }
+
+  // Destroy choices lama
+  if (itemSelect.choicesInstance) {
+    itemSelect.choicesInstance.destroy();
+  }
+  itemSelect.innerHTML = ""; // Bersihkan opsi
+
+  // Re-init dengan list item baru
+  const placeholder = machineName ? "Select Item" : "Select Machine First";
+  initChoices(itemSelect, filteredItems, placeholder);
 }
 
 /* ======================================================
    INIT CHOICES JS
 ====================================================== */
 function initChoices(selectEl, optionsArray, placeholderText) {
-  // Tambah placeholder
   const ph = document.createElement("option");
   ph.value = "";
   ph.textContent = placeholderText;
   selectEl.appendChild(ph);
 
-  // Tambah opsi
   if (Array.isArray(optionsArray)) {
     optionsArray.forEach(v => {
       const opt = document.createElement("option");
@@ -271,12 +251,11 @@ function initChoices(selectEl, optionsArray, placeholderText) {
     placeholderValue: placeholderText
   });
   
-  // Simpan instance ke elemen agar mudah di-destroy saat ganti mesin
   selectEl.choicesInstance = choice;
 }
 
 /* ======================================================
-   ID GENERATOR (CLIENT SIDE PREVIEW)
+   ID GENERATOR & SUBMIT
 ====================================================== */
 async function loadNextEntryId() {
   try {
@@ -295,19 +274,11 @@ async function loadNextEntryId() {
       const seq = parseInt(lastId.substring(7)) + 1;
       entryIdField.value = prefix + String(seq).padStart(7, "0");
     }
-  } catch (err) {
-    console.error("Error loading ID", err);
-  }
+  } catch (err) { console.error("Error loading ID", err); }
 }
 
-/* ======================================================
-   SUBMIT
-====================================================== */
 function submitForm() {
-  const machine = document.getElementById("machineUsed").value;
   const dateVal = document.getElementById("productionDate").value;
-
-  if (!machine) return alert("Please select a Machine first.");
   if (!dateVal) return alert("Please select a Date.");
 
   const rows = document.querySelectorAll("#tableBody tr");
@@ -317,31 +288,32 @@ function submitForm() {
   let isRowValid = true;
 
   rows.forEach(r => {
+    const machineVal = r.querySelector(".machine-select").value;
     const itemVal = r.querySelector(".item-select").value;
     const kpcVal = r.querySelector(".kpc-select").value;
-    
-    // Validasi: Hanya cek Item dan KPC (karena Qty/Meter di-hide/default 0)
-    if (!itemVal || !kpcVal) {
+
+    if (!machineVal || !itemVal || !kpcVal) {
       isRowValid = false;
     }
 
     itemsPayload.push({
+      machine: machineVal, // Sekarang kirim machine per item
       item: itemVal,
-      meter: r.querySelector(".meter").value, // kirim 0
-      qty: r.querySelector(".qty").value,     // kirim 0
-      total: r.querySelector(".total").value, // kirim 0
+      meter: r.querySelector(".meter").value,
+      qty: r.querySelector(".qty").value,
+      total: r.querySelector(".total").value,
       kpc: kpcVal
     });
   });
 
-  if (!isRowValid) return alert("Please fill in Item and KPC for all rows.");
+  if (!isRowValid) return alert("Please fill in Machine, Item, and KPC for all rows.");
 
   showLoading();
 
   const payload = {
     productionEntryId: document.getElementById("entryId").value,
     productionDate: dateVal,
-    machine: machine,
+    // note: machine global dihapus
     notes: document.getElementById("notes").value,
     items: itemsPayload
   };
@@ -355,7 +327,7 @@ function submitForm() {
     hideLoading();
     if (reply.status === "success") {
       alert("Success! ID: " + reply.entryId);
-      window.location.reload(); // Refresh form
+      window.location.reload();
     } else {
       alert("Error: " + reply.message);
     }
@@ -370,6 +342,5 @@ function setupSortable() {
   Sortable.create(document.getElementById("tableBody"), { handle: ".row-handle", animation: 150 });
 }
 </script>
-
 </body>
 </html>
