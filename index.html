@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <title>Production Entry</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  
 <style>
 /* --- 1. MODERN VARIABLES & RESET --- */
 :root { 
@@ -72,7 +74,7 @@ tr:last-child td { border-bottom: none; }
 }
 .choices.is-focused .choices__inner { border-color: var(--primary-blue) !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; }
 
-/* FIX PLACEHOLDER MENUMPUK: Sembunyikan total jika ada item terpilih */
+/* FIX PLACEHOLDER MENUMPUK */
 .choices.is-item-selected .choices__placeholder { 
     position: absolute; 
     opacity: 0; 
@@ -99,12 +101,12 @@ tr:last-child td { border-bottom: none; }
 
 /* NEW: VIEW LIST BUTTON STYLE */
 .view-list-btn {
-  float: left; /* Posisi di kiri */
+  float: left;
   margin-top: 16px;
   background: #fff;
   color: var(--text-gray);
   border: 1px solid var(--border-color);
-  text-decoration: none; /* Hilangkan garis bawah link */
+  text-decoration: none;
   padding: 0 20px;
 }
 .view-list-btn:hover {
@@ -123,6 +125,11 @@ textarea:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(5
 #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(2px); }
 .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: var(--primary-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* SweetAlert Customization Override */
+.swal2-popup { font-family: 'Inter', system-ui, -apple-system, sans-serif !important; border-radius: 12px !important; }
+.swal2-title { font-size: 20px !important; color: var(--text-dark) !important; }
+.swal2-content { font-size: 14px !important; color: var(--text-gray) !important; }
 </style>
 </head>
 
@@ -230,7 +237,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     addRow(); 
     setupSortable();
   } catch (e) {
-    alert("Error loading data. Check internet connection.");
+    // ALERT MODERN UNTUK ERROR LOAD
+    Swal.fire({
+        icon: 'error',
+        title: 'Network Error',
+        text: 'Failed to load data. Please check your internet connection.',
+        confirmButtonColor: '#ef4444'
+    });
     console.error(e);
   }
   document.getElementById("loadingOverlay").style.display = "none";
@@ -355,8 +368,8 @@ function refreshKPCOptionsForElement(el, rawData, placeholder) {
         .map(k => {
             const formattedSisa = new Intl.NumberFormat('id-ID').format(k.sisa || 0);
             return {
-                value: k.name,            
-                label: k.name,            
+                value: k.name,             
+                label: k.name,             
                 customProperties: { sisa: formattedSisa }
             };
         });
@@ -398,8 +411,8 @@ function initChoices(el, options, placeholder, useTemplate = false) {
         },
         choice: ({ classNames }, data) => {
           const sisa = data.customProperties && data.customProperties.sisa 
-                       ? `<span class="kpc-balance">Sisa: ${data.customProperties.sisa}</span>` 
-                       : '';
+                        ? `<span class="kpc-balance">Sisa: ${data.customProperties.sisa}</span>` 
+                        : '';
           
           return template(`
             <div class="${classNames.item} ${classNames.itemChoice} ${data.disabled ? classNames.itemDisabled : classNames.itemSelectable}" data-select-text="${this.config.itemSelectText}" data-choice ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'} data-id="${data.id}" data-value="${data.value}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
@@ -436,12 +449,32 @@ async function loadNextEntryId() {
   } catch(e) {}
 }
 
+/* --- UPDATED SUBMIT LOGIC WITH MODERN POPUP --- */
 function submitForm() {
   const dateVal = document.getElementById("productionDate").value;
-  if (!dateVal) return alert("Please select a Production Date");
+  
+  // Validation 1: Date
+  if (!dateVal) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Date',
+      text: 'Please select a Production Date.',
+      confirmButtonColor: '#3b82f6'
+    });
+    return;
+  }
   
   const rows = document.querySelectorAll("#tableBody tr");
-  if (!rows.length) return alert("Please add at least one item row");
+  // Validation 2: Rows
+  if (!rows.length) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Empty List',
+      text: 'Please add at least one item row.',
+      confirmButtonColor: '#3b82f6'
+    });
+    return;
+  }
 
   const items = [];
   let isValid = true;
@@ -474,34 +507,79 @@ function submitForm() {
     });
   });
 
-  if (!isValid) return alert("Please fill all required fields");
+  // Validation 3: Incomplete fields
+  if (!isValid) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Incomplete Data',
+      text: 'Please fill all required fields marked in red.',
+      confirmButtonColor: '#ef4444'
+    });
+    return;
+  }
 
-  if(!confirm("Submit this production entry?")) return;
+  // MODERN CONFIRMATION POPUP
+  Swal.fire({
+    title: 'Submit Entry?',
+    text: "Are you sure you want to submit this production entry?",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3b82f6',
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: 'Yes, Submit!',
+    cancelButtonText: 'Cancel',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // IF USER CLICKS YES -> SHOW LOADING & FETCH
+      document.getElementById("loadingOverlay").style.display = "flex";
 
-  document.getElementById("loadingOverlay").style.display = "flex";
-
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      productionEntryId: document.getElementById("entryId").value,
-      productionDate: dateVal,
-      notes: document.getElementById("notes").value,
-      items: items
-    })
-  })
-  .then(res => res.json())
-  .then(r => {
-    document.getElementById("loadingOverlay").style.display = "none";
-    if(r.status === "success") { 
-        alert("Success! Data saved."); 
-        window.location.reload(); 
-    } else { 
-        alert("Error: " + r.message); 
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          productionEntryId: document.getElementById("entryId").value,
+          productionDate: dateVal,
+          notes: document.getElementById("notes").value,
+          items: items
+        })
+      })
+      .then(res => res.json())
+      .then(r => {
+        document.getElementById("loadingOverlay").style.display = "none";
+        
+        if(r.status === "success") { 
+            // SUCCESS POPUP
+            Swal.fire({
+              icon: 'success',
+              title: 'Submitted!',
+              text: 'Data has been saved successfully.',
+              confirmButtonColor: '#3b82f6',
+              timer: 2000,
+              showConfirmButton: false
+            }).then(() => {
+               window.location.reload(); 
+            });
+        } else { 
+            // SERVER ERROR POPUP
+            Swal.fire({
+              icon: 'error',
+              title: 'Submission Error',
+              text: r.message,
+              confirmButtonColor: '#ef4444'
+            });
+        }
+      })
+      .catch(err => {
+          document.getElementById("loadingOverlay").style.display = "none";
+          // NETWORK ERROR POPUP
+          Swal.fire({
+              icon: 'error',
+              title: 'Connection Failed',
+              text: 'Could not connect to server: ' + err,
+              confirmButtonColor: '#ef4444'
+          });
+      });
     }
-  })
-  .catch(err => {
-      document.getElementById("loadingOverlay").style.display = "none";
-      alert("Submission Failed: " + err);
   });
 }
 
