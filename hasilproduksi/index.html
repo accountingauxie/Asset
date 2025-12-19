@@ -80,14 +80,14 @@
 
   <div id="monitoring-submenu" class="hidden mb-6 flex gap-3 overflow-x-auto pb-2">
     <button onclick="switchSubTab('all')" id="sub-all" class="sub-pill sub-pill-active">All Status</button>
-    <button onclick="switchSubTab('Proses Import')" id="sub-proses" class="sub-pill sub-pill-inactive">
-      <i class="fas fa-spinner fa-spin mr-1.5 text-xs"></i>Proses Import
+    <button onclick="switchSubTab('Proses')" id="sub-proses" class="sub-pill sub-pill-inactive">
+      <i class="fas fa-spinner fa-spin mr-1.5 text-xs"></i>Proses
     </button>
-    <button onclick="switchSubTab('Sukses Impor')" id="sub-sukses" class="sub-pill sub-pill-inactive">
-      <i class="fas fa-check-circle mr-1.5 text-xs text-emerald-500"></i>Sukses Impor
+    <button onclick="switchSubTab('Sukses')" id="sub-sukses" class="sub-pill sub-pill-inactive">
+      <i class="fas fa-check-circle mr-1.5 text-xs text-emerald-500"></i>Sukses
     </button>
-    <button onclick="switchSubTab('Gagal Import')" id="sub-gagal" class="sub-pill sub-pill-inactive">
-      <i class="fas fa-times-circle mr-1.5 text-xs text-red-500"></i>Gagal Import
+    <button onclick="switchSubTab('Gagal')" id="sub-gagal" class="sub-pill sub-pill-inactive">
+      <i class="fas fa-times-circle mr-1.5 text-xs text-red-500"></i>Gagal
     </button>
   </div>
 
@@ -150,13 +150,13 @@ let RAW_DATA = [];
 let GROUPED_DATA = {};
 let OPTIONS = { items: [], kpcs: [] };
 let CURRENT_TAB = 'queue';
-let CURRENT_SUB_TAB = 'all'; // Variable baru untuk Sub Menu
+let CURRENT_SUB_TAB = 'all'; 
 let CURRENT_BATCH_ID = null;
 let CURRENT_BATCH_DATE = null;
 let CURRENT_MODE = ''; 
 
-// Daftar Status untuk Tab Monitoring
-const MONITORING_STATUSES = ['Proses Import', 'Sukses Impor', 'Gagal Import'];
+// PERBAIKAN: List status disesuaikan dengan output Backend baru
+const MONITORING_STATUSES = ['Proses', 'Sukses', 'Gagal'];
 
 window.addEventListener('DOMContentLoaded', () => { fetchData(); });
 
@@ -179,8 +179,12 @@ async function fetchData() {
 function processData() {
   GROUPED_DATA = {};
   RAW_DATA.forEach(row => {
-    // FILTER UTAMA: Pastikan status-status baru (monitoring) juga masuk
+    // FILTER UTAMA: Memastikan status yang masuk sesuai dengan array MONITORING_STATUSES yang baru
     const allowed = ['Siap Untuk Di Produksi', 'Sudah Di Produksi', 'Siap Import', ...MONITORING_STATUSES];
+    
+    // Debugging (Opsional, bisa dihapus)
+    // console.log("Row Status:", row.status, "Allowed:", allowed.includes(row.status));
+
     if(!allowed.includes(row.status)) return;
     
     if (!GROUPED_DATA[row.id]) {
@@ -197,7 +201,7 @@ function updateCounts() {
     if (st === 'Siap Untuk Di Produksi') q++;
     else if (st === 'Sudah Di Produksi') c++;
     else if (st === 'Siap Import') i++;
-    else if (MONITORING_STATUSES.includes(st)) m++; // Count untuk monitoring
+    else if (MONITORING_STATUSES.includes(st)) m++;
   });
   document.getElementById('count-queue').innerText = q;
   document.getElementById('count-completed').innerText = c;
@@ -208,17 +212,15 @@ function updateCounts() {
 function switchTab(tabName) {
   CURRENT_TAB = tabName;
   
-  // 1. Atur Class Active Tab Utama
   ['queue', 'completed', 'import', 'monitoring'].forEach(t => {
     const el = document.getElementById('tab-' + t);
     t === tabName ? (el.classList.remove('inactive-tab'), el.classList.add('active-tab')) : (el.classList.remove('active-tab'), el.classList.add('inactive-tab'));
   });
 
-  // 2. Tampilkan/Sembunyikan Sub Menu
   const subMenu = document.getElementById('monitoring-submenu');
   if (tabName === 'monitoring') {
     subMenu.classList.remove('hidden');
-    switchSubTab('all'); // Reset ke all saat masuk tab monitoring
+    switchSubTab('all');
   } else {
     subMenu.classList.add('hidden');
   }
@@ -229,19 +231,17 @@ function switchTab(tabName) {
 function switchSubTab(subName) {
   CURRENT_SUB_TAB = subName;
   
-  // Reset style semua pill
   const pills = ['all', 'proses', 'sukses', 'gagal'];
   pills.forEach(p => {
-    // Mapping ID: 'all' -> 'sub-all', 'Proses Import' -> 'sub-proses', dst
     let id = 'sub-' + p; 
     let el = document.getElementById(id);
     
-    // Logic simple untuk mapping status ke ID tombol
+    // PERBAIKAN LOGIC: Mencocokkan dengan status baru
     let isMatch = false;
     if (subName === 'all' && p === 'all') isMatch = true;
-    if (subName === 'Proses Import' && p === 'proses') isMatch = true;
-    if (subName === 'Sukses Impor' && p === 'sukses') isMatch = true;
-    if (subName === 'Gagal Import' && p === 'gagal') isMatch = true;
+    if (subName === 'Proses' && p === 'proses') isMatch = true;
+    if (subName === 'Sukses' && p === 'sukses') isMatch = true;
+    if (subName === 'Gagal' && p === 'gagal') isMatch = true;
 
     if (isMatch) {
       el.classList.remove('sub-pill-inactive');
@@ -264,12 +264,10 @@ function renderData() {
     const st = batch.items[0].status;
     let matchTab = false;
 
-    // Logic Tab
     if (CURRENT_TAB === 'queue' && st === 'Siap Untuk Di Produksi') matchTab = true;
     else if (CURRENT_TAB === 'completed' && st === 'Sudah Di Produksi') matchTab = true;
     else if (CURRENT_TAB === 'import' && st === 'Siap Import') matchTab = true;
     else if (CURRENT_TAB === 'monitoring') {
-      // Logic Sub Menu Monitoring
       if (MONITORING_STATUSES.includes(st)) {
         if (CURRENT_SUB_TAB === 'all') matchTab = true;
         else if (CURRENT_SUB_TAB === st) matchTab = true;
@@ -307,17 +305,17 @@ function renderData() {
     } else if (CURRENT_TAB === 'import') {
        actionBtn = `<button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-cloud-upload-alt mr-2"></i> Sync Xero</button>`;
     } else if (CURRENT_TAB === 'monitoring') {
-       // TAMPILAN BADGE UNTUK MONITORING
+       // PERBAIKAN: Badge Logic disesuaikan dengan status pendek
        let badgeClass = "bg-gray-100 text-gray-600 border-gray-200";
        let icon = "";
        
-       if(currentStatus === 'Proses Import') {
+       if(currentStatus === 'Proses') {
           badgeClass = "bg-sky-50 text-sky-600 border-sky-100";
           icon = "<i class='fas fa-spinner fa-spin mr-2'></i>";
-       } else if (currentStatus === 'Sukses Impor') {
+       } else if (currentStatus === 'Sukses') {
           badgeClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
           icon = "<i class='fas fa-check-circle mr-2'></i>";
-       } else if (currentStatus === 'Gagal Import') {
+       } else if (currentStatus === 'Gagal') {
           badgeClass = "bg-red-50 text-red-600 border-red-100";
           icon = "<i class='fas fa-times-circle mr-2'></i>";
        }
@@ -423,9 +421,9 @@ function renderModalRow(item = null) {
   if (CURRENT_MODE === 'plan_edit') {
     const machineOpts = [...new Set(OPTIONS.items.map(i => i.machine))].sort();
     let machineEl = `<select class="input-xs machine-select bg-white" onchange="onMachineChange(this)">
-                       <option value="">Select Machine</option>
-                       ${machineOpts.map(m => `<option value="${m}" ${m === machineVal ? 'selected' : ''}>${m}</option>`).join('')}
-                     </select>`;
+                        <option value="">Select Machine</option>
+                        ${machineOpts.map(m => `<option value="${m}" ${m === machineVal ? 'selected' : ''}>${m}</option>`).join('')}
+                      </select>`;
     let itemEl = `<select class="input-xs item-select bg-white" onchange="onItemChange(this)" data-current="${itemVal}"><option value="">Select Machine First</option></select>`;
     let kpcEl = `<select class="input-xs kpc-select bg-white" onchange="updateRowWE(this)" data-current="${kpcVal}"><option value="">Select Item First</option></select>`;
     let deleteBtn = `<button onclick="deleteRow(this)" class="text-slate-400 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>`;
