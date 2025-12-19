@@ -19,6 +19,7 @@
   .input-xs { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; width: 100%; transition: border 0.2s; }
   .input-xs:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
   .input-readonly { background-color: #f8fafc; color: #64748b; cursor: not-allowed; border-color: #e2e8f0; }
+  select.input-xs { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; appearance: none; }
 </style>
 </head>
 
@@ -42,26 +43,17 @@
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
       <div class="absolute right-0 top-0 h-full w-1 bg-blue-500"></div>
       <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Queue (Siap Produksi)</div>
-      <div class="flex items-baseline">
-        <span class="text-4xl font-bold text-slate-800" id="count-queue">0</span>
-        <span class="ml-2 text-sm text-slate-500">batches</span>
-      </div>
+      <div class="flex items-baseline"><span class="text-4xl font-bold text-slate-800" id="count-queue">0</span><span class="ml-2 text-sm text-slate-500">batches</span></div>
     </div>
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
       <div class="absolute right-0 top-0 h-full w-1 bg-emerald-500"></div>
       <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Completed (Selesai)</div>
-      <div class="flex items-baseline">
-        <span class="text-4xl font-bold text-slate-800" id="count-completed">0</span>
-        <span class="ml-2 text-sm text-slate-500">need approval</span>
-      </div>
+      <div class="flex items-baseline"><span class="text-4xl font-bold text-slate-800" id="count-completed">0</span><span class="ml-2 text-sm text-slate-500">need approval</span></div>
     </div>
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
       <div class="absolute right-0 top-0 h-full w-1 bg-indigo-500"></div>
       <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Ready to Sync</div>
-      <div class="flex items-baseline">
-        <span class="text-4xl font-bold text-slate-800" id="count-import">0</span>
-        <span class="ml-2 text-sm text-slate-500">to Xero</span>
-      </div>
+      <div class="flex items-baseline"><span class="text-4xl font-bold text-slate-800" id="count-import">0</span><span class="ml-2 text-sm text-slate-500">to Xero</span></div>
     </div>
   </div>
 
@@ -101,17 +93,11 @@
       </div>
 
       <div class="bg-slate-50 px-6 py-6">
-        <div class="overflow-hidden rounded-lg border border-slate-200 shadow-sm">
+        <div class="overflow-visible rounded-lg border border-slate-200 shadow-sm">
           <table class="min-w-full divide-y divide-slate-200 bg-white">
             <thead class="bg-slate-50">
-              <tr>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-40">Machine</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-48">Item</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-48">KPC</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-28">Meter</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Qty</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Number</th>
-                <th class="px-2 py-3 w-10"></th> </tr>
+              <tr id="modal-table-header">
+                </tr>
             </thead>
             <tbody id="modal-table-body" class="divide-y divide-slate-200"></tbody>
           </table>
@@ -136,7 +122,8 @@
 
 <script>
 // =================================================================
-const API_URL = "https://script.google.com/macros/s/AKfycbzm2GVHeWf_U2szorzufYCABjYo_ytSIf0COS0KyPYFgmiJP8yWuxvP7rUbFNxk0YNS/exec"; 
+// GANTI URL API
+const API_URL = "https://script.google.com/macros/s/AKfycbz21uHS30oPD5Df69o6ngvFMK9y2l1E7qOoI1sJAgbEtbNWhSuVystF2SQhA4blU40n/exec"; 
 // =================================================================
 
 let RAW_DATA = [];
@@ -240,7 +227,7 @@ function renderData() {
 
     let itemRows = '';
     batch.items.forEach(item => {
-      const resultDisplay = !isQueue ? `<div class="ml-auto text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded border border-slate-200 flex gap-3"><span>Qty: <b>${item.qty}</b></span><span class="border-l border-slate-300 pl-3">M: <b>${item.meter}</b></span></div>` : '<div class="ml-auto"></div>';
+      const resultDisplay = !isQueue ? `<div class="ml-auto text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded border border-slate-200 flex gap-3"><span>Qty: <b>${item.qty}</b></span><span>M: <b>${item.meter}</b></span><span>Kg: <b>${item.weight}</b></span></div>` : '<div class="ml-auto"></div>';
       itemRows += `
         <div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition px-2 -mx-2 rounded">
            <div class="flex items-center flex-1 gap-4">
@@ -268,6 +255,7 @@ function renderData() {
   });
 }
 
+// 4. MODAL LOGIC (EDIT vs INPUT)
 function openInputModal(batchId, mode) {
   CURRENT_BATCH_ID = batchId;
   IS_EDIT_MODE = (mode === 'edit');
@@ -277,10 +265,32 @@ function openInputModal(batchId, mode) {
   document.getElementById('modal-batch-id').innerText = batchId;
   document.getElementById('modal-title').innerText = IS_EDIT_MODE ? "Edit Production Plan" : "Input Production Result";
   document.getElementById('modal-warning-text').innerHTML = IS_EDIT_MODE 
-    ? "<strong>Mode Edit:</strong> Anda dapat mengubah Mesin, Item, & KPC. Tambah baris jika perlu." 
-    : "<strong>Mode Input:</strong> Hanya input <strong>Qty</strong> dan <strong>Meter</strong>. Kolom lain terkunci.";
+    ? "<strong>Mode Edit:</strong> Pilih Mesin > Item > KPC. Data akan terfilter bertingkat." 
+    : "<strong>Mode Input:</strong> Hanya input <strong>Qty</strong>, <strong>Meter</strong>, dan <strong>Berat</strong>. Kolom lain terkunci.";
   
   document.getElementById('add-row-container').classList.toggle('hidden', !IS_EDIT_MODE);
+
+  // RENDER HEADERS DYNAMICALLY
+  const thead = document.getElementById('modal-table-header');
+  if (IS_EDIT_MODE) {
+    thead.innerHTML = `
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-40">Machine</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-56">Item</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-56">KPC</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Number</th>
+      <th class="px-2 py-3 w-10">Action</th>
+    `;
+  } else {
+    thead.innerHTML = `
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-40">Machine</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-48">Item</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-48">KPC</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Meter</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Qty</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Berat (kg)</th>
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Number</th>
+    `;
+  }
 
   const tbody = document.getElementById('modal-table-body');
   tbody.innerHTML = '';
@@ -298,61 +308,56 @@ function renderModalRow(item = null) {
   const kpcVal = item ? item.kpc : '';
   const meterVal = item ? item.meter : 0;
   const qtyVal = item ? item.qty : 0;
+  const weightVal = item ? item.weight : 0;
   const weVal = item ? item.weNumber : '';
 
-  let itemEl, machineEl, kpcEl, deleteBtn = '';
+  let html = '';
 
   if (IS_EDIT_MODE) {
-    const itemOpts = [...new Set(OPTIONS.items.map(i => i.name))].sort();
-    itemEl = `<select class="input-xs item-select bg-white" onchange="onItemChange(this)">
-                <option value="">Select Item</option>
-                ${itemOpts.map(i => `<option value="${i}" ${i === itemVal ? 'selected' : ''}>${i}</option>`).join('')}
-              </select>`;
-    
-    // Machine is auto-populated based on Item, but can be changed if needed?
-    // Based on requirement "Filter by Item", Machine usually fixed per Item or filter logic applies.
-    // We init with current value.
+    // 1. MACHINE DROPDOWN
     const machineOpts = [...new Set(OPTIONS.items.map(i => i.machine))].sort();
-    machineEl = `<select class="input-xs machine-select bg-white" onchange="updateRowWE(this)">
+    let machineEl = `<select class="input-xs machine-select bg-white" onchange="onMachineChange(this)">
                    <option value="">Select Machine</option>
                    ${machineOpts.map(m => `<option value="${m}" ${m === machineVal ? 'selected' : ''}>${m}</option>`).join('')}
                  </select>`;
     
-    // KPC Init with all, filtered later
-    const kpcOpts = OPTIONS.kpcs; 
-    kpcEl = `<select class="input-xs kpc-select bg-white" onchange="updateRowWE(this)" data-current="${kpcVal}">
-               <option value="">Select KPC</option>
-               ${kpcOpts.map(k => `<option value="${k.name}" ${k.name === kpcVal ? 'selected' : ''}>${k.name}</option>`).join('')}
-             </select>`;
+    // 2. ITEM DROPDOWN
+    let itemEl = `<select class="input-xs item-select bg-white" onchange="onItemChange(this)" data-current="${itemVal}"><option value="">Select Machine First</option></select>`;
+    
+    // 3. KPC DROPDOWN
+    let kpcEl = `<select class="input-xs kpc-select bg-white" onchange="updateRowWE(this)" data-current="${kpcVal}"><option value="">Select Item First</option></select>`;
 
-    deleteBtn = `<button onclick="deleteRow(this)" class="text-slate-400 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>`;
+    let deleteBtn = `<button onclick="deleteRow(this)" class="text-slate-400 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>`;
+
+    html = `
+      <td class="px-4 py-3">${machineEl}</td>
+      <td class="px-4 py-3">${itemEl}</td>
+      <td class="px-4 py-3">${kpcEl}</td>
+      <td class="px-4 py-3"><input type="text" class="input-xs bg-slate-50 text-slate-500 we-preview font-mono text-xs cursor-not-allowed" value="${weVal}" readonly></td>
+      <td class="px-2 py-3 text-center">${deleteBtn}</td>
+    `;
   } else {
-    itemEl = `<span class="text-sm font-medium text-slate-700">${itemVal}</span>`;
-    machineEl = `<input type="text" class="input-xs input-readonly machine-select" value="${machineVal}" readonly>`;
-    kpcEl = `<input type="text" class="input-xs input-readonly kpc-select" value="${kpcVal}" readonly>`;
+    // READONLY MODE - SHOW INPUTS
+    html = `
+      <td class="px-4 py-3"><input type="text" class="input-xs input-readonly machine-select" value="${machineVal}" readonly></td>
+      <td class="px-4 py-3"><span class="text-sm font-medium text-slate-700">${itemVal}</span></td>
+      <td class="px-4 py-3"><input type="text" class="input-xs input-readonly kpc-select" value="${kpcVal}" readonly></td>
+      <td class="px-4 py-3"><input type="number" class="input-xs input-meter text-center font-mono" value="${meterVal}" min="0"></td>
+      <td class="px-4 py-3"><input type="number" class="input-xs input-qty text-center font-mono" value="${qtyVal}" min="0"></td>
+      <td class="px-4 py-3"><input type="number" class="input-xs input-weight text-center font-mono" value="${weightVal}" min="0"></td>
+      <td class="px-4 py-3"><input type="text" class="input-xs bg-slate-50 text-slate-500 we-preview font-mono text-xs cursor-not-allowed" value="${weVal}" readonly></td>
+    `;
   }
 
   const tr = document.createElement('tr');
   tr.setAttribute('data-row-index', rowIndex);
-  tr.innerHTML = `
-    <td class="px-4 py-3">${machineEl}</td>
-    <td class="px-4 py-3">${itemEl}</td>
-    <td class="px-4 py-3">${kpcEl}</td>
-    <td class="px-4 py-3"><input type="number" class="input-xs input-meter text-center font-mono" value="${meterVal}" min="0"></td>
-    <td class="px-4 py-3"><input type="number" class="input-xs input-qty text-center font-mono" value="${qtyVal}" min="0"></td>
-    <td class="px-4 py-3"><input type="text" class="input-xs bg-slate-50 text-slate-500 we-preview font-mono text-xs cursor-not-allowed" value="${weVal}" readonly></td>
-    <td class="px-2 py-3 text-center">${deleteBtn}</td>
-  `;
+  tr.innerHTML = html;
   tbody.appendChild(tr);
 
-  // Trigger Logic if Edit
-  if(IS_EDIT_MODE && itemVal) {
-    // We delay slightly to ensure DOM is ready
+  // Trigger Logic if Edit & values exist
+  if(IS_EDIT_MODE && machineVal) {
     setTimeout(() => {
-        const row = tr; 
-        // Filter KPC
-        onItemChange(row.querySelector('.item-select'), false); 
-        // Set Machine if empty or valid
+        onMachineChange(tr.querySelector('.machine-select'), false); 
     }, 0);
   }
 }
@@ -360,34 +365,29 @@ function renderModalRow(item = null) {
 function addNewRow() { renderModalRow(); }
 function deleteRow(btn) { btn.closest('tr').remove(); }
 
-// LOGIC FILTER KPC & MACHINE based on ITEM
+function onMachineChange(el, resetValue = true) {
+  if(!el) return;
+  const tr = el.closest('tr');
+  const selectedMachine = el.value;
+  const itemSelect = tr.querySelector('.item-select');
+  const currentItem = itemSelect.getAttribute('data-current');
+  const validItems = OPTIONS.items.filter(i => i.machine === selectedMachine);
+  itemSelect.innerHTML = `<option value="">Select Item</option>` + validItems.map(i => `<option value="${i.name}" ${!resetValue && i.name === currentItem ? 'selected' : ''}>${i.name}</option>`).join('');
+  if(resetValue) { itemSelect.value = ""; onItemChange(itemSelect, true); } else { onItemChange(itemSelect, false); }
+}
+
 function onItemChange(el, resetValue = true) {
   if(!el) return;
   const tr = el.closest('tr');
   const selectedItem = el.value;
-  
-  // 1. Set Machine automatically
-  const machineSelect = tr.querySelector('.machine-select');
-  const foundItem = OPTIONS.items.find(i => i.name === selectedItem);
-  if(foundItem && machineSelect) {
-      machineSelect.value = foundItem.machine;
-  }
-
-  // 2. Filter KPC
   const kpcSelect = tr.querySelector('.kpc-select');
-  const currentKpc = kpcSelect.getAttribute('data-current') || kpcSelect.value;
-  
+  const currentKpc = kpcSelect.getAttribute('data-current');
   const validKPCs = OPTIONS.kpcs.filter(k => k.relatedItem === selectedItem);
-  
-  // Re-build dropdown options
-  kpcSelect.innerHTML = `<option value="">Select KPC</option>` + 
-    validKPCs.map(k => {
-        // Show Sisa info in label
+  kpcSelect.innerHTML = `<option value="">Select KPC</option>` + validKPCs.map(k => {
         const label = `${k.name} (Sisa: ${new Intl.NumberFormat('id-ID').format(k.sisa)})`;
-        const isSelected = !resetValue && k.name === currentKpc;
-        return `<option value="${k.name}" ${isSelected ? 'selected' : ''}>${label}</option>`;
+        return `<option value="${k.name}" ${!resetValue && k.name === currentKpc ? 'selected' : ''}>${label}</option>`;
     }).join('');
-    
+  if(resetValue) kpcSelect.value = "";
   updateRowWE(el);
 }
 
@@ -395,15 +395,10 @@ function updateRowWE(el) {
   const tr = el.closest('tr');
   const machine = tr.querySelector('.machine-select').value;
   const kpc = tr.querySelector('.kpc-select').value;
-  
-  // Handle Item (Select or Text)
-  let item = "";
-  if(IS_EDIT_MODE) item = tr.querySelector('.item-select').value;
-  else item = tr.querySelector('span').innerText;
+  let item = IS_EDIT_MODE ? tr.querySelector('.item-select').value : tr.querySelector('span').innerText;
   
   if(!machine || !item || !kpc) return;
 
-  // WE Number Logic
   let machineCode = "XX";
   const mUpper = machine.toUpperCase();
   if(mUpper.includes("RENG")) machineCode = "RG";
@@ -425,12 +420,12 @@ function renderFooterButtons() {
   const footer = document.getElementById('modal-footer');
   if (IS_EDIT_MODE) {
     footer.innerHTML = `
-      <button onclick="submitForm('replaceBatch', true)" class="bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700">Complete Production</button>
-      <button onclick="submitForm('replaceBatch', false)" class="bg-amber-100 text-amber-800 px-5 py-2.5 rounded hover:bg-amber-200">Save Changes</button>
+      <button onclick="submitForm('replaceBatch', true)" class="btn-primary bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700">Complete Production</button>
+      <button onclick="submitForm('replaceBatch', false)" class="btn-sec bg-amber-100 text-amber-800 px-5 py-2.5 rounded hover:bg-amber-200">Save Changes</button>
       <button onclick="closeModal()" class="bg-white border px-5 py-2.5 rounded hover:bg-slate-50">Cancel</button>`;
   } else {
     footer.innerHTML = `
-      <button onclick="submitForm('submitResult')" class="bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700">Submit & Complete</button>
+      <button onclick="submitForm('submitResult')" class="btn-primary bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700">Submit & Complete</button>
       <button onclick="closeModal()" class="bg-white border px-5 py-2.5 rounded hover:bg-slate-50">Cancel</button>`;
   }
 }
@@ -441,10 +436,11 @@ async function submitForm(action, forceComplete = false) {
   const rows = document.querySelectorAll('#modal-table-body tr');
   const items = [];
   rows.forEach(tr => {
-    let itemVal = IS_EDIT_MODE ? tr.querySelector('.item-select').value : tr.querySelector('span').innerText; // Logic fix
-    if(!IS_EDIT_MODE) {
-        // In input mode, item is simple text
-        itemVal = tr.querySelector('td:nth-child(2)').innerText.trim(); 
+    let itemVal = "";
+    if (IS_EDIT_MODE) {
+        itemVal = tr.querySelector('.item-select').value;
+    } else {
+        itemVal = tr.querySelector('td:nth-child(2) span').innerText;
     }
 
     items.push({
@@ -452,8 +448,10 @@ async function submitForm(action, forceComplete = false) {
       item: itemVal,
       machine: tr.querySelector('.machine-select').value,
       kpc: tr.querySelector('.kpc-select').value,
-      meter: tr.querySelector('.input-meter').value,
-      qty: tr.querySelector('.input-qty').value,
+      // Handle missing inputs in Edit mode (send 0)
+      meter: IS_EDIT_MODE ? 0 : tr.querySelector('.input-meter').value,
+      qty: IS_EDIT_MODE ? 0 : tr.querySelector('.input-qty').value,
+      weight: IS_EDIT_MODE ? 0 : tr.querySelector('.input-weight').value,
       weNumber: tr.querySelector('.we-preview').value,
       date: CURRENT_BATCH_DATE
     });
