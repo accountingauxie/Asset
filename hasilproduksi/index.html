@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Production Management</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
   body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
@@ -135,6 +140,7 @@
           <p class="text-xs text-amber-700" id="modal-warning-text"></p>
         </div>
       </div>
+
       <div class="bg-white px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-100" id="modal-footer"></div>
     </div>
   </div>
@@ -142,7 +148,7 @@
 
 <script>
 // =================================================================
-// GANTI URL API JIKA DIPERLUKAN
+// GANTI URL API ANDA DI SINI
 const API_URL = "https://script.google.com/macros/s/AKfycbwTDlBQQvDdLFpyXNq_b4YhXaE9YsFBgt5WY1fdK3mMuDyoQ3NqcZ8jRhZfdHN8Wf3l/exec"; 
 // =================================================================
 
@@ -155,7 +161,7 @@ let CURRENT_BATCH_ID = null;
 let CURRENT_BATCH_DATE = null;
 let CURRENT_MODE = ''; 
 
-// PERBAIKAN: List status disesuaikan dengan output Backend baru
+// STATUS BARU (Disamakan dengan Backend)
 const MONITORING_STATUSES = ['Proses', 'Sukses', 'Gagal'];
 
 window.addEventListener('DOMContentLoaded', () => { fetchData(); });
@@ -172,19 +178,18 @@ async function fetchData() {
     processData();
     updateCounts();
     renderData();
-  } catch (err) { alert("Error: " + err); } 
+  } catch (err) { 
+    Swal.fire('Error', err.toString(), 'error');
+  } 
   finally { document.getElementById('loading').style.display = 'none'; }
 }
 
 function processData() {
   GROUPED_DATA = {};
   RAW_DATA.forEach(row => {
-    // FILTER UTAMA: Memastikan status yang masuk sesuai dengan array MONITORING_STATUSES yang baru
+    // FILTER UTAMA: Memastikan status yang masuk sesuai
     const allowed = ['Siap Untuk Di Produksi', 'Sudah Di Produksi', 'Siap Import', ...MONITORING_STATUSES];
     
-    // Debugging (Opsional, bisa dihapus)
-    // console.log("Row Status:", row.status, "Allowed:", allowed.includes(row.status));
-
     if(!allowed.includes(row.status)) return;
     
     if (!GROUPED_DATA[row.id]) {
@@ -236,7 +241,7 @@ function switchSubTab(subName) {
     let id = 'sub-' + p; 
     let el = document.getElementById(id);
     
-    // PERBAIKAN LOGIC: Mencocokkan dengan status baru
+    // LOGIC MATCHING BARU
     let isMatch = false;
     if (subName === 'all' && p === 'all') isMatch = true;
     if (subName === 'Proses' && p === 'proses') isMatch = true;
@@ -305,7 +310,7 @@ function renderData() {
     } else if (CURRENT_TAB === 'import') {
        actionBtn = `<button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-cloud-upload-alt mr-2"></i> Sync Xero</button>`;
     } else if (CURRENT_TAB === 'monitoring') {
-       // PERBAIKAN: Badge Logic disesuaikan dengan status pendek
+       // BADGE BARU
        let badgeClass = "bg-gray-100 text-gray-600 border-gray-200";
        let icon = "";
        
@@ -529,6 +534,8 @@ function renderFooterButtons() {
 
 function closeModal() { document.getElementById('modalResult').classList.add('hidden'); }
 
+// === FUNGSI NOTIFIKASI MODERN (SweetAlert2) ===
+
 async function submitForm(action, forceComplete = false) {
   const rows = document.querySelectorAll('#modal-table-body tr');
   const items = [];
@@ -553,7 +560,19 @@ async function submitForm(action, forceComplete = false) {
     });
   });
 
-  if(!confirm("Simpan data?")) return;
+  // CONFIRMATION POP-UP
+  const result = await Swal.fire({
+    title: 'Simpan Data?',
+    text: "Pastikan data yang diinput sudah benar.",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#2563eb', 
+    cancelButtonColor: '#64748b',  
+    confirmButtonText: 'Ya, Simpan',
+    cancelButtonText: 'Batal'
+  });
+
+  if (!result.isConfirmed) return;
   
   closeModal();
   await postAction(action, { batchId: CURRENT_BATCH_ID, items: items, forceComplete: forceComplete });
@@ -564,14 +583,66 @@ async function postAction(action, payload) {
   try {
     const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action, ...payload }) });
     const result = await res.json();
-    if(result.status === 'success') { alert("Berhasil!"); fetchData(); }
+    
+    if(result.status === 'success') { 
+      // SUCCESS POP-UP
+      await Swal.fire({
+        title: 'Berhasil!',
+        text: 'Data telah berhasil disimpan.',
+        icon: 'success',
+        confirmButtonColor: '#2563eb',
+        timer: 2000, 
+        timerProgressBar: true
+      });
+      fetchData(); 
+    }
     else throw new Error(result.message);
-  } catch(e) { alert("Error: " + e.message); } 
+
+  } catch(e) { 
+    // ERROR POP-UP
+    Swal.fire({
+      title: 'Gagal!',
+      text: "Terjadi kesalahan: " + e.message,
+      icon: 'error',
+      confirmButtonColor: '#ef4444' 
+    });
+  } 
   finally { document.getElementById('loading').style.display = 'none'; }
 }
 
-async function approveBatch(batchId) { if(confirm(`Approve ${batchId}?`)) await postAction('approve', { batchId }); }
-async function syncXero(batchId) { if(confirm(`Sync ${batchId}?`)) await postAction('syncXero', { batchId }); }
+async function approveBatch(batchId) { 
+  const result = await Swal.fire({
+    title: 'Approve Batch?',
+    text: `Anda akan menyetujui batch ID: ${batchId}`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#059669', 
+    cancelButtonColor: '#64748b',
+    confirmButtonText: 'Ya, Approve!',
+    cancelButtonText: 'Batal'
+  });
+
+  if(result.isConfirmed) {
+    await postAction('approve', { batchId }); 
+  }
+}
+
+async function syncXero(batchId) { 
+  const result = await Swal.fire({
+    title: 'Sync ke Xero?',
+    text: `Data batch ${batchId} akan dikirim ke Xero.`,
+    icon: 'info',
+    showCancelButton: true,
+    confirmButtonColor: '#4f46e5', 
+    cancelButtonColor: '#64748b',
+    confirmButtonText: 'Ya, Sync Sekarang',
+    cancelButtonText: 'Nanti Saja'
+  });
+
+  if(result.isConfirmed) {
+    await postAction('syncXero', { batchId }); 
+  }
+}
 </script>
 </body>
 </html>
