@@ -123,7 +123,7 @@
 <script>
 // =================================================================
 // GANTI URL API
-const API_URL = "https://script.google.com/macros/s/AKfycbxMiVPIZssC1Max6PDlDSwzwYM1-py44qVm8P2Pi8iTsnRMDtHC5vQI4c686mErIDg/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycby8EoCdhr8RMYshnQPn91FYo2H17xRQKmQ9U1KZdE4ExXihUMR51Ti6sP78vFkjbn_M/exec"; 
 // =================================================================
 
 let RAW_DATA = [];
@@ -340,7 +340,7 @@ function renderModalRow(item = null) {
     // READONLY MODE - SHOW INPUTS INCLUDING WEIGHT
     html = `
       <td class="px-4 py-3"><input type="text" class="input-xs input-readonly machine-select" value="${machineVal}" readonly></td>
-      <td class="px-4 py-3"><span class="text-sm font-medium text-slate-700">${itemVal}</span></td>
+      <td class="px-4 py-3"><input type="text" class="input-xs input-readonly item-select" value="${itemVal}" readonly></td>
       <td class="px-4 py-3"><input type="text" class="input-xs input-readonly kpc-select" value="${kpcVal}" readonly></td>
       <td class="px-4 py-3"><input type="number" class="input-xs input-meter text-center font-mono" value="${meterVal}" min="0"></td>
       <td class="px-4 py-3"><input type="number" class="input-xs input-qty text-center font-mono" value="${qtyVal}" min="0"></td>
@@ -397,7 +397,7 @@ function updateRowWE(el) {
   const tr = el.closest('tr');
   const machine = tr.querySelector('.machine-select').value;
   const kpc = tr.querySelector('.kpc-select').value;
-  let item = IS_EDIT_MODE ? tr.querySelector('.item-select').value : tr.querySelector('span').innerText;
+  let item = IS_EDIT_MODE ? tr.querySelector('.item-select').value : tr.querySelector('.item-select').value; // In Readonly, its an input, value is safe
   
   if(!machine || !item || !kpc) return;
 
@@ -423,34 +423,32 @@ function renderFooterButtons() {
   if (IS_EDIT_MODE) {
     // MODE EDIT: Hanya Save Changes (Kuning) & Cancel
     footer.innerHTML = `
-      <button onclick="submitForm('replaceBatch')" class="bg-amber-400 text-amber-900 px-5 py-2.5 rounded hover:bg-amber-500 font-semibold shadow-sm">Save Changes</button>
+      <button onclick="submitForm('replaceBatch', false)" class="bg-amber-400 text-amber-900 px-5 py-2.5 rounded hover:bg-amber-500 font-semibold shadow-sm">Save Changes</button>
       <button onclick="closeModal()" class="bg-white border px-5 py-2.5 rounded hover:bg-slate-50 font-medium text-slate-700 shadow-sm">Cancel</button>`;
   } else {
     // MODE INPUT: Submit & Complete (Biru) & Cancel
     footer.innerHTML = `
-      <button onclick="submitForm('submitResult')" class="bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700 font-semibold shadow-sm">Submit & Complete</button>
+      <button onclick="submitForm('replaceBatch', true)" class="bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700 font-semibold shadow-sm">Submit & Complete</button>
       <button onclick="closeModal()" class="bg-white border px-5 py-2.5 rounded hover:bg-slate-50 font-medium text-slate-700 shadow-sm">Cancel</button>`;
   }
 }
 
 function closeModal() { document.getElementById('modalResult').classList.add('hidden'); }
 
-async function submitForm(action) {
+async function submitForm(action, forceComplete = false) {
   const rows = document.querySelectorAll('#modal-table-body tr');
   const items = [];
   rows.forEach(tr => {
-    let itemVal = "";
-    if (IS_EDIT_MODE) {
-        itemVal = tr.querySelector('.item-select').value;
-    } else {
-        itemVal = tr.querySelector('td:nth-child(2) span').innerText;
-    }
+    // Both mode use inputs or selects, so .value is safe
+    const machine = tr.querySelector('.machine-select').value;
+    const item = tr.querySelector('.item-select').value;
+    const kpc = tr.querySelector('.kpc-select').value;
 
     items.push({
       rowIndex: tr.getAttribute('data-row-index'),
-      item: itemVal,
-      machine: tr.querySelector('.machine-select').value,
-      kpc: tr.querySelector('.kpc-select').value,
+      item: item,
+      machine: machine,
+      kpc: kpc,
       // Handle missing inputs in Edit mode (send 0)
       meter: IS_EDIT_MODE ? 0 : tr.querySelector('.input-meter').value,
       qty: IS_EDIT_MODE ? 0 : tr.querySelector('.input-qty').value,
@@ -460,11 +458,11 @@ async function submitForm(action) {
     });
   });
 
-  const msg = action === 'submitResult' ? "Selesaikan produksi? Data akan dipindahkan ke tab Completed." : "Simpan perubahan rencana produksi?";
+  const msg = forceComplete ? "Selesaikan produksi? Data akan dipindahkan ke tab Completed." : "Simpan perubahan rencana produksi?";
   if(!confirm(msg)) return;
   
   closeModal();
-  await postAction(action, { batchId: CURRENT_BATCH_ID, items: items });
+  await postAction(action, { batchId: CURRENT_BATCH_ID, items: items, forceComplete: forceComplete });
 }
 
 async function postAction(action, payload) {
