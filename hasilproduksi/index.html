@@ -123,7 +123,7 @@
 <script>
 // =================================================================
 // GANTI URL API
-const API_URL = "https://script.google.com/macros/s/AKfycby8EoCdhr8RMYshnQPn91FYo2H17xRQKmQ9U1KZdE4ExXihUMR51Ti6sP78vFkjbn_M/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbwj7hOQzJf_spHq9E_B2gbm3jzHKjgE91OZm9lWRhX848bbMPvcCUuBYdDFc5NSKrV5/exec"; 
 // =================================================================
 
 let RAW_DATA = [];
@@ -132,7 +132,7 @@ let OPTIONS = { items: [], kpcs: [] };
 let CURRENT_TAB = 'queue';
 let CURRENT_BATCH_ID = null;
 let CURRENT_BATCH_DATE = null;
-let IS_EDIT_MODE = false;
+let CURRENT_MODE = ''; // Values: 'plan_edit', 'result_input', 'result_revise'
 
 window.addEventListener('DOMContentLoaded', () => { fetchData(); });
 
@@ -209,17 +209,20 @@ function renderData() {
   }
 
   batches.forEach(batch => {
-    const isQueue = CURRENT_TAB === 'queue';
     let actionBtn = '';
     
-    if (isQueue) {
+    if (CURRENT_TAB === 'queue') {
       actionBtn = `
         <div class="flex gap-2">
-          <button onclick="openInputModal('${batch.id}', 'edit')" class="bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-200 px-3 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-edit mr-2"></i> Edit</button>
-          <button onclick="openInputModal('${batch.id}', 'input')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-clipboard-check mr-2"></i> Input Result</button>
+          <button onclick="openInputModal('${batch.id}', 'plan_edit')" class="bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-200 px-3 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-edit mr-2"></i> Edit Plan</button>
+          <button onclick="openInputModal('${batch.id}', 'result_input')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-clipboard-check mr-2"></i> Input Result</button>
         </div>`;
     } else if (CURRENT_TAB === 'completed') {
-      actionBtn = `<button onclick="approveBatch('${batch.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-check-circle mr-2"></i> Approve</button>`;
+      actionBtn = `
+        <div class="flex gap-2">
+          <button onclick="openInputModal('${batch.id}', 'result_revise')" class="bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-200 px-3 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-pen mr-2"></i> Revisi</button>
+          <button onclick="approveBatch('${batch.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-check-circle mr-2"></i> Approve</button>
+        </div>`;
     } else if (CURRENT_TAB === 'import') {
        const isSynced = batch.items[0].status === 'Sudah di Import Xero';
        actionBtn = !isSynced ? `<button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-cloud-upload-alt mr-2"></i> Sync Xero</button>` : `<span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">IMPORTED</span>`;
@@ -227,7 +230,7 @@ function renderData() {
 
     let itemRows = '';
     batch.items.forEach(item => {
-      const resultDisplay = !isQueue ? `<div class="ml-auto text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded border border-slate-200 flex gap-3"><span>Qty: <b>${item.qty}</b></span><span>M: <b>${item.meter}</b></span><span>Kg: <b>${item.weight}</b></span></div>` : '<div class="ml-auto"></div>';
+      const resultDisplay = (CURRENT_TAB !== 'queue') ? `<div class="ml-auto text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded border border-slate-200 flex gap-3"><span>Qty: <b>${item.qty}</b></span><span>M: <b>${item.meter}</b></span><span>Kg: <b>${item.weight}</b></span></div>` : '<div class="ml-auto"></div>';
       itemRows += `
         <div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition px-2 -mx-2 rounded">
            <div class="flex items-center flex-1 gap-4">
@@ -255,31 +258,42 @@ function renderData() {
   });
 }
 
-// 4. MODAL LOGIC (EDIT vs INPUT)
+// 4. MODAL LOGIC (EDIT vs INPUT vs REVISE)
 function openInputModal(batchId, mode) {
   CURRENT_BATCH_ID = batchId;
-  IS_EDIT_MODE = (mode === 'edit');
+  CURRENT_MODE = mode; // 'plan_edit', 'result_input', 'result_revise'
   const batch = GROUPED_DATA[batchId];
   CURRENT_BATCH_DATE = batch.date;
   
   document.getElementById('modal-batch-id').innerText = batchId;
-  document.getElementById('modal-title').innerText = IS_EDIT_MODE ? "Edit Production Plan" : "Input Production Result";
-  document.getElementById('modal-warning-text').innerHTML = IS_EDIT_MODE 
-    ? "<strong>Mode Edit:</strong> Pilih Mesin > Item > KPC. Data akan terfilter bertingkat." 
-    : "<strong>Mode Input:</strong> Hanya input <strong>Qty</strong>, <strong>Meter</strong>, dan <strong>Berat</strong>. Kolom lain terkunci.";
   
-  document.getElementById('add-row-container').classList.toggle('hidden', !IS_EDIT_MODE);
+  let title = "Form";
+  let warning = "";
+  
+  if (CURRENT_MODE === 'plan_edit') {
+      title = "Edit Production Plan";
+      warning = "<strong>Mode Edit Plan:</strong> Ubah Mesin/Item/KPC atau tambah baris. Angka hasil produksi belum diinput.";
+  } else if (CURRENT_MODE === 'result_input') {
+      title = "Input Production Result";
+      warning = "<strong>Mode Input Hasil:</strong> Masukkan angka aktual (Qty/Meter/Berat). Mesin & Item terkunci.";
+  } else if (CURRENT_MODE === 'result_revise') {
+      title = "Revisi Production Result";
+      warning = "<strong>Mode Revisi:</strong> Perbaiki angka salah input. Data Mesin & Item tetap terkunci.";
+  }
 
-  // RENDER HEADERS DYNAMICALLY
+  document.getElementById('modal-title').innerText = title;
+  document.getElementById('modal-warning-text').innerHTML = warning;
+  document.getElementById('add-row-container').classList.toggle('hidden', CURRENT_MODE !== 'plan_edit');
+
+  // HEADER DYNAMIC
   const thead = document.getElementById('modal-table-header');
-  if (IS_EDIT_MODE) {
+  if (CURRENT_MODE === 'plan_edit') {
     thead.innerHTML = `
       <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-40">Machine</th>
       <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-56">Item</th>
       <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-56">KPC</th>
       <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Number</th>
-      <th class="px-2 py-3 w-10">Action</th>
-    `;
+      <th class="px-2 py-3 w-10">Action</th>`;
   } else {
     thead.innerHTML = `
       <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-40">Machine</th>
@@ -288,13 +302,11 @@ function openInputModal(batchId, mode) {
       <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Meter</th>
       <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Qty</th>
       <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase w-24">Berat (kg)</th>
-      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Number</th>
-    `;
+      <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">WE Number</th>`;
   }
 
   const tbody = document.getElementById('modal-table-body');
   tbody.innerHTML = '';
-  
   batch.items.forEach(item => { renderModalRow(item); });
   renderFooterButtons();
   document.getElementById('modalResult').classList.remove('hidden');
@@ -313,20 +325,15 @@ function renderModalRow(item = null) {
 
   let html = '';
 
-  if (IS_EDIT_MODE) {
-    // 1. MACHINE DROPDOWN
+  if (CURRENT_MODE === 'plan_edit') {
+    // 1. EDIT PLAN MODE (Dropdowns, No Metrics)
     const machineOpts = [...new Set(OPTIONS.items.map(i => i.machine))].sort();
     let machineEl = `<select class="input-xs machine-select bg-white" onchange="onMachineChange(this)">
                    <option value="">Select Machine</option>
                    ${machineOpts.map(m => `<option value="${m}" ${m === machineVal ? 'selected' : ''}>${m}</option>`).join('')}
                  </select>`;
-    
-    // 2. ITEM DROPDOWN
     let itemEl = `<select class="input-xs item-select bg-white" onchange="onItemChange(this)" data-current="${itemVal}"><option value="">Select Machine First</option></select>`;
-    
-    // 3. KPC DROPDOWN
     let kpcEl = `<select class="input-xs kpc-select bg-white" onchange="updateRowWE(this)" data-current="${kpcVal}"><option value="">Select Item First</option></select>`;
-
     let deleteBtn = `<button onclick="deleteRow(this)" class="text-slate-400 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>`;
 
     html = `
@@ -337,10 +344,10 @@ function renderModalRow(item = null) {
       <td class="px-2 py-3 text-center">${deleteBtn}</td>
     `;
   } else {
-    // READONLY MODE - SHOW INPUTS INCLUDING WEIGHT
+    // 2. INPUT & REVISE MODE (Readonly Dropdowns, Editable Metrics)
     html = `
       <td class="px-4 py-3"><input type="text" class="input-xs input-readonly machine-select" value="${machineVal}" readonly></td>
-      <td class="px-4 py-3"><input type="text" class="input-xs input-readonly item-select" value="${itemVal}" readonly></td>
+      <td class="px-4 py-3"><span class="text-sm font-medium text-slate-700">${itemVal}</span></td>
       <td class="px-4 py-3"><input type="text" class="input-xs input-readonly kpc-select" value="${kpcVal}" readonly></td>
       <td class="px-4 py-3"><input type="number" class="input-xs input-meter text-center font-mono" value="${meterVal}" min="0"></td>
       <td class="px-4 py-3"><input type="number" class="input-xs input-qty text-center font-mono" value="${qtyVal}" min="0"></td>
@@ -354,18 +361,14 @@ function renderModalRow(item = null) {
   tr.innerHTML = html;
   tbody.appendChild(tr);
 
-  // Trigger Logic if Edit & values exist
-  if(IS_EDIT_MODE && machineVal) {
-    setTimeout(() => {
-        onMachineChange(tr.querySelector('.machine-select'), false); 
-    }, 0);
+  // Trigger Filter Logic if Plan Edit
+  if (CURRENT_MODE === 'plan_edit' && machineVal) {
+    setTimeout(() => { onMachineChange(tr.querySelector('.machine-select'), false); }, 0);
   }
 }
 
 function addNewRow() { renderModalRow(); }
 function deleteRow(btn) { btn.closest('tr').remove(); }
-
-// --- CASCADE FILTER LOGIC ---
 
 function onMachineChange(el, resetValue = true) {
   if(!el) return;
@@ -397,7 +400,7 @@ function updateRowWE(el) {
   const tr = el.closest('tr');
   const machine = tr.querySelector('.machine-select').value;
   const kpc = tr.querySelector('.kpc-select').value;
-  let item = IS_EDIT_MODE ? tr.querySelector('.item-select').value : tr.querySelector('.item-select').value; // In Readonly, its an input, value is safe
+  let item = (CURRENT_MODE === 'plan_edit') ? tr.querySelector('.item-select').value : tr.querySelector('span').innerText;
   
   if(!machine || !item || !kpc) return;
 
@@ -420,17 +423,18 @@ function updateRowWE(el) {
 
 function renderFooterButtons() {
   const footer = document.getElementById('modal-footer');
-  if (IS_EDIT_MODE) {
-    // MODE EDIT: Hanya Save Changes (Kuning) & Cancel
-    footer.innerHTML = `
-      <button onclick="submitForm('replaceBatch', false)" class="bg-amber-400 text-amber-900 px-5 py-2.5 rounded hover:bg-amber-500 font-semibold shadow-sm">Save Changes</button>
-      <button onclick="closeModal()" class="bg-white border px-5 py-2.5 rounded hover:bg-slate-50 font-medium text-slate-700 shadow-sm">Cancel</button>`;
-  } else {
-    // MODE INPUT: Submit & Complete (Biru) & Cancel
-    footer.innerHTML = `
-      <button onclick="submitForm('replaceBatch', true)" class="bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700 font-semibold shadow-sm">Submit & Complete</button>
-      <button onclick="closeModal()" class="bg-white border px-5 py-2.5 rounded hover:bg-slate-50 font-medium text-slate-700 shadow-sm">Cancel</button>`;
+  let btns = '';
+  
+  if (CURRENT_MODE === 'plan_edit') {
+    btns = `<button onclick="submitForm('replaceBatch')" class="bg-amber-400 text-amber-900 px-5 py-2.5 rounded hover:bg-amber-500 font-semibold shadow-sm">Save Changes</button>`;
+  } else if (CURRENT_MODE === 'result_input') {
+    btns = `<button onclick="submitForm('replaceBatch', true)" class="bg-blue-600 text-white px-5 py-2.5 rounded hover:bg-blue-700 font-semibold shadow-sm">Submit & Complete</button>`;
+  } else if (CURRENT_MODE === 'result_revise') {
+    btns = `<button onclick="submitForm('replaceBatch', true)" class="bg-emerald-600 text-white px-5 py-2.5 rounded hover:bg-emerald-700 font-semibold shadow-sm">Simpan Revisi</button>`;
   }
+  
+  btns += `<button onclick="closeModal()" class="bg-white border px-5 py-2.5 rounded hover:bg-slate-50 font-medium text-slate-700 shadow-sm ml-2">Cancel</button>`;
+  footer.innerHTML = btns;
 }
 
 function closeModal() { document.getElementById('modalResult').classList.add('hidden'); }
@@ -439,27 +443,28 @@ async function submitForm(action, forceComplete = false) {
   const rows = document.querySelectorAll('#modal-table-body tr');
   const items = [];
   rows.forEach(tr => {
-    // Both mode use inputs or selects, so .value is safe
-    const machine = tr.querySelector('.machine-select').value;
-    const item = tr.querySelector('.item-select').value;
-    const kpc = tr.querySelector('.kpc-select').value;
+    let itemVal = "";
+    if (CURRENT_MODE === 'plan_edit') {
+        itemVal = tr.querySelector('.item-select').value;
+    } else {
+        itemVal = tr.querySelector('td:nth-child(2) span').innerText;
+    }
 
     items.push({
       rowIndex: tr.getAttribute('data-row-index'),
-      item: item,
-      machine: machine,
-      kpc: kpc,
-      // Handle missing inputs in Edit mode (send 0)
-      meter: IS_EDIT_MODE ? 0 : tr.querySelector('.input-meter').value,
-      qty: IS_EDIT_MODE ? 0 : tr.querySelector('.input-qty').value,
-      weight: IS_EDIT_MODE ? 0 : tr.querySelector('.input-weight').value,
+      item: itemVal,
+      machine: tr.querySelector('.machine-select').value,
+      kpc: tr.querySelector('.kpc-select').value,
+      // Jika Plan Edit, Metric = 0. Jika Input/Revise, ambil value.
+      meter: (CURRENT_MODE === 'plan_edit') ? 0 : tr.querySelector('.input-meter').value,
+      qty: (CURRENT_MODE === 'plan_edit') ? 0 : tr.querySelector('.input-qty').value,
+      weight: (CURRENT_MODE === 'plan_edit') ? 0 : tr.querySelector('.input-weight').value,
       weNumber: tr.querySelector('.we-preview').value,
       date: CURRENT_BATCH_DATE
     });
   });
 
-  const msg = forceComplete ? "Selesaikan produksi? Data akan dipindahkan ke tab Completed." : "Simpan perubahan rencana produksi?";
-  if(!confirm(msg)) return;
+  if(!confirm("Simpan data?")) return;
   
   closeModal();
   await postAction(action, { batchId: CURRENT_BATCH_ID, items: items, forceComplete: forceComplete });
