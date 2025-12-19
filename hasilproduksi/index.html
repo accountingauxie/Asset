@@ -122,8 +122,8 @@
 
 <script>
 // =================================================================
-// GANTI URL API
-const API_URL = "https://script.google.com/macros/s/AKfycbwj7hOQzJf_spHq9E_B2gbm3jzHKjgE91OZm9lWRhX848bbMPvcCUuBYdDFc5NSKrV5/exec"; 
+// SILAKAN GANTI URL API DI BAWAH INI DENGAN DEPLOYMENT BARU ANDA
+const API_URL = "https://script.google.com/macros/s/AKfycbyf8xE_8V3S2AG9HVHjqwA1mfpU7rx-C45rBUST91SoxjFhqYmZ1dCvoKT5AtZzGXk0/exec"; 
 // =================================================================
 
 let RAW_DATA = [];
@@ -132,7 +132,7 @@ let OPTIONS = { items: [], kpcs: [] };
 let CURRENT_TAB = 'queue';
 let CURRENT_BATCH_ID = null;
 let CURRENT_BATCH_DATE = null;
-let CURRENT_MODE = ''; // Values: 'plan_edit', 'result_input', 'result_revise'
+let CURRENT_MODE = ''; 
 
 window.addEventListener('DOMContentLoaded', () => { fetchData(); });
 
@@ -155,7 +155,9 @@ async function fetchData() {
 function processData() {
   GROUPED_DATA = {};
   RAW_DATA.forEach(row => {
-    if(!['Siap Untuk Di Produksi', 'Sudah Di Produksi', 'Siap Import', 'Sudah di Import Xero'].includes(row.status)) return;
+    // FILTER UPDATED: Tambahkan 'Proses Import'
+    if(!['Siap Untuk Di Produksi', 'Sudah Di Produksi', 'Siap Import', 'Proses Import'].includes(row.status)) return;
+    
     if (!GROUPED_DATA[row.id]) {
       GROUPED_DATA[row.id] = { id: row.id, date: row.date, status: row.status, timestamp: row.timestamp, items: [] };
     }
@@ -195,7 +197,9 @@ function renderData() {
     let matchTab = false;
     if (CURRENT_TAB === 'queue' && st === 'Siap Untuk Di Produksi') matchTab = true;
     if (CURRENT_TAB === 'completed' && st === 'Sudah Di Produksi') matchTab = true;
-    if (CURRENT_TAB === 'import' && (st === 'Siap Import' || st === 'Sudah di Import Xero')) matchTab = true;
+    // LOGIC TAB IMPORT DIPERBAIKI
+    if (CURRENT_TAB === 'import' && (st === 'Siap Import' || st === 'Proses Import')) matchTab = true;
+    
     if (!matchTab) return false;
     const searchString = (batch.id + batch.items.map(i => i.item + i.machine).join(' ')).toLowerCase();
     return searchString.includes(search);
@@ -210,6 +214,7 @@ function renderData() {
 
   batches.forEach(batch => {
     let actionBtn = '';
+    const currentStatus = batch.items[0].status;
     
     if (CURRENT_TAB === 'queue') {
       actionBtn = `
@@ -224,8 +229,11 @@ function renderData() {
           <button onclick="approveBatch('${batch.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-check-circle mr-2"></i> Approve</button>
         </div>`;
     } else if (CURRENT_TAB === 'import') {
-       const isSynced = batch.items[0].status === 'Sudah di Import Xero';
-       actionBtn = !isSynced ? `<button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-cloud-upload-alt mr-2"></i> Sync Xero</button>` : `<span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">IMPORTED</span>`;
+       // LOGIKA TOMBOL IMPORT/SYNC
+       const isSynced = currentStatus === 'Proses Import';
+       actionBtn = !isSynced 
+         ? `<button onclick="syncXero('${batch.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition flex items-center"><i class="fas fa-cloud-upload-alt mr-2"></i> Sync Xero</button>` 
+         : `<span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200 text-center"><i class="fas fa-check mr-1"></i> IMPORT PROCESS</span>`;
     }
 
     let itemRows = '';
@@ -258,10 +266,9 @@ function renderData() {
   });
 }
 
-// 4. MODAL LOGIC (EDIT vs INPUT vs REVISE)
 function openInputModal(batchId, mode) {
   CURRENT_BATCH_ID = batchId;
-  CURRENT_MODE = mode; // 'plan_edit', 'result_input', 'result_revise'
+  CURRENT_MODE = mode; 
   const batch = GROUPED_DATA[batchId];
   CURRENT_BATCH_DATE = batch.date;
   
@@ -285,7 +292,6 @@ function openInputModal(batchId, mode) {
   document.getElementById('modal-warning-text').innerHTML = warning;
   document.getElementById('add-row-container').classList.toggle('hidden', CURRENT_MODE !== 'plan_edit');
 
-  // HEADER DYNAMIC
   const thead = document.getElementById('modal-table-header');
   if (CURRENT_MODE === 'plan_edit') {
     thead.innerHTML = `
@@ -326,12 +332,11 @@ function renderModalRow(item = null) {
   let html = '';
 
   if (CURRENT_MODE === 'plan_edit') {
-    // 1. EDIT PLAN MODE (Dropdowns, No Metrics)
     const machineOpts = [...new Set(OPTIONS.items.map(i => i.machine))].sort();
     let machineEl = `<select class="input-xs machine-select bg-white" onchange="onMachineChange(this)">
-                   <option value="">Select Machine</option>
-                   ${machineOpts.map(m => `<option value="${m}" ${m === machineVal ? 'selected' : ''}>${m}</option>`).join('')}
-                 </select>`;
+                       <option value="">Select Machine</option>
+                       ${machineOpts.map(m => `<option value="${m}" ${m === machineVal ? 'selected' : ''}>${m}</option>`).join('')}
+                     </select>`;
     let itemEl = `<select class="input-xs item-select bg-white" onchange="onItemChange(this)" data-current="${itemVal}"><option value="">Select Machine First</option></select>`;
     let kpcEl = `<select class="input-xs kpc-select bg-white" onchange="updateRowWE(this)" data-current="${kpcVal}"><option value="">Select Item First</option></select>`;
     let deleteBtn = `<button onclick="deleteRow(this)" class="text-slate-400 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>`;
@@ -344,7 +349,6 @@ function renderModalRow(item = null) {
       <td class="px-2 py-3 text-center">${deleteBtn}</td>
     `;
   } else {
-    // 2. INPUT & REVISE MODE (Readonly Dropdowns, Editable Metrics)
     html = `
       <td class="px-4 py-3"><input type="text" class="input-xs input-readonly machine-select" value="${machineVal}" readonly></td>
       <td class="px-4 py-3"><span class="text-sm font-medium text-slate-700">${itemVal}</span></td>
@@ -361,7 +365,6 @@ function renderModalRow(item = null) {
   tr.innerHTML = html;
   tbody.appendChild(tr);
 
-  // Trigger Filter Logic if Plan Edit
   if (CURRENT_MODE === 'plan_edit' && machineVal) {
     setTimeout(() => { onMachineChange(tr.querySelector('.machine-select'), false); }, 0);
   }
@@ -455,7 +458,6 @@ async function submitForm(action, forceComplete = false) {
       item: itemVal,
       machine: tr.querySelector('.machine-select').value,
       kpc: tr.querySelector('.kpc-select').value,
-      // Jika Plan Edit, Metric = 0. Jika Input/Revise, ambil value.
       meter: (CURRENT_MODE === 'plan_edit') ? 0 : tr.querySelector('.input-meter').value,
       qty: (CURRENT_MODE === 'plan_edit') ? 0 : tr.querySelector('.input-qty').value,
       weight: (CURRENT_MODE === 'plan_edit') ? 0 : tr.querySelector('.input-weight').value,
