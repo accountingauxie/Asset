@@ -1,596 +1,275 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Production Entry</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
-
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<style>
-/* --- 1. MODERN VARIABLES & RESET --- */
-:root { 
-  --border-color: #e2e8f0; 
-  --bg-color: #f8fafc; 
-  --primary-blue: #3b82f6; 
-  --primary-hover: #2563eb;
-  --text-dark: #0f172a;
-  --text-gray: #64748b;
-  --danger: #ef4444;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
-
-* { box-sizing: border-box; outline: none; }
-body { margin: 0; background: var(--bg-color); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 13.5px; color: var(--text-dark); -webkit-font-smoothing: antialiased; }
-
-/* --- 2. LAYOUT --- */
-.top-bar { padding: 14px 32px; background: #fff; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-.brand { font-weight: 700; font-size: 16px; color: var(--text-dark); }
-.nav-menu { display: flex; gap: 6px; }
-.nav-item { text-decoration: none; color: var(--text-gray); padding: 8px 12px; border-radius: 6px; font-weight: 500; transition: all 0.2s; font-size: 13px; }
-.nav-item:hover, .nav-item.active { background: #eff6ff; color: var(--primary-blue); }
-
-.page { max-width: 1380px; margin: 32px auto; padding: 0 24px; }
-.card { background: #fff; border-radius: 12px; box-shadow: var(--shadow-sm); padding: 32px; border: 1px solid var(--border-color); }
-.card-title { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: var(--text-dark); display: flex; justify-content: space-between; align-items: center; }
-
-/* --- 3. FORMS --- */
-label { font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em; }
-.input-box { width: 100%; height: 40px; padding: 0 12px; font-size: 13.5px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; color: var(--text-dark); transition: border 0.15s; }
-.input-box:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-.input-box[readonly] { background: #f1f5f9; color: var(--text-gray); cursor: not-allowed; }
-
-.row-flex { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
-
-/* --- 4. TABLE --- */
-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; }
-th { background: #f8fafc; padding: 12px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-gray); border-bottom: 1px solid var(--border-color); text-align: left; }
-td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); background: #fff; vertical-align: top; }
-tr:last-child td { border-bottom: none; }
-
-.hidden-col { display: none; }
-.table-input { width: 100%; height: 38px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; font-size: 13.5px; }
-
-/* WE Number Input (Auto Generated) */
-.we-number { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-weight: 600; font-family: 'Monaco', 'Consolas', monospace; font-size: 12px; }
-
-/* --- 5. CHOICES.JS FIXED --- */
-.choices { margin-bottom: 0; overflow: visible; }
-.choices__inner { 
-  min-height: 40px !important; 
-  padding: 0 8px !important; 
-  border: 1px solid var(--border-color) !important; 
-  background-color: #fff !important; 
-  border-radius: 6px !important; 
-  display: flex !important; 
-  align-items: center !important; 
-  font-size: 13.5px !important;
-  position: relative;
-}
-.choices.is-focused .choices__inner { border-color: var(--primary-blue) !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; }
-
-/* FIX PLACEHOLDER MENUMPUK */
-.choices.is-item-selected .choices__placeholder { 
-    position: absolute; 
-    opacity: 0; 
-    pointer-events: none; 
-    z-index: -1;
-}
-
-.choices__input { background: transparent !important; border: none !important; margin: 0 !important; padding: 0 8px !important; height: auto !important; width: auto !important; min-width: 10ch !important; }
-.choices__input:focus { box-shadow: none !important; }
-
-.choices__list--dropdown { border: 1px solid var(--border-color) !important; border-radius: 8px !important; box-shadow: var(--shadow-lg) !important; margin-top: 6px !important; padding: 6px !important; z-index: 9999 !important; }
-.choices__list--dropdown .choices__item { border-radius: 6px !important; font-size: 13px !important; padding: 8px 12px !important; margin-bottom: 2px !important; }
-.choices__list--dropdown .choices__item--selectable.is-highlighted { background-color: #eff6ff !important; color: var(--primary-blue) !important; }
-
-.kpc-balance { float: right; font-size: 11px; background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 99px; font-weight: 600; border: 1px solid #e2e8f0; }
-
-/* --- 6. BUTTONS --- */
-.action-btn { border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; height: 38px; }
-.add-row-btn { background: #fff; color: var(--primary-blue); border: 1px dashed var(--border-color); width: 100%; margin-top: 10px; }
-.add-row-btn:hover { background: #eff6ff; border-color: var(--primary-blue); }
-
-.submit-btn { background: var(--primary-blue); color: #fff; padding: 0 32px; height: 44px; float: right; margin-top: 16px; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
-.submit-btn:hover { background: var(--primary-hover); }
-
-/* NEW: VIEW LIST BUTTON STYLE */
-.view-list-btn {
-  float: left;
-  margin-top: 16px;
-  background: #fff;
-  color: var(--text-gray);
-  border: 1px solid var(--border-color);
-  text-decoration: none;
-  padding: 0 20px;
-}
-.view-list-btn:hover {
-  background: #f1f5f9;
-  color: var(--text-dark);
-  border-color: #cbd5e1;
-}
-
-.delete-btn { color: #94a3b8; cursor: pointer; padding: 8px; border-radius: 4px; transition: 0.2s; text-align: center; font-size: 16px; }
-.delete-btn:hover { color: var(--danger); background: #fef2f2; }
-.row-handle { cursor: grab; color: #cbd5e1; text-align: center; vertical-align: middle; font-size: 20px; width: 30px; }
-
-/* --- 7. UTILS --- */
-textarea { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-family: inherit; font-size: 13.5px; resize: vertical; min-height: 100px; }
-textarea:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-#loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(2px); }
-.spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: var(--primary-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* SweetAlert Customization Override */
-.swal2-popup { font-family: 'Inter', system-ui, -apple-system, sans-serif !important; border-radius: 12px !important; }
-.swal2-title { font-size: 20px !important; color: var(--text-dark) !important; }
-.swal2-content { font-size: 14px !important; color: var(--text-gray) !important; }
-</style>
-</head>
-
-<body>
-<div id="loadingOverlay"><div class="spinner"></div></div>
-
-<div class="top-bar">
-  <div class="brand">AUXILIUM <span style="font-weight:400; color:#94a3b8; font-size:14px; margin-left:4px;">Accounting</span></div>
-  <nav class="nav-menu">
-    <a href="https://accountingauxie.github.io/Auxilium-Portal-Sukses-Jaya/index.html" class="nav-item">Home</a>
-    <a href="https://accountingauxie.github.io/Auxilium-Portal-Sukses-Jaya/receiving/" class="nav-item">Receiving</a>
-    <a href="https://accountingauxie.github.io/Auxilium-Portal-Sukses-Jaya/production/" class="nav-item active">Production</a>
-    <a href="https://accountingauxie.github.io/Auxilium-Portal-Sukses-Jaya/reviewinvoice/" class="nav-item">Review Invoice</a>
-    <a href="https://accountingauxie.github.io/Auxilium-Portal-Sukses-Jaya/orderform/" class="nav-item">Sales Order</a>
-  </nav>
-</div>
-
-<div class="page">
-  <div class="card">
-    <div class="card-title">
-      Production Entry
-      <span style="font-size:12px; font-weight:500; color:#64748b; background:#f1f5f9; padding:4px 10px; border-radius:20px;">New Entry</span>
-    </div>
-
-    <div class="row-flex">
-      <div>
-        <label>Date</label>
-        <input type="date" id="productionDate" class="input-box">
-      </div>
-      <div>
-        <label>Production Entry ID</label>
-        <input type="text" id="entryId" class="input-box" readonly placeholder="Generating ID...">
-      </div>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th style="width:30px;"></th>
-          <th style="width:20%;">Machine</th> 
-          <th style="width:20%;">Item</th>
-          <th class="hidden-col">Meter</th>
-          <th class="hidden-col">Qty</th>
-          <th class="hidden-col">Total</th>
-          <th style="width:25%;">KPC</th> 
-          <th>WE Number</th>
-          <th style="width:40px;"></th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-
-    <button class="action-btn add-row-btn" onclick="addRow()">+ Add Row</button>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Penerimaan Barang (PO)</title>
     
-    <div style="margin-top: 24px;">
-      <label>Additional Notes</label>
-      <textarea id="notes" placeholder="Enter any specific notes regarding this production batch..."></textarea>
-    </div>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <div style="margin-top:20px; border-top:1px solid #f1f5f9; padding-top:20px;">
+    <style>
+      /* --- CSS Reset & Base --- */
+      * { box-sizing: border-box; }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f3f4f6;
+        margin: 0;
+        padding: 20px;
+        color: #1f2937;
+      }
       
-      <a href="hasilproduksi/index.html" class="action-btn view-list-btn">
-        Lihat Daftar
-      </a>
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
 
-      <button class="action-btn submit-btn" onclick="submitForm()">Submit Entry</button>
+      h1 {
+        text-align: center;
+        color: #111827;
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        font-weight: 700;
+      }
+
+      /* --- Loading Spinner --- */
+      #loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 50vh;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e5e7eb;
+        border-top: 4px solid #2563eb; /* Biru */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .loading-text { color: #6b7280; font-size: 0.9rem; }
+
+      /* --- Report Card --- */
+      .report-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 24px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+      }
+
+      /* Card Header */
+      .card-header {
+        background-color: #fff;
+        padding: 20px;
+        border-bottom: 1px solid #f3f4f6;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+      }
+
+      .info-item { display: flex; flex-direction: column; }
+      .label { 
+        font-size: 0.75rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.05em; 
+        color: #6b7280; 
+        margin-bottom: 4px;
+      }
+      .value { font-weight: 600; color: #111827; font-size: 0.95rem; }
+      .value.highlight { color: #2563eb; } /* Warna Biru untuk ID */
+
+      /* Table */
+      .table-responsive { width: 100%; overflow-x: auto; }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      th {
+        background-color: #f9fafb;
+        color: #4b5563;
+        font-weight: 600;
+        text-align: left;
+        padding: 12px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+      }
+      td {
+        padding: 12px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        color: #374151;
+      }
+      tr:last-child td { border-bottom: none; }
       
-      <div style="clear:both;"></div>
+      .text-right { text-align: right; }
+      .qty-badge {
+        display: inline-block;
+        background-color: #eff6ff;
+        color: #1d4ed8;
+        padding: 2px 10px;
+        border-radius: 99px;
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+
+      /* Error / Empty State */
+      .message-box {
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border-radius: 8px;
+        color: #ef4444; /* Merah error */
+        border: 1px solid #fecaca;
+      }
+      .empty-state { color: #9ca3af; border-color: #e5e7eb; }
+
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+      <h1>Laporan PO Diterima</h1>
+
+      <div id="loader">
+        <div class="spinner"></div>
+        <div class="loading-text">Sedang mengambil data...</div>
+      </div>
+
+      <div id="report-container"></div>
     </div>
-  </div>
-</div>
 
-<script>
-// !!! GANTI URL INI DENGAN DEPLOYMENT ID TERBARU ANDA !!!
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8yMkeTBz9MmpkHvBDAXAMwebvdwpjjkpeyPhruGQO5rDqKtzcMuiCMOFAes9D7Xca4A/exec";
+    <script>
+      // ==========================================
+      // CONFIGURATION
+      // ==========================================
+      // Link Deploy Web App Anda
+      const API_URL = "https://script.google.com/a/macros/auxie.id/s/AKfycbxX2zFNHaEPf1mSLiEayHZSCo5GZFtUjN-w4S59kIopXlGPwjfCtxIsXXhDNqYOZPzg/exec";
 
-let allItemsData = []; 
-let allKPCData = [];    
-let uniqueMachines = [];
+      // ==========================================
+      // LOGIC
+      // ==========================================
+      
+      window.onload = function() {
+        fetchData();
+      };
 
-/* --- INITIAL LOAD --- */
-window.addEventListener("DOMContentLoaded", async () => {
-  document.getElementById("loadingOverlay").style.display = "flex";
-  
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  document.getElementById("productionDate").value = `${yyyy}-${mm}-${dd}`;
+      function fetchData() {
+        // Menggunakan fetch() untuk mengambil JSON dari Google Script
+        fetch(API_URL)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Gagal terhubung ke server (Network Error)");
+            }
+            return response.json();
+          })
+          .then(data => {
+            renderReport(data);
+          })
+          .catch(error => {
+            showError(error);
+          });
+      }
 
-  await loadNextEntryId();  
+      function renderReport(data) {
+        const container = document.getElementById('report-container');
+        const loader = document.getElementById('loader');
+        
+        // Sembunyikan loader
+        loader.style.display = 'none';
 
-  try {
-    const [itemRes, kpcRes] = await Promise.all([
-      fetch(`${SCRIPT_URL}?action=getitem`),
-      fetch(`${SCRIPT_URL}?action=getkpc`)
-    ]);
-
-    allItemsData = await itemRes.json();
-    allKPCData = await kpcRes.json(); 
-
-    const machinesSet = new Set(allItemsData.map(i => i.machine).filter(m => m));
-    uniqueMachines = Array.from(machinesSet).sort();
-
-    addRow(); 
-    setupSortable();
-  } catch (e) {
-    // ALERT MODERN UNTUK ERROR LOAD
-    Swal.fire({
-        icon: 'error',
-        title: 'Network Error',
-        text: 'Failed to load data. Please check your internet connection.',
-        confirmButtonColor: '#ef4444'
-    });
-    console.error(e);
-  }
-  document.getElementById("loadingOverlay").style.display = "none";
-});
-
-/* --- ROW MANAGEMENT --- */
-function addRow() {
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td class="row-handle">⋮⋮</td>
-    <td><select class="machine-select"></select></td>
-    <td><select class="item-select"></select></td>
-    <td class="hidden-col"><input class="table-input meter" type="number" value="0"></td>
-    <td class="hidden-col"><input class="table-input qty" type="number" value="0"></td>
-    <td class="hidden-col"><input class="table-input total" type="number" value="0"></td>
-    <td><select class="kpc-select"></select></td>
-    <td><input class="table-input we-number" readonly placeholder="Auto..."></td>
-    <td class="delete-cell">
-       <div class="delete-btn" onclick="removeRow(this)">✕</div>
-    </td>
-  `;
-  document.getElementById("tableBody").appendChild(row);
-
-  const machineSelect = row.querySelector(".machine-select");
-  const itemSelect = row.querySelector(".item-select");
-  const kpcSelect = row.querySelector(".kpc-select");
-
-  initChoices(machineSelect, uniqueMachines.map(m => ({value: m, label: m})), "Select Machine");
-  initChoices(itemSelect, [], "Select Machine First");
-  initChoices(kpcSelect, [], "Select Item First", true); 
-
-  // EVENT: Machine Change
-  machineSelect.addEventListener("change", function(e) {
-    updateDropdown(itemSelect, [], "Select Machine First");
-    updateDropdown(kpcSelect, [], "Select Item First", true);
-    row.querySelector(".we-number").value = "";
-
-    if (e.target.value) {
-      const filtered = allItemsData
-        .filter(i => i.machine === e.target.value)
-        .map(i => ({ value: i.name, label: i.name }));
-      updateDropdown(itemSelect, filtered, "Select Item");
-    }
-  });
-
-  // EVENT: Item Change (Filter KPC options)
-  itemSelect.addEventListener("change", function(e) {
-    const selectedItem = e.target.value;
-    let placeholder = "Select Item First";
-    
-    row.querySelector(".we-number").value = ""; 
-    
-    let kpcOptions = [];
-    if (selectedItem) {
-        placeholder = "Select KPC";
-        kpcOptions = allKPCData.filter(k => k.relatedItem === selectedItem);
-    }
-
-    refreshKPCOptionsForElement(kpcSelect, kpcOptions, placeholder);
-  });
-
-  // EVENT: KPC Change (Trigger WE Number & Lock other rows)
-  kpcSelect.addEventListener("change", function(e) {
-      calculateWENumber(row); 
-  });
-}
-
-function removeRow(btn) {
-  const row = btn.closest('tr');
-  if(document.querySelectorAll('#tableBody tr').length > 1) {
-    row.remove();
-  }
-}
-
-/* --- LOGIC: WE NUMBER GENERATOR --- */
-function calculateWENumber(row) {
-    const machine = row.querySelector(".machine-select").value;
-    const item = row.querySelector(".item-select").value;
-    const kpc = row.querySelector(".kpc-select").value;
-    const prodId = document.getElementById("entryId").value;
-    const weInput = row.querySelector(".we-number");
-
-    if(!machine || !item || !kpc || !prodId) {
-        weInput.value = "";
-        return;
-    }
-
-    // 1. Machine Code
-    let machineCode = "XX";
-    const mUpper = machine.toUpperCase();
-    if(mUpper.includes("RENG")) machineCode = "RG";
-    else if(mUpper.includes("TRUSS")) machineCode = "TS";
-    else machineCode = mUpper.substring(0,2);
-
-    const machineDigits = machine.match(/\d+/);
-    const machineNum = machineDigits ? machineDigits[0].slice(-2) : "00";
-    const finalMachineSegment = machineCode + machineNum;
-
-    // 2. Item Suffix
-    const itemDigitsMatch = item.match(/\d+/g); 
-    let itemSuffix = "00";
-    if(itemDigitsMatch && itemDigitsMatch.length > 0) {
-        const lastGroup = itemDigitsMatch[itemDigitsMatch.length - 1];
-        itemSuffix = lastGroup.slice(-2);
-    }
-
-    weInput.value = `${finalMachineSegment}_${kpc}_${prodId}_${itemSuffix}`;
-}
-
-/* --- LOGIC: PREVENT DUPLICATE KPC --- */
-function refreshKPCOptionsForElement(el, rawData, placeholder) {
-    const allSelects = document.querySelectorAll(".kpc-select");
-    const usedValues = [];
-    allSelects.forEach(sel => {
-        if(sel !== el && sel.value) { 
-            usedValues.push(sel.value);
+        // Cek Error dari backend (misal sheet tidak ketemu)
+        if (data.error) {
+          showError({ message: data.error });
+          return;
         }
-    });
 
-    const filteredOptions = rawData
-        .filter(k => !usedValues.includes(k.name))
-        .map(k => {
-            const formattedSisa = new Intl.NumberFormat('id-ID').format(k.sisa || 0);
-            return {
-                value: k.name,             
-                label: k.name,             
-                customProperties: { sisa: formattedSisa }
-            };
+        // Cek jika data kosong
+        if (!data || data.length === 0) {
+          container.innerHTML = '<div class="message-box empty-state">Tidak ada data ditemukan.</div>';
+          return;
+        }
+
+        let html = '';
+
+        // Looping setiap Group (Receiving ID)
+        data.forEach(group => {
+          html += `
+            <div class="report-card">
+              <div class="card-header">
+                <div class="info-item">
+                  <span class="label">Receiving ID</span>
+                  <span class="value highlight">${group.receivingId}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Tanggal</span>
+                  <span class="value">${group.date || '-'}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Supplier</span>
+                  <span class="value">${group.supplier || '-'}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">No. PO / Inv</span>
+                  <span class="value">${group.poNumber || '-'} <br> <small style="color:#999">${group.invNumber || ''}</small></span>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th width="20%">Item Code</th>
+                      <th width="15%">KPC</th>
+                      <th>Deskripsi</th>
+                      <th class="text-right" width="10%">Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+          `;
+
+          // Looping Item di dalam Group
+          group.items.forEach(item => {
+            html += `
+              <tr>
+                <td>${item.itemCode}</td>
+                <td>${item.kpc}</td>
+                <td>${item.description}</td>
+                <td class="text-right"><span class="qty-badge">${item.ordered}</span></td>
+              </tr>
+            `;
+          });
+
+          html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
         });
 
-    updateDropdown(el, filteredOptions, placeholder, true);
-}
+        container.innerHTML = html;
+      }
 
-
-/* --- CHOICES HELPER --- */
-function updateDropdown(el, options, placeholder, useTemplate = false) {
-  if (el.choicesInstance) {
-    el.choicesInstance.destroy();
-    el.choicesInstance = null;
-  }
-  el.innerHTML = ""; 
-  initChoices(el, options, placeholder, useTemplate);
-}
-
-function initChoices(el, options, placeholder, useTemplate = false) {
-  const config = {
-    searchEnabled: true,
-    itemSelectText: "",
-    shouldSort: false,
-    placeholder: true,
-    placeholderValue: placeholder,
-    allowHTML: true,
-    removeItemButton: true, 
-  };
-
-  if (useTemplate) {
-    config.callbackOnCreateTemplates = function(template) {
-      return {
-        item: ({ classNames }, data) => {
-          return template(`
-            <div class="${classNames.item} ${classNames.itemChoice} ${classNames.itemSelectable}" data-item data-id="${data.id}" data-value="${data.value}" ${data.active ? 'aria-selected="true"' : ''} ${data.disabled ? 'aria-disabled="true"' : ''}>
-              ${data.label}
-            </div>
-          `);
-        },
-        choice: ({ classNames }, data) => {
-          const sisa = data.customProperties && data.customProperties.sisa 
-                        ? `<span class="kpc-balance">Sisa: ${data.customProperties.sisa}</span>` 
-                        : '';
-          
-          return template(`
-            <div class="${classNames.item} ${classNames.itemChoice} ${data.disabled ? classNames.itemDisabled : classNames.itemSelectable}" data-select-text="${this.config.itemSelectText}" data-choice ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'} data-id="${data.id}" data-value="${data.value}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
-              <span style="font-weight:600; color:#1e293b;">${data.label}</span> ${sisa}
-            </div>
-          `);
-        },
-      };
-    };
-  }
-
-  const choices = new Choices(el, config);
-  if(options.length > 0) {
-      choices.setChoices(options, 'value', 'label', true);
-  }
-  el.choicesInstance = choices;
-}
-
-/* --- SERVER LOGIC --- */
-async function loadNextEntryId() {
-  try {
-    const res = await fetch(`${SCRIPT_URL}?action=getlastid`);
-    const data = await res.json();
-    const today = new Date();
-    const prefix = `FGP${String(today.getFullYear()).slice(2)}${String(today.getMonth()+1).padStart(2,"0")}`;
-    const lastId = data.lastId;
-    
-    let nextId = prefix + "0000001";
-    if (lastId && lastId.startsWith(prefix)) {
-      const num = parseInt(lastId.substring(7), 10);
-      nextId = prefix + String(num + 1).padStart(7, "0");
-    }
-    document.getElementById("entryId").value = nextId;
-  } catch(e) {}
-}
-
-/* --- UPDATED SUBMIT LOGIC WITH MODERN POPUP --- */
-function submitForm() {
-  const dateVal = document.getElementById("productionDate").value;
-  
-  // Validation 1: Date
-  if (!dateVal) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Missing Date',
-      text: 'Please select a Production Date.',
-      confirmButtonColor: '#3b82f6'
-    });
-    return;
-  }
-  
-  const rows = document.querySelectorAll("#tableBody tr");
-  // Validation 2: Rows
-  if (!rows.length) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Empty List',
-      text: 'Please add at least one item row.',
-      confirmButtonColor: '#3b82f6'
-    });
-    return;
-  }
-
-  const items = [];
-  let isValid = true;
-
-  rows.forEach(r => {
-    const mSelect = r.querySelector(".machine-select");
-    const iSelect = r.querySelector(".item-select");
-    const kSelect = r.querySelector(".kpc-select");
-    
-    const m = mSelect.choicesInstance ? mSelect.choicesInstance.getValue(true) : mSelect.value;
-    const i = iSelect.choicesInstance ? iSelect.choicesInstance.getValue(true) : iSelect.value;
-    const k = kSelect.choicesInstance ? kSelect.choicesInstance.getValue(true) : kSelect.value;
-    const we = r.querySelector(".we-number").value;
-
-    if(!m || !i || !k) {
-        isValid = false;
-        if(!m) mSelect.closest('.choices').style.borderColor = "#ef4444";
-        if(!i) iSelect.closest('.choices').style.borderColor = "#ef4444";
-        if(!k) kSelect.closest('.choices').style.borderColor = "#ef4444";
-    }
-
-    items.push({ 
-        machine: m, 
-        item: i, 
-        kpc: k, 
-        weNumber: we,
-        meter: r.querySelector(".meter").value, 
-        qty: r.querySelector(".qty").value, 
-        total: r.querySelector(".total").value 
-    });
-  });
-
-  // Validation 3: Incomplete fields
-  if (!isValid) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Incomplete Data',
-      text: 'Please fill all required fields marked in red.',
-      confirmButtonColor: '#ef4444'
-    });
-    return;
-  }
-
-  // MODERN CONFIRMATION POPUP
-  Swal.fire({
-    title: 'Submit Entry?',
-    text: "Are you sure you want to submit this production entry?",
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3b82f6',
-    cancelButtonColor: '#ef4444',
-    confirmButtonText: 'Yes, Submit!',
-    cancelButtonText: 'Cancel',
-    reverseButtons: true
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // IF USER CLICKS YES -> SHOW LOADING & FETCH
-      document.getElementById("loadingOverlay").style.display = "flex";
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          productionEntryId: document.getElementById("entryId").value,
-          productionDate: dateVal,
-          notes: document.getElementById("notes").value,
-          items: items
-        })
-      })
-      .then(res => res.json())
-      .then(r => {
-        document.getElementById("loadingOverlay").style.display = "none";
+      function showError(error) {
+        const container = document.getElementById('report-container');
+        document.getElementById('loader').style.display = 'none';
         
-        if(r.status === "success") { 
-            // SUCCESS POPUP
-            Swal.fire({
-              icon: 'success',
-              title: 'Submitted!',
-              text: 'Data has been saved successfully.',
-              confirmButtonColor: '#3b82f6',
-              timer: 2000,
-              showConfirmButton: false
-            }).then(() => {
-               window.location.reload(); 
-            });
-        } else { 
-            // SERVER ERROR POPUP
-            Swal.fire({
-              icon: 'error',
-              title: 'Submission Error',
-              text: r.message,
-              confirmButtonColor: '#ef4444'
-            });
-        }
-      })
-      .catch(err => {
-          document.getElementById("loadingOverlay").style.display = "none";
-          // NETWORK ERROR POPUP
-          Swal.fire({
-              icon: 'error',
-              title: 'Connection Failed',
-              text: 'Could not connect to server: ' + err,
-              confirmButtonColor: '#ef4444'
-          });
-      });
-    }
-  });
-}
-
-function setupSortable() {
-  const tbody = document.getElementById("tableBody");
-  Sortable.create(tbody, { 
-      handle: ".row-handle", 
-      animation: 150,
-      ghostClass: "bg-gray-50"
-  });
-}
-</script>
-</body>
+        console.error(error);
+        
+        container.innerHTML = `
+          <div class="message-box">
+            <h3>Terjadi Kesalahan</h3>
+            <p>${error.message}</p>
+            <small style="color:#666; display:block; margin-top:10px">
+              Pastikan URL Web App benar dan Deployment Access diset ke "Anyone".
+            </small>
+          </div>
+        `;
+      }
+    </script>
+  </body>
 </html>
