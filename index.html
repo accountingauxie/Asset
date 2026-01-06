@@ -102,12 +102,10 @@
         .action-icon {
             color: #00a3e0; 
             cursor: pointer;
-            font-size: 1.1rem;
-            margin-right: 10px;
+            font-size: 1.2rem; /* Sedikit diperbesar agar pas sendirian */
             transition: 0.2s;
         }
         .action-icon:hover { color: #007bb6; }
-        .action-icon-secondary { color: #6c757d; font-size: 1rem; }
 
         /* --- ADVANCED MODAL STYLING --- */
         .modal-content {
@@ -120,7 +118,7 @@
             background-color: #ffffff;
             border-bottom: 1px solid #edf2f9;
             padding: 20px 30px;
-            color: #333; /* Reset color from bootstrap default override */
+            color: #333; 
         }
         .modal-title {
             color: #1e293b;
@@ -170,7 +168,7 @@
             border-bottom: 1px solid #f1f5f9;
         }
         .bg-focus {
-            background-color: #eff6ff !important; /* Biru muda */
+            background-color: #eff6ff !important; 
         }
     </style>
 </head>
@@ -396,8 +394,6 @@
                 <td><span class="badge-status">Billed</span></td>
                 <td class="text-end">
                     <i class="bi bi-eye action-icon" onclick="showDetail('${row.receivingId}')" title="View Detail"></i>
-                    <i class="bi bi-printer action-icon action-icon-secondary" title="Print"></i>
-                    <i class="bi bi-lock action-icon action-icon-secondary" title="Lock"></i>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -425,8 +421,6 @@
         document.getElementById('mSupplier').innerText = data.supplier;
         
         document.getElementById('mPoNum').innerText = data.poNumber;
-        
-        // --- ISI INVOICE NUMBER (Baru) ---
         document.getElementById('mInvNum').innerText = data.invNumber || "-"; 
 
         // Isi Tabel Detail
