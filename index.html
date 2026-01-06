@@ -3,242 +3,264 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Penerimaan Barang (PO)</title>
+    <title>Receiving Report</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-      /* --- CSS Reset & Base --- */
+      /* --- GLOBAL STYLE --- */
       * { box-sizing: border-box; }
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #f3f4f6;
+        background-color: #f9fafb; /* Abu-abu sangat muda */
+        color: #111827;
         margin: 0;
-        padding: 20px;
-        color: #1f2937;
+        padding: 40px 20px;
       }
       
       .container {
-        max-width: 900px;
+        max-width: 1100px;
         margin: 0 auto;
       }
 
-      h1 {
-        text-align: center;
-        color: #111827;
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-        font-weight: 700;
-      }
-
-      /* --- Loading Spinner --- */
+      /* --- LOADER --- */
       #loader {
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
-        min-height: 50vh;
+        align-items: center;
+        height: 50vh;
+        color: #6b7280;
+        font-weight: 500;
       }
-      .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #e5e7eb;
-        border-top: 4px solid #2563eb; /* Biru */
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 15px;
-      }
-      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-      .loading-text { color: #6b7280; font-size: 0.9rem; }
 
-      /* --- Report Card --- */
+      /* --- CARD CONTAINER --- */
       .report-card {
         background: white;
-        border-radius: 12px;
+        border-radius: 8px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        margin-bottom: 24px;
-        overflow: hidden;
         border: 1px solid #e5e7eb;
+        margin-bottom: 40px; /* Jarak antar laporan */
+        overflow: hidden;
       }
 
-      /* Card Header */
+      /* --- HEADER SECTION (Grid 6 Kolom) --- */
       .card-header {
         background-color: #fff;
-        padding: 20px;
-        border-bottom: 1px solid #f3f4f6;
+        padding: 24px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .header-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 20px;
       }
 
-      .info-item { display: flex; flex-direction: column; }
-      .label { 
-        font-size: 0.75rem; 
-        text-transform: uppercase; 
-        letter-spacing: 0.05em; 
-        color: #6b7280; 
-        margin-bottom: 4px;
+      .info-box h3 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #6b7280; /* Text Gray */
+        letter-spacing: 0.05em;
+        margin: 0 0 6px 0;
+        font-weight: 600;
       }
-      .value { font-weight: 600; color: #111827; font-size: 0.95rem; }
-      .value.highlight { color: #2563eb; } /* Warna Biru untuk ID */
 
-      /* Table */
-      .table-responsive { width: 100%; overflow-x: auto; }
+      .info-box p {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      /* Highlight khusus untuk Receiving ID */
+      .text-blue { color: #2563eb !important; }
+
+      /* --- TABLE SECTION --- */
+      .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;
         font-size: 0.9rem;
       }
-      th {
-        background-color: #f9fafb;
-        color: #4b5563;
-        font-weight: 600;
+
+      /* Table Head */
+      thead th {
         text-align: left;
-        padding: 12px 20px;
+        padding: 16px 24px;
+        background-color: #f9fafb; /* Header abu-abu tipis */
+        color: #6b7280;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
         border-bottom: 1px solid #e5e7eb;
-        white-space: nowrap;
-      }
-      td {
-        padding: 12px 20px;
-        border-bottom: 1px solid #f3f4f6;
-        color: #374151;
-      }
-      tr:last-child td { border-bottom: none; }
-      
-      .text-right { text-align: right; }
-      .qty-badge {
-        display: inline-block;
-        background-color: #eff6ff;
-        color: #1d4ed8;
-        padding: 2px 10px;
-        border-radius: 99px;
-        font-weight: 600;
-        font-size: 0.85rem;
+        letter-spacing: 0.05em;
       }
 
-      /* Error / Empty State */
-      .message-box {
-        text-align: center;
-        padding: 40px;
-        background: white;
-        border-radius: 8px;
-        color: #ef4444; /* Merah error */
-        border: 1px solid #fecaca;
+      /* Table Body */
+      tbody td {
+        padding: 16px 24px;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle; /* Center vertical */
       }
-      .empty-state { color: #9ca3af; border-color: #e5e7eb; }
+
+      tbody tr:last-child td { border-bottom: none; }
+
+      /* --- CUSTOM COLUMNS STYLES (Mirip Screenshot) --- */
+      
+      /* Kolom 1: KPC Number (Bold atas, kecil bawah) */
+      .kpc-cell { display: flex; flex-direction: column; }
+      .kpc-main { font-weight: 700; color: #111827; font-size: 0.95rem; margin-bottom: 2px; }
+      .kpc-sub { color: #6b7280; font-size: 0.8rem; }
+
+      /* Kolom Machine (Badge Biru) */
+      .badge {
+        display: inline-block;
+        background-color: #eff6ff; /* Biru muda background */
+        color: #2563eb; /* Biru teks */
+        padding: 4px 12px;
+        border-radius: 9999px; /* Pill shape */
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+      }
+
+      /* Kolom Qty */
+      .qty-text { font-weight: 600; color: #111827; }
+
+      /* Kolom Xero (Abu-abu kecil) */
+      .xero-info {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        line-height: 1.4;
+      }
+      .xero-code { display: block; color: #6b7280; font-weight: 500; }
+
+      /* Helpers */
+      .text-right { text-align: right; }
+      .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
+      .error-msg { background: #fee2e2; color: #b91c1c; padding: 20px; border-radius: 8px; text-align: center; }
 
     </style>
   </head>
   <body>
 
     <div class="container">
-      <h1>Laporan PO Diterima</h1>
-
-      <div id="loader">
-        <div class="spinner"></div>
-        <div class="loading-text">Sedang mengambil data...</div>
-      </div>
-
+      <div id="loader">Memuat Data Laporan...</div>
       <div id="report-container"></div>
     </div>
 
     <script>
-      // ==========================================
-      // CONFIGURATION
-      // ==========================================
-      // Link Deploy Web App Anda
-      const API_URL = "https://script.google.com/macros/s/AKfycbwzQFbWF8WoB5Ry2QJtG5OzZiNGI3Yk9JFOaEEBPmBMR3NyDHy_hNsx7ShzReZLlV8v/exec";
+      // ============================================
+      // GANTI URL INI DENGAN WEB APP URL ANDA
+      // ============================================
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwzQFbWF8WoB5Ry2QJtG5OzZiNGI3Yk9JFOaEEBPmBMR3NyDHy_hNsx7ShzReZLlV8v/exec"; 
 
-      // ==========================================
-      // LOGIC
-      // ==========================================
-      
       window.onload = function() {
-        fetchData();
+        fetch(WEB_APP_URL)
+          .then(res => res.json())
+          .then(data => renderReport(data))
+          .catch(err => showError(err));
       };
-
-      function fetchData() {
-        // Menggunakan fetch() untuk mengambil JSON dari Google Script
-        fetch(API_URL)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error("Gagal terhubung ke server (Network Error)");
-            }
-            return response.json();
-          })
-          .then(data => {
-            renderReport(data);
-          })
-          .catch(error => {
-            showError(error);
-          });
-      }
 
       function renderReport(data) {
         const container = document.getElementById('report-container');
-        const loader = document.getElementById('loader');
-        
-        // Sembunyikan loader
-        loader.style.display = 'none';
+        document.getElementById('loader').style.display = 'none';
 
-        // Cek Error dari backend (misal sheet tidak ketemu)
-        if (data.error) {
-          showError({ message: data.error });
-          return;
-        }
-
-        // Cek jika data kosong
+        if (data.error) return showError({message: data.error});
         if (!data || data.length === 0) {
-          container.innerHTML = '<div class="message-box empty-state">Tidak ada data ditemukan.</div>';
+          container.innerHTML = '<div class="empty-state">Tidak ada data ditemukan.</div>';
           return;
         }
 
         let html = '';
 
-        // Looping setiap Group (Receiving ID)
         data.forEach(group => {
+          // Format angka Qty Total (hapus desimal .00 jika bulat)
+          const totalQtyFormatted = parseFloat(group.totalQty).toLocaleString('id-ID');
+
           html += `
             <div class="report-card">
               <div class="card-header">
-                <div class="info-item">
-                  <span class="label">Receiving ID</span>
-                  <span class="value highlight">${group.receivingId}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">Tanggal</span>
-                  <span class="value">${group.date || '-'}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">Supplier</span>
-                  <span class="value">${group.supplier || '-'}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">No. PO / Inv</span>
-                  <span class="value">${group.poNumber || '-'} <br> <small style="color:#999">${group.invNumber || ''}</small></span>
+                <div class="header-grid">
+                  <div class="info-box">
+                    <h3>Receiving ID</h3>
+                    <p class="text-blue">${group.receivingId}</p>
+                  </div>
+                  <div class="info-box">
+                    <h3>Receiving Date</h3>
+                    <p>${group.date || '-'}</p>
+                  </div>
+                  <div class="info-box">
+                    <h3>Inv Number</h3>
+                    <p>${group.invNumber || '-'}</p>
+                  </div>
+                  <div class="info-box">
+                    <h3>PO Number</h3>
+                    <p>${group.poNumber || '-'}</p>
+                  </div>
+                  <div class="info-box">
+                    <h3>Supplier</h3>
+                    <p>${group.supplier || '-'}</p>
+                  </div>
+                  <div class="info-box">
+                    <h3>Qty This Receipt</h3>
+                    <p>${totalQtyFormatted}</p>
+                  </div>
                 </div>
               </div>
 
-              <div class="table-responsive">
+              <div class="table-wrapper">
                 <table>
                   <thead>
                     <tr>
-                      <th width="20%">Item Code</th>
-                      <th width="15%">KPC</th>
-                      <th>Deskripsi</th>
-                      <th class="text-right" width="10%">Qty</th>
+                      <th style="width: 25%">KPC Number / Name</th>
+                      <th style="width: 20%">Item Name</th>
+                      <th style="width: 15%">Machine / Code</th>
+                      <th style="width: 10%" class="text-right">Qty (Kg)</th>
+                      <th style="width: 15%" class="text-right">Price (Unit)</th>
+                      <th style="width: 15%">Xero</th>
                     </tr>
                   </thead>
                   <tbody>
           `;
 
-          // Looping Item di dalam Group
           group.items.forEach(item => {
+            // Mapping Data ke Tampilan:
+            // KPC Col = KPC + Nama Item (sebagai sub)
+            // Machine Col = Kita pakai Item Code sebagai Badge
+            // Xero = Dummy/Static karena tidak ada di sheet asli (bisa disesuaikan)
+            
             html += `
               <tr>
-                <td>${item.itemCode}</td>
-                <td>${item.kpc}</td>
-                <td>${item.description}</td>
-                <td class="text-right"><span class="qty-badge">${item.ordered}</span></td>
+                <td>
+                  <div class="kpc-cell">
+                    <span class="kpc-main">${item.kpc || '-'}</span>
+                    <span class="kpc-sub">${item.description}</span>
+                  </div>
+                </td>
+                <td>
+                  <span style="font-weight:500; color:#374151;">${item.description}</span>
+                </td>
+                <td>
+                  <span class="badge">${item.itemCode || 'N/A'}</span>
+                </td>
+                <td class="text-right">
+                  <span class="qty-text">${item.ordered}</span>
+                </td>
+                <td class="text-right" style="color:#6b7280;">
+                  -
+                </td>
+                <td>
+                  <div class="xero-info">
+                    <span class="xero-code">ITEM: CL.FG.XXX</span>
+                    <span>XERO: 1-3900</span>
+                  </div>
+                </td>
               </tr>
             `;
           });
@@ -255,20 +277,9 @@
       }
 
       function showError(error) {
-        const container = document.getElementById('report-container');
         document.getElementById('loader').style.display = 'none';
-        
-        console.error(error);
-        
-        container.innerHTML = `
-          <div class="message-box">
-            <h3>Terjadi Kesalahan</h3>
-            <p>${error.message}</p>
-            <small style="color:#666; display:block; margin-top:10px">
-              Pastikan URL Web App benar dan Deployment Access diset ke "Anyone".
-            </small>
-          </div>
-        `;
+        document.getElementById('report-container').innerHTML = 
+          `<div class="error-msg">Error: ${error.message}</div>`;
       }
     </script>
   </body>
